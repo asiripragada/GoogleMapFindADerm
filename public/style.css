@@ -1,0 +1,75 @@
+
+#distance-filter-select {
+    background-color: #fff;
+    border: 0;
+    border-radius: 2px;
+    box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
+    margin: 10px;
+    padding: 0 0.5em;
+    font: 400 18px Roboto, Arial, sans-serif;
+    height: 40px;
+    cursor: pointer;
+    margin-left: 5px;
+  }
+
+  #instructions {
+    background-color: #fff;
+    border: 0;
+    border-radius: 2px;
+    box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
+    margin: 10px;
+    padding: 0 0.5em;
+    font: 400 18px Roboto, Arial, sans-serif;
+    overflow: hidden;
+    padding: 1rem;
+    font-size: medium;
+  }
+
+  #map {
+        position: relative;
+        height: 600px;
+        width: 100%;
+  }
+
+  .red-rectangle {
+    width: 100%;
+    height: 60px;
+    background-color: red;
+    position: absolute;
+    z-index: 1;
+  }
+  
+  #inputText {
+    background-color: #fff;
+    border: 0;
+    border-radius: 2px;
+    box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
+    margin: 10px;
+    padding: 0 0.5em;
+    font: 400 18px Roboto, Arial, sans-serif;
+    overflow: hidden;
+    line-height: 40px;
+    margin-right: 0;
+    min-width: 25%;
+  }
+  .button {
+    background-color: #fff;
+    border: 0;
+    border-radius: 2px;
+    box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
+    margin: 10px;
+    padding: 0 0.5em;
+    font: 400 18px Roboto, Arial, sans-serif;
+    overflow: hidden;
+    height: 40px;
+    cursor: pointer;
+    margin-left: 5px;
+  }
+  .button-primary {
+    background-color: #1a73e8;
+    color: white;
+  }
+  .button-secondary {
+    background-color: white;
+    color: #1a73e8;
+  }
