@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/VioletZengCIAI/GoogleMap/issues"
   },
-  "homepage": "https://github.com/VioletZengCIAI/GoogleMap#readme"
+  "homepage": "https://github.com/VioletZengCIAI/GoogleMap#readme",
+  "scripts": {
+  "test": "echo \"No tests specified\" && exit 0"
+}
 }
