@@ -4,7 +4,7 @@
   "description": "Creating a google map app to show nearby HCPs",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"No tests specified\" && exit 0"
   },
   "repository": {
     "type": "git",
@@ -16,7 +16,8 @@
     "url": "https://github.com/VioletZengCIAI/GoogleMap/issues"
   },
   "homepage": "https://github.com/VioletZengCIAI/GoogleMap#readme",
-  "scripts": {
-  "test": "echo \"No tests specified\" && exit 0"
-}
+  "dependencies": {
+    "express": "^4.18.2",
+    "path": "^0.12.7"
+  }
 }
