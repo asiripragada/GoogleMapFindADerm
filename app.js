@@ -3,14 +3,15 @@ const express = require('express');
 const app = express();
 const path = require('path');
 
-
 const config = {
   user: 'dbusr36261',
   password: 'w4ARyVVw**5}&#SB',
   server: 'i4pd-db0036261-001.database.windows.net',
   database: 'i4pd-db0036261-001-userdata',
-
 };
+
+app.use(express.static(path.join(__dirname, 'public')));
+app.use('/styles', express.static(path.join(__dirname, 'public')));
 
 
 // dbo.V000000677719
@@ -27,17 +28,18 @@ app.get('/data', async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// Start the server
-// const port = process.env.PORT || 3000;
-// app.listen(port, () => {
-//   console.log(`Server is running on port ${port}`);
+// app.get('/', (req, res) => {
+//   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 // });
 
-const port = 3000;
+// // Start the server
+// const port = process.env.PORT || 3000;
+// app.listen(port, () => {
+//   console.log(`Server is running on http://localhost:${port}`);
+// });
+
+
+const port = 4000;
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
