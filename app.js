@@ -10,10 +10,6 @@ const config = {
   database: 'i4pd-db0036261-001-userdata',
 };
 
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/styles', express.static(path.join(__dirname, 'public')));
-
-
 // dbo.V000000677719
 
 app.get('/data', async (req, res) => {
@@ -27,6 +23,11 @@ app.get('/data', async (req, res) => {
     res.status(500).send('Error retrieving data from SQL Server.');
   }
 });
+
+app.use(express.static(path.join(__dirname, 'public')));
+app.use('/styles', express.static(path.join(__dirname, 'public')));
+
+
 
 // app.get('/', (req, res) => {
 //   res.sendFile(path.join(__dirname, 'public', 'index.html'));
