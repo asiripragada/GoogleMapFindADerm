@@ -34,14 +34,14 @@ app.use('/styles', express.static(path.join(__dirname, 'public')));
 // });
 
 // // Start the server
-// const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`Server is running on ${port}`);
+});
+
+
+// const port = 4000;
 // app.listen(port, () => {
 //   console.log(`Server is running on http://localhost:${port}`);
 // });
-
-
-const port = 4000;
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
-});
 
