@@ -51,5 +51,5 @@ jobs:
         with:
           app-name: 'MapHCP'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_E14DC3658F774D74A0B3634DD1245F85 }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: .
