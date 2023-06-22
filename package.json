@@ -16,7 +16,7 @@
     "url": "https://github.com/VioletZengCIAI/GoogleMap/issues"
   },
   "engines": {
-    "node": "18.16.0"
+    "node": "18.x"
 },
   "homepage": "https://github.com/VioletZengCIAI/GoogleMap#readme"
 }
