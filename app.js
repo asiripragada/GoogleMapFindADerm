@@ -29,16 +29,16 @@ app.use('/styles', express.static(path.join(__dirname, 'public')));
 
 
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+// app.get('/', (req, res) => {
+//   res.send('Hello World!');
+//   res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// });
 
-// // Start the server
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  console.log(`Server is running on ${port}`);
-});
+// // // Start the server
+// const port = process.env.PORT || 3000;
+// app.listen(port, () => {
+//   console.log(`Server is running on ${port}`);
+// });
 
 
 // const port = 4000;
@@ -46,9 +46,9 @@ app.listen(port, () => {
 //   console.log(`Server is running on http://localhost:${port}`);
 // });
 
-// var http = require('http')
-// var port = process.env.PORT || 1337;
-// http.createServer(function(req, res) {
-//   res.writeHead(200, { 'Content-Type': 'text/plain' });
-//   res.end('Hello World\n');
-// }).listen(port);
+var http = require('http')
+var port = process.env.PORT || 1337;
+http.createServer(function(req, res) {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('Hello World\n');
+}).listen(port);
