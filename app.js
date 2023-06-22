@@ -29,9 +29,10 @@ app.use('/styles', express.static(path.join(__dirname, 'public')));
 
 
 
-// app.get('/', (req, res) => {
-//   res.sendFile(path.join(__dirname, 'public', 'index.html'));
-// });
+app.get('/', (req, res) => {
+  res.send('Hello World!');
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 // // Start the server
 const port = process.env.PORT || 3000;
