@@ -17,6 +17,9 @@
   },
   "engines": {
     "node": "18.x"
-},
-  "homepage": "https://github.com/VioletZengCIAI/GoogleMap#readme"
+  },
+  "homepage": "https://github.com/VioletZengCIAI/GoogleMap#readme",
+  "dependencies": {
+    "mssql": "^9.1.1"
+  }
 }
