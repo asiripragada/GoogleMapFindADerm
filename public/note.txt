@@ -1,0 +1,23 @@
+6 HCPs
+calculate distance (6 distance, 6 hcps) 1,2,3,4,5,6
+group by distance (4 groups: group 1(HCP1, 2, 3), group 2 (HCP4), group 3 (HCP5), group 4(HCP 6))
+for each group:
+    tooltips = []
+    for each hcp:
+        tooltips.append(HCP.name)
+    tooltips.append(address, distance)
+    add marker & infowindow
+
+HCP:
+    Name: xxx , Address: xxx 
+
+
+HCP groups:
+1
+11
+8 10 
+6 7
+
+todo:
+1. searchbox not allowing searching name 'e.g. starbucks'
+2. when click on search, clear all exisitng content
