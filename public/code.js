@@ -233,7 +233,7 @@ fetch('/data')
 
                         group_pos = JSON.parse(group[0].COORDINATES)
 
-                        marker_hcp = new google.maps.Marker({
+                        let marker_hcp = new google.maps.Marker({
                           position: group_pos,
                           map: map,
                           shape: shape
@@ -249,7 +249,7 @@ fetch('/data')
                         }
                         tooltips += "<strong>Distance: </strong>" + dis + "miles"
 
-                        const infowindow_hcp = new google.maps.InfoWindow({content:tooltips});
+                        let infowindow_hcp = new google.maps.InfoWindow({content:tooltips});
                         
                         let clicked_hcp = false;
 
