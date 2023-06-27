@@ -109,9 +109,9 @@ fetch('/data')
       submitButton.addEventListener("click", () => {
         clear();
 
-        const place = autocomplete.getPlace();
+        autocomplete.getPlace();
 
-        const address = place.formatted_address
+        const address = inputText.value 
 
         if (address) { 
         geocodeAddress(address)
