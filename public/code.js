@@ -243,7 +243,7 @@ fetch('/data')
                         tooltips = '<strong>HCP</strong>' + "<br>"
                         for (let j = 0; j < group.length; j++){
                           hcp = group[j]
-                          tooltips += "<strong>&nbsp; Name: </strong>" + capitalizeFirstLetter(hcp.FIRST_NAME) + " " + capitalizeFirstLetter(hcp.LAST_NAME) +
+                          tooltips += "<strong> Name: </strong>" + capitalizeFirstLetter(hcp.FIRST_NAME) + " " + capitalizeFirstLetter(hcp.LAST_NAME) +
                             "<strong> Address: </strong>" + hcp.ADDRESS_LINE_1 + ' , ' + hcp.ADDRESS_LINE_2  + "<br>"
 
                         }
