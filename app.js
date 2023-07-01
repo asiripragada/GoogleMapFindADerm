@@ -13,7 +13,6 @@ const config = {
   database: 'i4pd-db0036261-001-userdata',
 };
 
-// dbo.V000000677719
 
 app.get('/data', async (req, res) => {
   try {

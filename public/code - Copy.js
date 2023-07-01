@@ -1,365 +1,481 @@
 // @author: Violet(Yafan) Zeng
 
 fetch('/data')
-        .then(response => response.json())
-        .then(data => {
-          var map;
-          let dataArray = []; // Array to store CSV data
-          let filteredMarkers = []; // Array to store filtered markers
+  .then(response => response.json())
+  .then(data => {
+    var map;
+    let dataArray = []; // Array to store CSV data
+    let markerArray = [];
 
-          dataArray = data;  
-          console.log(dataArray);
-          console.log(data);
 
-          function initMap() {
+    dataArray = data;  
+    console.log(dataArray);
+    console.log(data);
 
-            // Default map
-            const center = { lat: 37.0902, lng: -95.7129 }; // Center coordinates (US)
+    function initMap() {
 
-            map = new google.maps.Map(document.getElementById("map"), {
-                zoom: 5,
-                center: center,
+      // Default map
+      // const center = { lat: 37.0902, lng: -95.7129 }; // Center coordinates (US)
+
+      const center = { lat: 40.103844, lng: -75.382324 }; // Center to King of Prussia, PA
+
+      map = new google.maps.Map(document.getElementById("map"), {
+          zoom: 13,
+          center: center,
+      });
+
+      // Input box for user to enter their address
+      const inputText = document.createElement("input");
+      inputText.id = "inputText"
+      inputText.type = "text";
+      inputText.placeholder = "Enter a location";
+
+      const submitButton = document.createElement("input");
+      submitButton.type = "button";
+      submitButton.value = "Search";
+      submitButton.classList.add("button", "button-primary");
+
+      const clearButton = document.createElement("input");
+      clearButton.type = "button";
+      clearButton.value = "Clear";
+      clearButton.classList.add("button", "button-secondary");
+
+      const locationButton = document.createElement("input");
+      locationButton.type = "button";
+      locationButton.value = "Use Current Location";
+      locationButton.classList.add("button", "button-secondary");
+      
+      map.controls[google.maps.ControlPosition.TOP_LEFT].push(inputText);
+      map.controls[google.maps.ControlPosition.TOP_LEFT].push(submitButton);
+      map.controls[google.maps.ControlPosition.TOP_LEFT].push(clearButton);
+      map.controls[google.maps.ControlPosition.TOP_LEFT].push(locationButton);
+
+      // Distance filter select element
+      const distanceFilterSelect = document.createElement("select");
+      distanceFilterSelect.id = "distance-filter-select";
+
+      const distanceOptions = [
+          { label: "Any distance", value: Infinity},
+          { label: "1 mile", value: 1 },
+          { label: "3 miles", value: 3 },
+          { label: "5 miles", value: 5 },
+      ];
+
+      distanceOptions.forEach((option) => {
+          const optionElement = document.createElement("option");
+          optionElement.value = option.value;
+          optionElement.textContent = option.label;
+          distanceFilterSelect.appendChild(optionElement);
+      });
+
+      map.controls[google.maps.ControlPosition.TOP_LEFT].push(distanceFilterSelect);
+      
+      const defaultBounds = new google.maps.LatLngBounds(
+        new google.maps.LatLng(40.082528, -75.407858),
+        new google.maps.LatLng(40.108210, -75.356826));
+
+      const options = {
+        bounds: defaultBounds,
+        componentRestrictions: { country: "us" },
+        fields: ["formatted_address"],
+        strictBounds: true
+      };
+
+      const autocomplete = new google.maps.places.Autocomplete(inputText, options);
+
+      locationButton.addEventListener("click", () => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const currentLocation = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+              };
+                  getAddress(currentLocation)
+              .then((address) => {
+                  inputText.value = address;
+              })
+              .catch((error) => {
+                  console.error(error);
+              });
+            },
+            (error) => {
+              console.error(error);
+            }
+          );
+        } else {
+          console.error("Geolocation is not supported by this browser.");
+        }
+      });
+
+      submitButton.addEventListener("click", () => {
+        clear();
+
+        autocomplete.getPlace();
+
+        const address = inputText.value 
+
+        if (address) { 
+        geocodeAddress(address)
+            .then(async (location) => {
+            var origin_latlng = location;
+
+            // Create map options
+            const mapOptions = {
+                zoom: 13,
+                center: origin_latlng,
+                mapTypeId: google.maps.MapTypeId.ROADMAP,
+            };
+
+            // Center the map to the input location
+            map.setOptions(mapOptions);
+
+            // Display origin location marker & infowindow
+            const marker_O = new google.maps.Marker({
+                map: map,
+                position: origin_latlng,
+                label: "O",
+            });
+            markerArray.push(marker_O);
+
+            const infowindow_O = new google.maps.InfoWindow({
+                content: address,
             });
 
-            // Input box for user to enter their address
-            const inputText = document.createElement("input");
-            inputText.id = "inputText"
-            inputText.type = "text";
-            inputText.placeholder = "Enter a location";
+            // let clicked_O = false;
+            marker_O.addListener("mouseover", () => {
+              infowindow_O.open(map, marker_O);
+            }); 
+            marker_O.addListener("mouseout", () => {
+              infowindow_O.close(map, marker_O);
+            }); 
 
-            const submitButton = document.createElement("input");
-            submitButton.type = "button";
-            submitButton.value = "Search";
-            submitButton.classList.add("button", "button-primary");
+            // Created a boolean array to filter HCPs based on initial address (if available)
+            const initialAddress = inputText.value;
 
-            const clearButton = document.createElement("input");
-            clearButton.type = "button";
-            clearButton.value = "Clear";
-            clearButton.classList.add("button", "button-secondary");
+            console.log('filter initial address:', initialAddress);
 
-            const locationButton = document.createElement("input");
-            locationButton.type = "button";
-            locationButton.value = "Use Current Location";
-            locationButton.classList.add("button", "button-secondary");
+            if (initialAddress) {
+                const booleanArray = await Promise.all(
+                dataArray.map(async (location) => {
+                    const locationZipcode = location.ZIP_CODE;
+                    try {
+                    const result = await getZipcodeFromAddress(initialAddress);
+
+                    return locationZipcode == result;
+                    } catch (error) {
+                    console.error(error);
+                    return false; // or handle the error in an appropriate way
+                    }
+                })
+                );
+                console.log(booleanArray);
+
+                // Filter HCPs array
+                const filteredArray = dataArray.filter((_, index) => Boolean(booleanArray[index]));
+
+                // Display HCPs on map
+                HCPDipstance(filteredArray, inputText)
+                    .then((result) => {
+                      distances = result.distance;
+                      latlngs = result.latlng;
+                      hcps = result.hcp;
+
+                      // Sort the combined array based on Distance
+                      const combined = latlngs.map((hcp_latlng, index) => ({ hcp_latlng, hcp: hcps[index], distance: distances[index]}));
+                      const sortedCombined = combined.sort((a, b) => {
+                        if (a.hcp_latlng.lat !== b.hcp_latlng.lat) {
+                          return a.hcp_latlng.lat - b.hcp_latlng.lat;
+                        } else {
+                          return a.hcp_latlng.lng - b.hcp_latlng.lng;
+                        }
+                      });
+
+                      // Initialize the result arrays
+                      let Group_HCP = [];
+                      let Group_latlng = []
+                      let Group_Distance = [];
+
+                      // Iterate over the sorted combined array and group HCPs based on Distance
+                      let currentlatlng = {lat:null, lng:null};
+                      let currentGroup = [];
+                      let currentDistance = [];
+
+                      sortedCombined.forEach(({ hcp_latlng, hcp, distance }) => {
+                        if (hcp_latlng.lat === currentlatlng.lat & hcp_latlng.lng === currentlatlng.lng) {
+                          currentGroup.push(hcp);
+                          currentDistance=distance;
+                        } else {
+                          if (currentlatlng.lat !== null) {
+                            Group_HCP.push(currentGroup);
+                            Group_latlng.push(currentlatlng);
+                            Group_Distance.push(currentDistance);
+                          }
+                          currentlatlng = hcp_latlng;
+                          currentGroup = [hcp];
+                          currentDistance = distance;
+                        }
+                      });
+
+                      // Add the last group to the result arrays
+                      Group_HCP.push(currentGroup);
+                      Group_latlng.push(currentlatlng);
+                      Group_Distance.push(currentDistance);
+                      
+                      Group_HCP_markers = []
+
+                      const shape = {
+                        coords: [1, 1, 1, 20, 18, 20, 18, 1],
+                        type: "poly",
+                      };
+
+                      for (let i = 0; i < Group_HCP.length; i++){
+                        group = Group_HCP[i]
+                        dis = Group_Distance[i]
+
+                        group_pos = JSON.parse(group[0].COORDINATES)
+
+                        let marker_hcp = new google.maps.Marker({
+                          position: group_pos,
+                          map: map,
+                          shape: shape
+                        });
+                        markerArray.push(marker_hcp);
+
+                        tooltips = '<strong>HCP</strong>' + "<br>"
+                        for (let j = 0; j < group.length; j++){
+                          hcp = group[j]
+                          tooltips += "<strong> Name: </strong>" + capitalizeFirstLetter(hcp.FIRST_NAME) + " " + capitalizeFirstLetter(hcp.LAST_NAME) +
+                            "<strong> Address: </strong>" + hcp.ADDRESS_LINE_1 + ' , ' + hcp.ADDRESS_LINE_2  + "<br>"
+
+                        }
+                        tooltips += "<strong>Distance: </strong>" + dis + "miles"
+
+                        let infowindow_hcp = new google.maps.InfoWindow({content:tooltips});
+                        
+                        let clicked_hcp = false;
+
+                        marker_hcp.addListener("mouseover", () => {
+                          if (!clicked_hcp){
+                            infowindow_hcp.open(map, marker_hcp);
+                          }
+                        });                   
+                        marker_hcp.addListener("mouseout", () => {
+                          if (!clicked_hcp){
+                            infowindow_hcp.close(map, marker_hcp);
+                          }
+                        });
+                        marker_hcp.addListener("click", () => {
+                          clicked_hcp = true;
+                          infowindow_hcp.open({map, marker_hcp});
+                        });
+                        infowindow_hcp.addListener("closeclick",() =>{
+                          clicked_hcp = false;
+                        });
+      
+                        
+                        Group_HCP_markers.push(marker_hcp);
+                      }
 
 
-            map.controls[google.maps.ControlPosition.TOP_LEFT].push(inputText);
-            map.controls[google.maps.ControlPosition.TOP_LEFT].push(submitButton);
-            map.controls[google.maps.ControlPosition.TOP_LEFT].push(clearButton);
-            map.controls[google.maps.ControlPosition.TOP_LEFT].push(locationButton);
+                      distanceFilterSelect.addEventListener("change", () => {
+                          let selectedDistance = distanceFilterSelect.value;
+                          
+                          if (selectedDistance === 'Infinity') {
+                              selectedDistance = Infinity;
+                              
+                          } else {
+                              selectedDistance = parseInt(selectedDistance);
+                          };
 
-            // Distance filter select element
-            const distanceFilterSelect = document.createElement("select");
-            distanceFilterSelect.id = "distance-filter-select";
-
-            const distanceOptions = [
-                { label: "Any distance", value: Infinity},
-                { label: "1 mile", value: 1 },
-                { label: "3 miles", value: 3 },
-                { label: "5 miles", value: 5 },
-            ];
-
-            distanceOptions.forEach((option) => {
-                const optionElement = document.createElement("option");
-                optionElement.value = option.value;
-                optionElement.textContent = option.label;
-                distanceFilterSelect.appendChild(optionElement);
-            });
-
-            map.controls[google.maps.ControlPosition.TOP_LEFT].push(distanceFilterSelect);
-
-
-            locationButton.addEventListener("click", () => {
-              if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                  (position) => {
-                    const currentLocation = {
-                      lat: position.coords.latitude,
-                      lng: position.coords.longitude,
-                    };
-                        getAddress(currentLocation)
-                    .then((address) => {
-                        inputText.value = address;
+                          
+                          filterMarkersByDistance(selectedDistance, Group_HCP_markers, Group_Distance);
+                      });
+                      clearButton.addEventListener("click", function() {
+                        // marker_O.setMap(null);
+                        // clear(Group_HCP_markers);
+                        // inputText.value='';
+                        clear()
+                        map.setCenter(center);
+                      });
                     })
                     .catch((error) => {
                         console.error(error);
                     });
-                  },
-                  (error) => {
-                    console.error(error);
-                  }
-                );
-              } else {
-                console.error("Geolocation is not supported by this browser.");
-              }
-            });
 
-            submitButton.addEventListener("click", () => {
-                const address = inputText.value;
-                if (address) { 
-                geocodeAddress(address)
-                    .then(async (location) => {
-                    var origin_latlng = location;
-
-                    // Create map options
-                    const mapOptions = {
-                        zoom: 13,
-                        center: origin_latlng,
-                        mapTypeId: google.maps.MapTypeId.ROADMAP,
-                    };
-
-                    // Center the map to the input location
-                    map.setOptions(mapOptions);
-
-                    // Display origin location marker & infowindow
-                    const marker_O = new google.maps.Marker({
-                        map: map,
-                        position: origin_latlng,
-                        label: "O",
-                    });
-
-                    const infowindow_O = new google.maps.InfoWindow({
-                        content: address,
-                    });
-
-                    marker_O.addListener("click", () => {
-                        infowindow_O.open({
-                        anchor: marker_O,
-                        map: map,
-                        });
-                    });
-
-                    // Created a boolean array to filter HCPs based on initial address (if available)
-                    const initialAddress = inputText.value;
-
-                    console.log('filter initial address:', initialAddress);
-
-                    if (initialAddress) {
-                        const booleanArray = await Promise.all(
-                        dataArray.map(async (location) => {
-                            const locationZipcode = location.ZIP_CODE;
-                            try {
-                            const result = await getZipcodeFromAddress(initialAddress);
-
-                            return locationZipcode == result;
-                            } catch (error) {
-                            console.error(error);
-                            return false; // or handle the error in an appropriate way
-                            }
-                        })
-                        );
-                        console.log(booleanArray);
-
-                        // Filter HCPs array
-                        const filteredArray = dataArray.filter((_, index) => Boolean(booleanArray[index]));
-                        console.log('Filter HCPs array',filteredArray);
-
-                        // Display HCPs on map
-                        setMarkers(filteredArray, inputText)
-                            .then((result) => {
-                                distanceFilterSelect.addEventListener("change", () => {
-                                    let selectedDistance = distanceFilterSelect.value;
-                                    
-                                    if (selectedDistance === 'Infinity') {
-                                        selectedDistance = Infinity;
-                                        
-                                    } else {
-                                        selectedDistance = parseInt(selectedDistance);
-                                    };
-
-                                    markers = result.markers;
-                                    distances = result.distances;
-
-                                    // console.log('selectedDistance',selectedDistance);
-
-                                    filterMarkersByDistance(selectedDistance, markers, distances);
-
-                                    clearButton.addEventListener("click", function() {
-                                      marker_O.setMap(null);
-                                      clear(markers);
-                                      inputText.value=''
-                                });
-                                });
-                            })
-                            .catch((error) => {
-                                console.error(error);
-                            });
-
-                        
-                        clearButton.addEventListener("click", function() {
-                            marker_O.setMap(null);
-                            inputText.value='';
-                        });                        
-                        
-                        
-                    }
-                    })
-                    .catch((error) => {
-                    console.error(error);
-                    });
-                }
-            });
-          };
-
-          function clear(markers) {
-            for (var i = 0; i < markers.length; i++) {
-                markers[i].setMap(null);
+                
+                clearButton.addEventListener("click", function() {
+                    marker_O.setMap(null);
+                    inputText.value='';
+                    map.setCenter(center);
+                });                        
+                
+                
             }
-            markers = [];
-          };
-
-          function getAddress(latlng) {
-            return new Promise((resolve, reject) => {
-              const geocoder = new google.maps.Geocoder();
-              geocoder.geocode({ location: latlng }, (results, status) => {
-                if (status === "OK") {
-                  const address = results[0].formatted_address;
-                  resolve(address);
-                } else {
-                  reject("Geocode was not successful for the following reason: " + status);
-                }
-              });
-            });
-          };
-
-          function geocodeAddress(address) {
-            return new Promise((resolve, reject) => {
-              const geocoder = new google.maps.Geocoder();
-              geocoder.geocode({ address: address }, (results, status) => {
-                if (status === "OK") {
-                  const location = results[0].geometry.location;
-                  resolve(location);
-                } else {
-                  reject("Geocode was not successful for the following reason: " + status);
-                }
-              });
-            });
-          };
-
-          function calculateDistance(originAddress, destinationLatLng) {
-            return new Promise((resolve, reject) => {
-                const service = new google.maps.DistanceMatrixService();
-                service.getDistanceMatrix(
-                    {
-                    origins: [originAddress],
-                    destinations: [destinationLatLng],
-                    travelMode: google.maps.TravelMode.DRIVING,
-                    unitSystem: google.maps.UnitSystem.IMPERIAL
-                    }, (response, status) => {
-                        if (status === "OK") {
-                            const distance = response.rows[0].elements[0].distance.value;
-                            const distance_mile = (distance * 0.000621371192).toFixed(2)
-      
-                            resolve(distance_mile);
-                        } else {
-                            console.error("Error: " + status);
-                        }
-                    });
             })
-          }
-
-          function getZipcodeFromAddress(address) {
-            return new Promise((resolve, reject) => {
-              const geocoder = new google.maps.Geocoder();
-              geocoder.geocode({ address: address }, (results, status) => {
-                if (status === "OK") {
-                  const addressComponents = results[0].address_components;
-                  const zipcodeComponent = addressComponents.find(
-                    (component) => component.types[0] === "postal_code"
-                  );
-                  const zipcode = zipcodeComponent ? zipcodeComponent.short_name : null;
-                  if (zipcode) {
-                    resolve(zipcode);
-                  } else {
-                    reject("Unable to retrieve the zipcode.");
-                  }
-                } else {
-                  reject("Geocoder failed due to: " + status);
-                }
-              });
+            .catch((error) => {
+            console.error(error);
             });
-          };
+          }
+      });
+    };
 
-          function setMarkers(locations, inputText) {
-              // Adds markers to the map.
-            const shape = {
-              coords: [1, 1, 1, 20, 18, 20, 18, 1],
-              type: "poly",
-            };
+    function clear() {
+      for (var i = 0; i < markerArray.length; i++) {
+        markerArray[i].setMap(null);
+      }
+      markerArray = [];
+    };
 
-            const originAddress = inputText.value;
+    function clearMap() {
+      map.setZoom(13);
+      map.setCenter({ lat: 40.103844, lng: -75.382324 });
+      map.data.forEach(function (feature) {
+        map.data.remove(feature);
+      });
+    }
 
-            const promises = [];
-            filteredMarkers = [];
-            markerDistance = [];
 
-            for (let i = 0; i < locations.length; i++) {
-              const location = locations[i];
-              const pos = JSON.parse(location.COORDINATES);
+    function getAddress(latlng) {
+      return new Promise((resolve, reject) => {
+        const geocoder = new google.maps.Geocoder();
+        geocoder.geocode({ location: latlng }, (results, status) => {
+          if (status === "OK") {
+            const address = results[0].formatted_address;
+            resolve(address);
+          } else {
+            reject("Geocode was not successful for the following reason: " + status);
+          }
+        });
+      });
+    };
 
-              const marker = new google.maps.Marker({
-                position: pos,
-                map: map,
-                shape: shape,
-                title: location.NPI,
+    function geocodeAddress(address) {
+      return new Promise((resolve, reject) => {
+        const geocoder = new google.maps.Geocoder();
+        geocoder.geocode({ address: address }, (results, status) => {
+          if (status === "OK") {
+            const location = results[0].geometry.location;
+            resolve(location);
+          } else {
+            reject("Geocode was not successful for the following reason: " + status);
+          }
+        });
+      });
+    };
+
+    function getZipcodeFromAddress(address) {
+      return new Promise((resolve, reject) => {
+        const geocoder = new google.maps.Geocoder();
+        geocoder.geocode({ address: address }, (results, status) => {
+          if (status === "OK") {
+            const addressComponents = results[0].address_components;
+            const zipcodeComponent = addressComponents.find(
+              (component) => component.types[0] === "postal_code"
+            );
+            const zipcode = zipcodeComponent ? zipcodeComponent.short_name : null;
+            if (zipcode) {
+              resolve(zipcode);
+            } else {
+              reject("Unable to retrieve the zipcode.");
+            }
+          } else {
+            reject("Geocoder failed due to: " + status);
+          }
+        });
+      });
+    };
+
+    function calculateDistance(originAddress, destinationLatLng) {
+      return new Promise((resolve, reject) => {
+          const service = new google.maps.DistanceMatrixService();
+          service.getDistanceMatrix(
+              {
+              origins: [originAddress],
+              destinations: [destinationLatLng],
+              travelMode: google.maps.TravelMode.DRIVING,
+              unitSystem: google.maps.UnitSystem.IMPERIAL
+              }, (response, status) => {
+                  if (status === "OK") {
+                      const distance = response.rows[0].elements[0].distance.value;
+                      const distance_mile = (distance * 0.000621371192).toFixed(2)
+
+                      resolve(distance_mile);
+                  } else {
+                      console.error("Error: " + status);
+                  }
               });
-
-
-              // Calculate and update the distance in the infowindow
-              const destinationLatLng = new google.maps.LatLng(pos.lat, pos.lng);
+      })
+    }
 
    
-              const distancePromise = calculateDistance(originAddress, destinationLatLng)
-                .then((distance_mile) => {
-                    markerDistance.push(distance_mile);
-                    const infowindow = new google.maps.InfoWindow({
-                    content: "<strong>HCP Name: </strong>" + capitalizeFirstLetter(location.FIRST_NAME) + " " + capitalizeFirstLetter(location.LAST_NAME) +
-                        "<br>" + "<strong>Address: </strong>" + location.FULL_ADDRESS +
-                        "<br>" + "<strong>Distance: </strong>" + distance_mile + ' miles',
-                    });
-                    marker.addListener("click", () => {
-                    infowindow.open(map, marker);
-                    });
-                    filteredMarkers.push(marker);
-                })
-                .catch((error) => {
-                    console.error(error);
-                });
 
-                promises.push(distancePromise);
-            }   
+    function HCPDipstance(locations, inputText) {
+        // Adds markers to the map.
+      const shape = {
+        coords: [1, 1, 1, 20, 18, 20, 18, 1],
+        type: "poly",
+      };
 
-                return Promise.all(promises)
-                    .then(() => {
-                    console.log('last', filteredMarkers, markerDistance);
-                    return { markers: filteredMarkers, distances: markerDistance };
-                    })
-                    .catch((error) => {
-                    console.error(error);
-                    });
-            }
+      const originAddress = inputText.value;
 
-          function filterMarkersByDistance(distance, markers, distances) {
-            for (let i = 0; i < markers.length; i++) {
-              const marker = markers[i];
-              const markerDistance = distances[i];
+      const promises = [];
+      markerDistance = [];
+      markerLatLng = [];
+      markerHCP = []
 
-              if (markerDistance <= distance) {
-                marker.setMap(map);
-              } else {
-                marker.setMap(null);
-              }
-            //   console.log('marker distance',markerDistance);
-            }
-          };
+      for (let i = 0; i < locations.length; i++) {
+        const location = locations[i];
+        const pos = JSON.parse(location.COORDINATES);
 
-          function capitalizeFirstLetter(str) {
-            return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-          };
-
-          initMap();
+        // Calculate and update the distance in the infowindow
+        const destinationLatLng = new google.maps.LatLng(pos.lat, pos.lng);
         
-        })
-        .catch(error => {
-          console.error('Error:', error);
-        });
+
+        const distancePromise = calculateDistance(originAddress, destinationLatLng)
+          .then((distance_mile) => {
+              markerDistance.push(distance_mile);
+              markerLatLng.push(pos);
+              markerHCP.push(location);
+          })
+          .catch((error) => {
+              console.error(error);
+          });
+
+          promises.push(distancePromise);
+      }   
+
+          return Promise.all(promises)
+              .then(() => {
+              console.log('HCP Distance result', markerLatLng, markerDistance);
+              return {hcp:markerHCP, distance: markerDistance, latlng: markerLatLng};
+              })
+              .catch((error) => {
+              console.error(error);
+              });
+      }
+
+    function filterMarkersByDistance(distance, markers, distances) {
+      for (let i = 0; i < markers.length; i++) {
+        const marker = markers[i];
+        const markerDistance = distances[i];
+
+        if (markerDistance <= distance) {
+          marker.setMap(map);
+        } else {
+          marker.setMap(null);
+        }
+        console.log('marker distance',markerDistance, 'set distance', distance);
+      }
+    };
+
+    function capitalizeFirstLetter(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+    };
+
+    initMap();
+
+    })
+    .catch(error => {
+    console.error('Error:', error);
+    });

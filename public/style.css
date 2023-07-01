@@ -1,4 +1,27 @@
 /* @author: Violet(Yafan) Zeng */
+#searchOptions {
+  margin-left: 10px;
+  background-color: transparent;
+}
+
+.search-option-button {
+  
+  margin-top: 10px;
+  height: 40px;
+  background-color: white;
+  color: #1a73e8;
+  border: none;
+  border-radius: 2px;
+  box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
+  padding: 0.5em;
+  font-family: Roboto, Arial, sans-serif;
+  font-size: 18px;
+}
+
+.search-option-button.active {
+  background-color: #1a73e8;
+  color: white;
+}
 
 #distance-filter-select {
     background-color: #fff;
@@ -13,31 +36,53 @@
     margin-left: 5px;
   }
 
-  #instructions {
+  .container {
+    display: flex;
+    height:100%;
+    overflow-y: auto;
+  }
+  
+  #left-panel {
+    background-color: #fff;
+    width: 300px;
+    height:100%;
+    display: none; 
+    overflow-y: auto;
+    border: 0;
+    border-radius: 2px;
+    box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
+    font: 400 16px Roboto, Arial, sans-serif;
+  }
+  .HCP-header {
+    font: 400 18px Roboto, Arial, sans-serif;
+    color: #1a73e8;
+    border: 0;
+    border-radius: 2px;
+    box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
+    padding: 10px;
+  }
+
+  .HCP-group-div {
     background-color: #fff;
     border: 0;
     border-radius: 2px;
     box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
-    margin: 10px;
-    padding: 0 0.5em;
-    font: 400 18px Roboto, Arial, sans-serif;
-    overflow: hidden;
-    padding: 1rem;
-    font-size: medium;
+  }
+  .HCP-group-div.active {
+    background-color: #eaf3f9;
+    border: 0;
+    border-radius: 2px;
+    box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
   }
 
+  
   #map {
-        position: relative;
-        height: 600px;
-        width: 100%;
+    flex-grow: 1;
+    height:100%;
   }
 
-  .red-rectangle {
-    width: 100%;
-    height: 60px;
-    background-color: red;
-    position: absolute;
-    z-index: 1;
+  .left-panel-hidden #map {
+    left: 0;
   }
   
   #inputText {
