@@ -180,7 +180,8 @@ fetch('/data')
 
     function zipcodeSearch(){
       clear();
-      const zipcode = inputText.value;
+      
+      const zipcode = extractZipCode(inputText.value);
       if (zipcode) {
         geocodeAddress(zipcode)
           .then(async (geo_result) => {
@@ -545,6 +546,7 @@ fetch('/data')
     function geocodeAddress(address) {
       return new Promise((resolve, reject) => {
         const geocoder = new google.maps.Geocoder();
+        console.log('geocodeAddress:', address);
         geocoder.geocode({ address: address }, (results, status) => {
           if (status === "OK") {
             const geo_result = results;
@@ -557,6 +559,17 @@ fetch('/data')
       });
     };
 
+    // Function to extract zip code using regular expression
+    function extractZipCode(address) {
+      const zipCodeRegex = /\b\d{5}(?:-\d{4})?\b/; // Regular expression pattern for zip code
+      const match = address.match(zipCodeRegex);
+
+      if (match) {
+        return match[0]; // Return the first matched zip code
+      } else {
+        return ''; // Return empty string if no zip code found
+      }
+    }
 
     function calculateDistance(originAddress, destinationLatLng) {
       return new Promise((resolve, reject) => {
