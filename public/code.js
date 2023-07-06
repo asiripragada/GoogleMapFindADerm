@@ -544,6 +544,7 @@ fetch('/data')
       function clear() {
         offLeftPanel();
         distanceFilterSelect.style.display="none";
+        map.setOptions({center:center,zoom:5});
         for (var i = 0; i < markerArray.length; i++) {
           markerArray[i].setMap(null);
         }
