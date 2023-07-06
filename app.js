@@ -17,7 +17,7 @@ const config = {
 app.get('/data', async (req, res) => {
   try {
     await sql.connect(config);
-    const result = await sql.query('SELECT * FROM dbo.V000000677719');
+    const result = await sql.query('SELECT * FROM dbo.V000000685040'); // Updated table name
     const dataArray = result.recordset;
     res.send(dataArray);
   } catch (error) {

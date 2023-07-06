@@ -30,12 +30,12 @@ fetch('/data')
     function initMap() {
 
       // Default map
-      // const center = { lat: 37.0902, lng: -95.7129 }; // Center coordinates (US)
+      const center = { lat: 37.0902, lng: -95.7129 }; // Center coordinates (US)
 
-      const center = { lat: 40.103844, lng: -75.382324 }; // Center to King of Prussia, PA
+      // const center = { lat: 40.103844, lng: -75.382324 }; // Center to King of Prussia, PA
 
       map = new google.maps.Map(document.getElementById("map"), {
-          zoom: 13,
+          zoom: 5,
           center: center,
           mapTypeControl: false,
           streetViewControl: false
@@ -114,12 +114,12 @@ fetch('/data')
 
       distanceFilterSelect.style.display="none";
 
-      const defaultBounds = new google.maps.LatLngBounds(
-        new google.maps.LatLng(40.082528, -75.407858),
-        new google.maps.LatLng(40.108210, -75.356826));
+      // const defaultBounds = new google.maps.LatLngBounds(
+      //   new google.maps.LatLng(40.082528, -75.407858),
+      //   new google.maps.LatLng(40.108210, -75.356826));
 
       const address_options = {
-        bounds: defaultBounds,
+        // bounds: defaultBounds,
         componentRestrictions: { country: "us" },
         strictBounds: true,
         types:['street_address']
@@ -516,7 +516,7 @@ fetch('/data')
   
       function displayOrigin(origin_latlng, address){
   
-        map.setCenter(origin_latlng)
+        map.setOptions({center:origin_latlng,zoom:13});
         // Display origin location marker & infowindow
         const marker_O = new google.maps.Marker({
           map: map,
