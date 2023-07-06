@@ -363,6 +363,11 @@ fetch('/data')
                   HCPHeaderElement.innerHTML = '<strong> HCP Details </strong>';
                   HCPHeaderElement.classList.add("HCP-header");
                   leftPanel.appendChild(HCPHeaderElement);
+
+                  const HCPContentElement = document.createElement("div");
+                  HCPContentElement.id = "leftPanelContent";
+                  HCPContentElement.classList.add("HCP-content");
+                  
                 
                   for (let i = 0; i < Group_HCP.length; i++){
                     group = Group_HCP[i]
@@ -406,19 +411,23 @@ fetch('/data')
                     HCPGroupElement_Text +="<br>" + "<strong>Distance: </strong>" + dis + "miles" + "<br>" + "<br>"
                     HCPGroupTextElement.innerHTML = HCPGroupElement_Text
                     HCPGroupElement.appendChild(HCPGroupTextElement);
-                    leftPanel.appendChild(HCPGroupElement);
+                    HCPContentElement.appendChild(HCPGroupElement);
+                    leftPanel.appendChild(HCPContentElement);
   
                     tooltips += "<strong>Distance: </strong>" + dis + "miles"
                     let infowindow_hcp = new google.maps.InfoWindow({content:tooltips});
                     
   
                     let clicked_hcp = false;
-  
+                    
+                    const elementTop = HCPGroupElement.offsetTop;
+
                     marker_hcp.addListener("mouseover", () => {
                         if (!clicked_hcp){
                         infowindow_hcp.open(map, marker_hcp);
                         marker_hcp.setIcon({url:"http://maps.google.com/mapfiles/ms/icons/red-dot.png" ,scaledSize: new google.maps.Size(50, 50)});
                         HCPGroupElement.classList.add("active");
+                        HCPContentElement.scrollTop = elementTop-50;
                         }
                     });                   
                     marker_hcp.addListener("mouseout", () => {
@@ -434,6 +443,8 @@ fetch('/data')
                         marker_hcp.setIcon({url:"http://maps.google.com/mapfiles/ms/icons/red-dot.png" ,scaledSize: new google.maps.Size(50, 50)});
                         HCPGroupElement.classList.add("active");
                         map.setOptions({center:marker_hcp.getPosition(),zoom:15});
+                        // Scroll the left panel to the related HCPGroupElement
+                        HCPContentElement.scrollTop = elementTop-50;
                       });
                     infowindow_hcp.addListener("closeclick",() =>{
                         clicked_hcp = false;
