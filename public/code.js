@@ -419,11 +419,12 @@ fetch('/data')
                     
   
                     let clicked_hcp = false;
+                    let clicked_panel = false;
                     
                     const elementTop = HCPGroupElement.offsetTop;
 
                     marker_hcp.addListener("mouseover", () => {
-                        if (!clicked_hcp){
+                      if (!clicked_panel && !clicked_hcp) {
                         infowindow_hcp.open(map, marker_hcp);
                         marker_hcp.setIcon({url:"http://maps.google.com/mapfiles/ms/icons/red-dot.png" ,scaledSize: new google.maps.Size(50, 50)});
                         HCPGroupElement.classList.add("active");
@@ -431,7 +432,7 @@ fetch('/data')
                         }
                     });                   
                     marker_hcp.addListener("mouseout", () => {
-                        if (!clicked_hcp){
+                      if (!clicked_panel && !clicked_hcp) {
                         infowindow_hcp.close(map, marker_hcp);
                         marker_hcp.setIcon({url:"http://maps.google.com/mapfiles/ms/icons/red-dot.png"});
                         HCPGroupElement.classList.remove("active");
@@ -455,17 +456,15 @@ fetch('/data')
                     
                     Group_HCP_markers.push(marker_hcp);
   
-                    let clicked_panel = false;
-  
                     HCPGroupElement.addEventListener("mouseover", () => {
-                        if (!clicked_panel){
+                      if (!clicked_panel && !clicked_hcp) {
                         infowindow_hcp.open(map, marker_hcp);
                         marker_hcp.setIcon({url:"http://maps.google.com/mapfiles/ms/icons/red-dot.png" ,scaledSize: new google.maps.Size(50, 50)});
                         HCPGroupElement.classList.add("active");
                         }
                     });                   
                     HCPGroupElement.addEventListener("mouseout", () => {
-                        if (!clicked_panel){
+                      if (!clicked_panel && !clicked_hcp) {
                         infowindow_hcp.close(map, marker_hcp);
                         marker_hcp.setIcon({url:"http://maps.google.com/mapfiles/ms/icons/red-dot.png"});
                         HCPGroupElement.classList.remove("active");
