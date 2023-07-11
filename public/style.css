@@ -1,128 +1,204 @@
 /* @author: Violet(Yafan) Zeng */
-#searchOptions {
-  margin-left: 10px;
-  background-color: transparent;
+h3 {
+  margin: 5px;
+  margin-left: 5px;
+  margin-top:10px;
+  font-size: 18px;
+}
+p {
+  margin: 0px;
+  margin-left: 5px;
+  margin-top:10px;
+  padding: 0;
 }
 
+#loading-sign {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: block;
+}
+#loading-sign img {
+  width: 200px; /* Adjust the width as per your requirement */
+  height: 132px; /* Adjust the height as per your requirement */
+}
+
+#container {
+  border-radius: 2px;
+  box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
+  border: 2px solid #1a73e8;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 60%;
+  margin: 0 auto; /* Add this line to center the container horizontally */
+}
+
+#control-panel {
+  position: relative; /* Change from absolute to relative positioning */
+  background-color: #fff;
+  width: 100%;
+  height: 40%;
+  border: 0;
+  z-index: 1;
+  border-radius: 2px;
+  box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
+  font: 400 16px Roboto, Arial, sans-serif;
+}
+#search-option-panel {
+  display:flex;
+  flex-direction: row;
+}
+
+#searchOptions {
+  margin-left: 5px;
+  background-color: transparent;
+}
 .search-option-button {
-  
-  margin-top: 10px;
-  height: 40px;
+  height: 30px;
   background-color: white;
   color: #1a73e8;
   border: none;
   border-radius: 2px;
   box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
-  padding: 0.5em;
+  /* padding: 0.5em; */
   font-family: Roboto, Arial, sans-serif;
-  font-size: 18px;
+  font-size: 16px;
 }
-
 .search-option-button.active {
   background-color: #1a73e8;
   color: white;
 }
 
+#input-panel {
+  display:flex;
+  flex-direction: column;
+}
+#inputText {
+  background-color: #fff;
+  border: 0;
+  border-radius: 2px;
+  box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
+  margin: 5px;
+  /* padding: 0 0.5em; */
+  font: 400 16px Roboto, Arial, sans-serif;
+  overflow: hidden;
+  line-height: 30px;
+  margin-right: 0;
+  width: 60%;   
+}
+#nameInputText {
+  background-color: #fff;
+  border: 0;
+  border-radius: 2px;
+  box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
+  margin: 5px;
+  /* padding: 0 0.5em; */
+  font: 400 16px Roboto, Arial, sans-serif;
+  overflow: hidden;
+  line-height: 30px;
+  margin-right: 0;
+  width: 60%;   
+  display:none;
+}
 #distance-filter-select {
-    background-color: #fff;
-    border: 0;
-    border-radius: 2px;
-    box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
-    margin: 10px;
-    padding: 0 0.5em;
-    font: 400 18px Roboto, Arial, sans-serif;
-    height: 40px;
-    cursor: pointer;
-    margin-left: 5px;
-  }
+  background-color: #fff;
+  border: 0;
+  border-radius: 2px;
+  box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
+  margin: 5px;
+  padding: 0 0.5em;
+  font: 400 16px Roboto, Arial, sans-serif;
+  height: 30px;
+  cursor: pointer;
+  margin-left: 5px;
+  width: 25%;
+}
 
-  .container {
-    display: flex;
-    height:100%;
-    overflow-y: auto;
-  }
-  
-  #left-panel {
-    background-color: #fff;
-    width: 300px;
-    height:100%;
-    display: none; 
-    border: 0;
-    border-radius: 2px;
-    box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
-    font: 400 16px Roboto, Arial, sans-serif;
-  }
-  .HCP-header {
-    font: 400 18px Roboto, Arial, sans-serif;
-    color: #1a73e8;
-    border: 0;
-    border-radius: 2px;
-    box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
-    padding: 10px;
-  }
-  .HCP-content{
-    background-color: #fff;
-    border: 0;
-    border-radius: 2px;
-    box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
-    overflow-y: auto;
-    height: calc(100% - 50px);
-    /* margin-top: 40px; */
-  }
-  .HCP-group-div {
-    background-color: #fff;
-    border: 0;
-    border-radius: 2px;
-    box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
-  }
-  .HCP-group-div.active {
-    background-color: #eaf3f9;
-    border: 0;
-    border-radius: 2px;
-    box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
-  }
+#search-clear-panel {
+  display:flex;
+  flex-direction: row;
+}
+.button {
+  background-color: #fff;
+  border: 0;
+  border-radius: 2px;
+  box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
+  margin: 5px;
+  /* padding: 0 0.5em; */
+  font: 400 16px Roboto, Arial, sans-serif;
+  overflow: hidden;
+  height: 30px;
+  cursor: pointer;
+  margin-left: 5px;
+}
+.button-primary {
+  background-color: #1a73e8;
+  color: white;
+}
+.button-secondary {
+  background-color: white;
+  color: #1a73e8;
+}
 
-  
-  #map {
-    flex-grow: 1;
-    height:100%;
-  }
+.map-container {
+  position: relative; /* Change from absolute to relative positioning */
+  display: flex;
+  flex: 1;
+  width: 100%;
+  overflow-y: auto;
+}
+#map {
+  flex-grow: 1;
+  width:100%;
+}
 
-  .left-panel-hidden #map {
-    left: 0;
-  }
-  
-  #inputText {
-    background-color: #fff;
-    border: 0;
-    border-radius: 2px;
-    box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
-    margin: 10px;
-    padding: 0 0.5em;
-    font: 400 18px Roboto, Arial, sans-serif;
-    overflow: hidden;
-    line-height: 40px;
-    margin-right: 0;
-    min-width: 25%;
-  }
-  .button {
-    background-color: #fff;
-    border: 0;
-    border-radius: 2px;
-    box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
-    margin: 10px;
-    padding: 0 0.5em;
-    font: 400 18px Roboto, Arial, sans-serif;
-    overflow: hidden;
-    height: 40px;
-    cursor: pointer;
-    margin-left: 5px;
-  }
-  .button-primary {
-    background-color: #1a73e8;
-    color: white;
-  }
-  .button-secondary {
-    background-color: white;
-    color: #1a73e8;
-  }
+#left-panel {
+  top:50%;
+  background-color: #fff;
+  width: 300px;
+  height:100%;
+  display: none; 
+  border: 0;
+  border-radius: 2px;
+  box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
+  font: 400 16px Roboto, Arial, sans-serif;
+}
+.HCP-header {
+  font: 400 18px Roboto, Arial, sans-serif;
+  color: #1a73e8;
+  border: 0;
+  border-radius: 2px;
+  box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
+  padding: 10px;
+}
+.HCP-content{
+  background-color: #fff;
+  border: 0;
+  border-radius: 2px;
+  box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
+  overflow-y: auto;
+  height: calc(100% - 50px);
+  /* margin-top: 40px; */
+}
+.HCP-group-div {
+  background-color: #fff;
+  border: 0;
+  border-radius: 2px;
+  box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
+}
+.HCP-group-div.active {
+  background-color: #eaf3f9;
+  border: 0;
+  border-radius: 2px;
+  box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
+}
+.left-panel-hidden #map {
+  left: 0;
+}
+
+
+
+

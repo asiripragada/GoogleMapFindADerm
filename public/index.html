@@ -6,9 +6,20 @@
     <link rel="stylesheet" href="style.css"/>
   </head>
   <body>
-    <div class="container">
-      <div id="left-panel">Stuff you want in the panel</div>
-      <div id="map"></div>
+    <div id="loading-sign">
+      <img src="pics/Loading_icon.gif" alt="Loading..." />
+    </div>
+    <div id="container">
+      <div id="control-panel">
+        <h3> Select your Search Option </h3>
+        <div id="search-option-panel"></div>
+        <div id="input-panel"></div>
+        <div id="search-clear-panel"></div>
+      </div>
+      <div class="map-container">
+        <div id="left-panel">Stuff you want in the panel</div>
+        <div id="map"></div>
+      </div>
     </div>
     <script src="code.js"></script>
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBnORU4D_5ea-mZttvUO1fjY0_BXa6PkB8&libraries=places" type="text/javascript"></script>

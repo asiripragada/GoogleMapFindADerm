@@ -557,3 +557,71 @@ fetch('/data')
   .catch(error => {
     console.error('Error:', error);
   });
+
+  marker_hcp.addListener("mouseover", () => {
+    if (!clicked_panel && !clicked_hcp) {
+      infowindow_hcp.open(map, marker_hcp);
+      marker_hcp.setIcon({url:"http://maps.google.com/mapfiles/ms/icons/red-dot.png" ,scaledSize: new google.maps.Size(50, 50)});
+      HCPGroupElement.classList.add("active");
+      HCPContentElement.scrollTop = elementTop-50;
+      }
+  });                   
+  marker_hcp.addListener("mouseout", () => {
+    if (!clicked_panel && !clicked_hcp) {
+      infowindow_hcp.close(map, marker_hcp);
+      marker_hcp.setIcon({url:"http://maps.google.com/mapfiles/ms/icons/red-dot.png"});
+      HCPGroupElement.classList.remove("active");
+      }
+  });
+  marker_hcp.addListener("click", () => {
+      clicked_hcp = true;
+      infowindow_hcp.open(map, marker_hcp);
+      marker_hcp.setIcon({url:"http://maps.google.com/mapfiles/ms/icons/red-dot.png" ,scaledSize: new google.maps.Size(50, 50)});
+      HCPGroupElement.classList.add("active");
+      map.setOptions({center:marker_hcp.getPosition(),zoom:15});
+      // Scroll the left panel to the related HCPGroupElement
+      HCPContentElement.scrollTop = elementTop-50;
+    });
+  infowindow_hcp.addListener("closeclick",() =>{
+      clicked_hcp = false;
+      marker_hcp.setIcon({url:"http://maps.google.com/mapfiles/ms/icons/red-dot.png"});
+      HCPGroupElement.classList.remove("active");
+      map.setOptions({center:origin_center,zoom:13});
+  });
+  
+  Group_HCP_markers.push(marker_hcp);
+
+  HCPGroupElement.addEventListener("mouseover", () => {
+    if (!clicked_panel && !clicked_hcp) {
+      infowindow_hcp.open(map, marker_hcp);
+      marker_hcp.setIcon({url:"http://maps.google.com/mapfiles/ms/icons/red-dot.png" ,scaledSize: new google.maps.Size(50, 50)});
+      HCPGroupElement.classList.add("active");
+      }
+  });                   
+  HCPGroupElement.addEventListener("mouseout", () => {
+    if (!clicked_panel && !clicked_hcp) {
+      infowindow_hcp.close(map, marker_hcp);
+      marker_hcp.setIcon({url:"http://maps.google.com/mapfiles/ms/icons/red-dot.png"});
+      HCPGroupElement.classList.remove("active");
+      }
+  });
+  HCPGroupElement.addEventListener("click", () => {
+    if (clicked_panel) {
+      infowindow_hcp.close();
+      marker_hcp.setIcon({
+        url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
+      });
+      HCPGroupElement.classList.remove("active");
+      map.setOptions({ center: origin_center, zoom: 13 });
+      clicked_panel = false;
+    } else {
+      clicked_panel = true;
+      infowindow_hcp.open(map, marker_hcp);
+      marker_hcp.setIcon({
+        url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
+        scaledSize: new google.maps.Size(50, 50)
+      });
+      HCPGroupElement.classList.add("active");
+      map.setOptions({ center: marker_hcp.getPosition(), zoom: 15 });
+    }
+  });                

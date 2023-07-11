@@ -3,7 +3,7 @@
 fetch('/data')
   .then(response => response.json())
   .then(data => {
-    var map;
+    let map;
     let dataArray = []; // Array to store CSV data
     let markerArray = [];
 
@@ -11,41 +11,55 @@ fetch('/data')
     dataArray = data;  
     console.log(dataArray);
 
+    // // Create a Set to store unique values
+    // const nameValues = new Set();
+    // // Get the values from data FULL_NAME
+    // data.forEach(item => {
+    //   nameValues.add(item.FULL_NAME);
+    // });
+
+    // // Convert Set to array and sort alphabetically
+    // const sortedNameArray = Array.from(nameValues).sort();
+
     // JavaScript code to toggle left panel display
-    let container = document.querySelector('.container');
+    let mapContainer = document.querySelector('.map-container');
     let leftPanel = document.getElementById('left-panel');
 
     function onLeftPanel() {
-      container.classList.remove("left-panel-hidden");
+      mapContainer.classList.remove("left-panel-hidden");
       leftPanel.style.display = "block";
       leftPanel.innerHTML = "";
     }
 
     function offLeftPanel() {
-      container.classList.add("left-panel-hidden");
+      mapContainer.classList.add("left-panel-hidden");
       leftPanel.style.display = "none";
       leftPanel.innerHTML = "";
     }
 
     function initMap() {
 
+      
       // Default map
       const center = { lat: 37.0902, lng: -95.7129 }; // Center coordinates (US)
 
       // const center = { lat: 40.103844, lng: -75.382324 }; // Center to King of Prussia, PA
 
       map = new google.maps.Map(document.getElementById("map"), {
-          zoom: 5,
+          zoom: 4,
           center: center,
-          mapTypeControl: false,
+          // mapTypeControl: ,
           streetViewControl: false
       });
+
+      // Hide the loading sign
+      document.getElementById("loading-sign").style.display = "none";
 
       // Input box for user to enter their address
       const inputText = document.createElement("input");
       inputText.id = "inputText";
       inputText.type = "text";
-      inputText.placeholder = "Enter an Address";
+      inputText.placeholder = "Enter a zipcode";
 
       const submitButton = document.createElement("input");
       submitButton.type = "button";
@@ -57,40 +71,55 @@ fetch('/data')
       clearButton.value = "Clear";
       clearButton.classList.add("button", "button-secondary");
 
-      const locationButton = document.createElement("input");
-      locationButton.type = "button";
-      locationButton.value = "Use Current Location";
-      locationButton.classList.add("button", "button-secondary");
-
       const searchOptions = document.createElement("div");
       searchOptions.id = "searchOptions";
       searchOptions.classList.add("btn-group", "btn-group-toggle");
       searchOptions.setAttribute("data-toggle", "buttons");
 
-      const addressOptionButton = document.createElement("input");
-      addressOptionButton.type = "button";
-      addressOptionButton.value = "Address";
-      addressOptionButton.classList.add("search-option-button","active");
-      addressOptionButton.name = "searchOption";
-      addressOptionButton.id = "addressOption";
-      addressOptionButton.autocomplete = "off";
-
       const zipcodeOptionButton = document.createElement("input");
       zipcodeOptionButton.type = "button";
       zipcodeOptionButton.value = "Zipcode";
-      zipcodeOptionButton.classList.add("search-option-button");
+      zipcodeOptionButton.classList.add("search-option-button","active");
       zipcodeOptionButton.name = "searchOption";
       zipcodeOptionButton.id = "zipcodeOption";
       zipcodeOptionButton.autocomplete = "off";
 
-      searchOptions.appendChild(addressOptionButton);
+      const addressOptionButton = document.createElement("input");
+      addressOptionButton.type = "button";
+      addressOptionButton.value = "Current Address";
+      addressOptionButton.classList.add("search-option-button");
+      addressOptionButton.name = "searchOption";
+      addressOptionButton.id = "addressOption";
+      addressOptionButton.autocomplete = "off";
+
+      const cityOptionButton = document.createElement("input");
+      cityOptionButton.type = "button";
+      cityOptionButton.value = "City + HCP Name";
+      cityOptionButton.classList.add("search-option-button");
+      cityOptionButton.name = "searchOption";
+      cityOptionButton.id = "cityOption";
+      cityOptionButton.autocomplete = "off";
+
       searchOptions.appendChild(zipcodeOptionButton);
-      
-      map.controls[google.maps.ControlPosition.TOP_LEFT].push(searchOptions);
-      map.controls[google.maps.ControlPosition.TOP_LEFT].push(inputText);
-      map.controls[google.maps.ControlPosition.TOP_LEFT].push(submitButton);
-      map.controls[google.maps.ControlPosition.TOP_LEFT].push(clearButton);
-      map.controls[google.maps.ControlPosition.TOP_LEFT].push(locationButton);
+      searchOptions.appendChild(addressOptionButton);
+      searchOptions.appendChild(cityOptionButton);
+
+      // // HCP Name Dropdown
+      // const nameSelect = document.createElement("select");
+      // nameSelect.id = "name-select";
+
+      // sortedNameArray.forEach(value => {
+      //   const nameOption = document.createElement("option");
+      //   nameOption.value = value;
+      //   nameOption.textContent = value;
+      //   nameSelect.appendChild(nameOption);
+      // });
+
+      // HCP Name Input
+      const nameInput = document.createElement("input");
+      nameInput.id = "nameInputText";
+      nameInput.type = "text";
+      nameInput.placeholder = "Enter a hcp name";
 
       // Distance filter select element
       const distanceFilterSelect = document.createElement("select");
@@ -98,9 +127,11 @@ fetch('/data')
 
       const distanceOptions = [
           { label: "Any distance", value: Infinity},
-          { label: "1 mile", value: 1 },
-          { label: "3 miles", value: 3 },
           { label: "5 miles", value: 5 },
+          { label: "10 miles", value: 10 },
+          { label: "20 miles", value: 20 },
+          { label: "50 miles", value: 50 },
+          { label: "100 miles", value: 100 }
       ];
 
       distanceOptions.forEach((option) => {
@@ -110,90 +141,95 @@ fetch('/data')
           distanceFilterSelect.appendChild(optionElement);
       });
 
-      map.controls[google.maps.ControlPosition.TOP_LEFT].push(distanceFilterSelect);
+      const controlPanel = document.getElementById("control-panel");
+      const searchOptionPanel = document.getElementById("search-option-panel");
+      searchOptionPanel.appendChild(searchOptions);
 
-      distanceFilterSelect.style.display="none";
+      const inputPanel = document.getElementById("input-panel");
+      textInputTitle = document.createElement("p");
+      textInputTitle.innerHTML="Please fill in the following fields:";
+      inputPanel.appendChild(textInputTitle);
+      inputPanel.appendChild(inputText);
+      inputPanel.appendChild(nameInput);
+      inputPanel.appendChild(distanceFilterSelect);
 
-      // const defaultBounds = new google.maps.LatLngBounds(
-      //   new google.maps.LatLng(40.082528, -75.407858),
-      //   new google.maps.LatLng(40.108210, -75.356826));
-
+      const searchClearPanel = document.getElementById("search-clear-panel");
+      searchClearPanel.appendChild(submitButton);
+      searchClearPanel.appendChild(clearButton);
+      
+      // set up auto complete
       const address_options = {
         // bounds: defaultBounds,
         componentRestrictions: { country: "us" },
         strictBounds: true,
-        types:['street_address']
+        types:['postal_code']
       };
-
 
       const autocomplete = new google.maps.places.Autocomplete(inputText, address_options);
 
       // Set initial option
-      let selectedOption = "address";
+      let selectedOption = "zipcode";
 
-      // Add click event listeners to the labels
-      addressOptionButton.addEventListener("click", () => {
-        if (!addressOptionButton.classList.contains("active")) {
-          clear();
-          inputText.value="";
-          addressOptionButton.classList.add("active");
-          zipcodeOptionButton.classList.remove("active");
-          selectedOption = "address";
-          inputText.placeholder = "Enter an Address";
-          locationButton.style.display = "block";
-          autocomplete.setTypes(['street_address']);
-          autocomplete.getPlace();
-        }
-      });
-      
       zipcodeOptionButton.addEventListener("click", () => {
         if (!zipcodeOptionButton.classList.contains("active")) {
           clear();
+          distanceFilterSelect.value = Infinity;
           inputText.value="";
+          inputText.style.display='block';
+          nameInput.style.display='none';
           zipcodeOptionButton.classList.add("active");
           addressOptionButton.classList.remove("active");
+          cityOptionButton.classList.remove("active");
           selectedOption = "zipcode";
           inputText.placeholder = "Enter a Zipcode";
-          locationButton.style.display = "none";
           autocomplete.setTypes(['postal_code']);
           autocomplete.getPlace();
         }
       });
 
-      locationButton.addEventListener("click", () => {
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              const currentLocation = {
-                lat: position.coords.latitude,
-                lng: position.coords.longitude,
-              };
-                  getAddress(currentLocation)
-              .then((address) => {
-                  inputText.value = address;
-                  addressSearch();
-              })
-              .catch((error) => {
-                  console.error(error);
-              });
-            },
-            (error) => {
-              console.error(error);
-            }
-          );
-        } else {
-          console.error("Geolocation is not supported by this browser.");
+      addressOptionButton.addEventListener("click", () => {
+        if (!addressOptionButton.classList.contains("active")) {
+          clear();
+          distanceFilterSelect.value = Infinity;
+          inputText.value="";
+          inputText.style.display='none';
+          nameInput.style.display='none';
+          addressOptionButton.classList.add("active");
+          zipcodeOptionButton.classList.remove("active");
+          cityOptionButton.classList.remove("active");
+          selectedOption = "address";
+          // locationButton.style.display = "block";
+          // inputText.placeholder = "Enter an Address";
+          // autocomplete.setTypes(['street_address']);
+          // autocomplete.getPlace();
+        }
+      });
+      
+      cityOptionButton.addEventListener("click", () => {
+        if (!cityOptionButton.classList.contains("active")) {
+          clear();
+          distanceFilterSelect.value = Infinity;
+          inputText.value="";
+          inputText.style.display='block';
+          nameInput.style.display='block';
+          cityOptionButton.classList.add("active");
+          addressOptionButton.classList.remove("active");
+          zipcodeOptionButton.classList.remove("active");
+          selectedOption = "city";
+          inputText.placeholder = "Enter a city";
+          autocomplete.setTypes(['locality']);
+          autocomplete.getPlace();
         }
       });
 
-      submitButton.addEventListener("click", () => {
-        
-        if(addressOptionButton.classList.contains("active")) {
-          addressSearch();
+      submitButton.addEventListener("click", () => {        
+        if(zipcodeOptionButton.classList.contains("active")) {
+          zipcodeSearch();          
+        } else if (addressOptionButton.classList.contains("active")){
+          currentAddressSearch();
         } else {
-          zipcodeSearch();
-        };
-        
+          citySearch();
+        };        
       });
 
                       
@@ -207,6 +243,9 @@ fetch('/data')
         clear();
         
         const zipcode = extractZipCode(inputText.value);
+        const selectedDistance = distanceFilterSelect.value;
+        console.log(selectedDistance);
+
         if (zipcode) {
           geocodeAddress(zipcode)
             .then(async (geo_result) => {
@@ -237,7 +276,7 @@ fetch('/data')
                   })
                   );
                 console.log('booleanArray',booleanArray);
-                showHCP(booleanArray);
+                showHCP(booleanArray,selectedDistance);
               };
             })
             .catch((error) => {
@@ -245,16 +284,42 @@ fetch('/data')
             });
           };
       };
+
+      function currentAddressSearch(){
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const currentLocation = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+              };
+                  getAddress(currentLocation)
+              .then((address) => {
+                  inputText.value = address;
+                  addressSearch();
+              })
+              .catch((error) => {
+                  console.error(error);
+              });
+            },
+            (error) => {
+              console.error(error);
+            }
+          );
+        } else {
+          console.error("Geolocation is not supported by this browser.");
+        }
+      };
   
       function addressSearch(){
         clear();
     
         const address = inputText.value;
+        const selectedDistance = distanceFilterSelect.value;
     
         if (address) { 
         geocodeAddress(address)
             .then(async (geo_result) => {
-              console.log(geo_result);
               let origin_latlng = geo_result[0].geometry.location;
       
               displayOrigin(origin_latlng, address);
@@ -284,7 +349,7 @@ fetch('/data')
                   );
                   console.log('booleanArray',booleanArray);
     
-                  showHCP(booleanArray);
+                  showHCP(booleanArray,selectedDistance);
             };
             })
             .catch((error) => {
@@ -292,8 +357,47 @@ fetch('/data')
             });
           };
       };
+
+      function citySearch() {
+        clear();
+        const city = extractCity(inputText.value);
+        console.log("input city:", city);
+        const name = nameInput.value.toUpperCase();
+        const selectedDistance = distanceFilterSelect.value;
+
+        if (city) {
+          geocodeAddress(city)
+            .then(async (geo_result) => {
+              console.log('city geocoding result',geo_result);
+              console.log('input zipcode', city);
+              let origin_latlng = geo_result[0].geometry.location;
   
-      function showHCP(booleanArray) {
+              map.setOptions({center:origin_latlng,zoom:11});
+  
+              if (city) {
+                const booleanArray = await Promise.all(
+                  dataArray.map((hcp_location) => {
+                    const hcpCity = hcp_location.CITY_NAME;
+                    const hcpName = hcp_location.FULL_NAME;
+                    try {
+                      return hcpCity == city && hcpName.includes(name);
+                    } catch (error) {
+                      return false;
+                    }
+                  })
+                  );
+                console.log('booleanArray',booleanArray);
+                showHCP(booleanArray,selectedDistance);
+              };
+            })
+            .catch((error) => {
+            console.error(error);
+            });
+          };
+        
+      }
+  
+      function showHCP(booleanArray,selectedDistance) {
         const sum = booleanArray.reduce((accumulator, currentValue) => accumulator + Number(currentValue), 0);
     
         if (sum !== 0) {
@@ -303,12 +407,33 @@ fetch('/data')
           // Display HCPs on map
           HCPDistance(filteredArray, inputText)
               .then((result) => {
-                  distances = result.distance;
-                  latlngs = result.latlng;
-                  hcps = result.hcp;
+                  
+                let distances = result.distance;
+                let latlngs = result.latlng;
+                let hcps = result.hcp;
+                
+
+                let booldistance = [];
+                distances.forEach((dis) => {
+                  if (parseFloat(dis) <= parseFloat(selectedDistance)) {
+                    
+                    console.log('distance comparison:',dis, typeof dis, selectedDistance, typeof selectedDistance);
+                    booldistance.push(true);
+                  } else {
+                    booldistance.push(false);
+                  }
+                });
+
+                console.log(booldistance);
+
+                let final_distances =  distances.filter((_, index) => Boolean(booldistance[index]));
+                let final_latlngs = latlngs.filter((_, index) => Boolean(booldistance[index]));
+                let final_hcps = hcps.filter((_, index) => Boolean(booldistance[index]));
+                
+                console.log(final_distances);
   
                   // Sort the combined array based on Distance
-                  const combined = latlngs.map((hcp_latlng, index) => ({ hcp_latlng, hcp: hcps[index], distance: distances[index]}));
+                  const combined = final_latlngs.map((hcp_latlng, index) => ({ hcp_latlng, hcp: final_hcps[index], distance: final_distances[index]}));
                   const sortedCombined = combined.sort((a, b) => {
                   if (a.hcp_latlng.lat !== b.hcp_latlng.lat) {
                       return a.hcp_latlng.lat - b.hcp_latlng.lat;
@@ -517,20 +642,20 @@ fetch('/data')
                     Group_HCP_details.push(HCPGroupElement);
                   }
   
-                  distanceFilterSelect.style.display="block";
+                  // distanceFilterSelect.style.display="block";
   
-                  distanceFilterSelect.addEventListener("change", () => {
-                      let selectedDistance = distanceFilterSelect.value;
+                  // distanceFilterSelect.addEventListener("change", () => {
+                  //     let selectedDistance = distanceFilterSelect.value;
                       
-                      if (selectedDistance === 'Infinity') {
-                          selectedDistance = Infinity;
+                  //     if (selectedDistance === 'Infinity') {
+                  //         selectedDistance = Infinity;
                           
-                      } else {
-                          selectedDistance = parseInt(selectedDistance);
-                      };
+                  //     } else {
+                  //         selectedDistance = parseInt(selectedDistance);
+                  //     };
                       
-                      filterMarkersByDistance(selectedDistance, Group_HCP_markers, Group_Distance, Group_HCP_details);
-                  });
+                  //     filterMarkersByDistance(selectedDistance, Group_HCP_markers, Group_Distance, Group_HCP_details);
+                  // });
   
               })
               .catch((error) => {
@@ -538,7 +663,7 @@ fetch('/data')
               });
         } else {
           setTimeout(function() {
-            alert("There's no HCP near your entered address");
+            alert("There's no HCP near your entered information");
           }, 500); 
         };                                
       };
@@ -573,8 +698,7 @@ fetch('/data')
   
       function clear() {
         offLeftPanel();
-        distanceFilterSelect.style.display="none";
-        map.setOptions({center:center,zoom:5});
+        map.setOptions({center:center,zoom:4});
         for (var i = 0; i < markerArray.length; i++) {
           markerArray[i].setMap(null);
         }
@@ -619,6 +743,17 @@ fetch('/data')
         if (match) {
           return match[0]; // Return the first matched zip code
         } else {
+          alert("Unable to get zipcode.")
+          return ''; // Return empty string if no zip code found
+        }
+      }
+
+      function extractCity(address) {
+        const city = address.split(",")[0].trim().toUpperCase();
+        if (city) {
+          return city;
+        } else {
+          alert("Unable to get city name.")
           return ''; // Return empty string if no zip code found
         }
       }
@@ -663,7 +798,6 @@ fetch('/data')
           // Calculate and update the distance in the infowindow
           const destinationLatLng = new google.maps.LatLng(pos.lat, pos.lng);
           
-  
           const distancePromise = calculateDistance(originAddress, destinationLatLng)
             .then((distance_mile) => {
                 markerDistance.push(distance_mile);
@@ -675,17 +809,17 @@ fetch('/data')
             });
   
             promises.push(distancePromise);
-        }   
+          };    
   
             return Promise.all(promises)
-                .then(() => {
-                console.log('HCP Distance result', markerLatLng, markerDistance);
-                return {hcp:markerHCP, distance: markerDistance, latlng: markerLatLng};
-                })
-                .catch((error) => {
-                console.error(error);
-                });
-        }
+              .then(() => {
+              // console.log('HCP Distance result', markerLatLng, markerDistance);
+              return {hcp:markerHCP, distance: markerDistance, latlng: markerLatLng};
+              })
+              .catch((error) => {
+              console.error(error);
+              });
+      };
   
       function filterMarkersByDistance(distance, markers, distances, details) {
         for (let i = 0; i < markers.length; i++) {
