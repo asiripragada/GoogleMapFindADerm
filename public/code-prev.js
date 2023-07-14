@@ -45,12 +45,13 @@ fetch('/data')
 
       // const center = { lat: 40.103844, lng: -75.382324 }; // Center to King of Prussia, PA
 
-      map = new google.maps.Map(document.getElementById("map"), {
+      const map = new google.maps.Map(document.getElementById("map"), {
           zoom: 4,
           center: center,
-          // mapTypeControl: ,
           streetViewControl: false
       });
+
+      document.getElementById("map").style.display='none';
 
       // Hide the loading sign
       document.getElementById("loading-sign").style.display = "none";
@@ -126,7 +127,6 @@ fetch('/data')
       distanceFilterSelect.id = "distance-filter-select";
 
       const distanceOptions = [
-          { label: "Any distance", value: Infinity},
           { label: "5 miles", value: 5 },
           { label: "10 miles", value: 10 },
           { label: "20 miles", value: 20 },
@@ -141,16 +141,28 @@ fetch('/data')
           distanceFilterSelect.appendChild(optionElement);
       });
 
+      distanceFilterSelect.value = 50;
+
+      // set up inpur search panel
       const controlPanel = document.getElementById("control-panel");
       const searchOptionPanel = document.getElementById("search-option-panel");
       searchOptionPanel.appendChild(searchOptions);
 
       const inputPanel = document.getElementById("input-panel");
       textInputTitle = document.createElement("p");
+      textInputTitle.classList.add("search-text-p");
       textInputTitle.innerHTML="Please fill in the following fields:";
       inputPanel.appendChild(textInputTitle);
       inputPanel.appendChild(inputText);
+      const inputTextAlert = document.createElement("p");
+      inputTextAlert.classList.add("alert-p");
+      inputTextAlert.innerHTML = "";
+      inputPanel.appendChild(inputTextAlert);
       inputPanel.appendChild(nameInput);
+      const nameInputAlert = document.createElement("p");
+      nameInputAlert.classList.add("alert-p");
+      nameInputAlert.innerHTML = "";
+      inputPanel.appendChild(nameInputAlert);
       inputPanel.appendChild(distanceFilterSelect);
 
       const searchClearPanel = document.getElementById("search-clear-panel");
@@ -173,10 +185,13 @@ fetch('/data')
       zipcodeOptionButton.addEventListener("click", () => {
         if (!zipcodeOptionButton.classList.contains("active")) {
           clear();
-          distanceFilterSelect.value = Infinity;
+          distanceFilterSelect.value = 50;
           inputText.value="";
           inputText.style.display='block';
           nameInput.style.display='none';
+          inputTextAlert.style.display='block';
+          nameInputAlert.style.display='none';
+          distanceFilterSelect.style.display='block';
           zipcodeOptionButton.classList.add("active");
           addressOptionButton.classList.remove("active");
           cityOptionButton.classList.remove("active");
@@ -190,28 +205,30 @@ fetch('/data')
       addressOptionButton.addEventListener("click", () => {
         if (!addressOptionButton.classList.contains("active")) {
           clear();
-          distanceFilterSelect.value = Infinity;
+          distanceFilterSelect.value = 50;
           inputText.value="";
           inputText.style.display='none';
           nameInput.style.display='none';
+          inputTextAlert.style.display='none';
+          nameInputAlert.style.display='none';
+          distanceFilterSelect.style.display='block';
           addressOptionButton.classList.add("active");
           zipcodeOptionButton.classList.remove("active");
           cityOptionButton.classList.remove("active");
           selectedOption = "address";
-          // locationButton.style.display = "block";
-          // inputText.placeholder = "Enter an Address";
-          // autocomplete.setTypes(['street_address']);
-          // autocomplete.getPlace();
         }
       });
       
       cityOptionButton.addEventListener("click", () => {
         if (!cityOptionButton.classList.contains("active")) {
           clear();
-          distanceFilterSelect.value = Infinity;
+          distanceFilterSelect.value = 50;
           inputText.value="";
           inputText.style.display='block';
           nameInput.style.display='block';
+          inputTextAlert.style.display='block';
+          nameInputAlert.style.display='block';
+          distanceFilterSelect.style.display='none';
           cityOptionButton.classList.add("active");
           addressOptionButton.classList.remove("active");
           zipcodeOptionButton.classList.remove("active");
@@ -224,11 +241,20 @@ fetch('/data')
 
       submitButton.addEventListener("click", () => {        
         if(zipcodeOptionButton.classList.contains("active")) {
-          zipcodeSearch();          
+          if (inputText.value != "") {
+            zipcodeSearch();  
+          } else {
+            inputTextAlert.innerHTML="Please enter a zipcode.";
+          };
         } else if (addressOptionButton.classList.contains("active")){
           currentAddressSearch();
         } else {
-          citySearch();
+          if (inputText.value != "" || nameInput.value != "") {
+            citySearch();  
+          } else {
+            inputTextAlert.innerHTML="Please enter a city name or a HCP name.";
+            nameInputAlert.innerHTML="Please enter a city name or a HCP name.";
+          };          
         };        
       });
 
@@ -240,7 +266,8 @@ fetch('/data')
       });  
 
       function zipcodeSearch(){
-        clear();
+        clearmarkers();
+        
         
         const zipcode = extractZipCode(inputText.value);
         const selectedDistance = distanceFilterSelect.value;
@@ -249,6 +276,8 @@ fetch('/data')
         if (zipcode) {
           geocodeAddress(zipcode)
             .then(async (geo_result) => {
+              document.getElementById("map").style.display='block';
+
               console.log('zipcode geocoding result',geo_result);
               console.log('input zipcode', zipcode);
               let origin_latlng = geo_result[0].geometry.location;
@@ -312,7 +341,7 @@ fetch('/data')
       };
   
       function addressSearch(){
-        clear();
+        clearmarkers();
     
         const address = inputText.value;
         const selectedDistance = distanceFilterSelect.value;
@@ -320,6 +349,8 @@ fetch('/data')
         if (address) { 
         geocodeAddress(address)
             .then(async (geo_result) => {
+              document.getElementById("map").style.display='block';
+
               let origin_latlng = geo_result[0].geometry.location;
       
               displayOrigin(origin_latlng, address);
@@ -359,314 +390,312 @@ fetch('/data')
       };
 
       function citySearch() {
-        clear();
-        const city = extractCity(inputText.value);
-        console.log("input city:", city);
+        clearmarkers();
         const name = nameInput.value.toUpperCase();
-        const selectedDistance = distanceFilterSelect.value;
 
-        if (city) {
-          geocodeAddress(city)
-            .then(async (geo_result) => {
-              console.log('city geocoding result',geo_result);
-              console.log('input zipcode', city);
-              let origin_latlng = geo_result[0].geometry.location;
-  
-              map.setOptions({center:origin_latlng,zoom:11});
-  
-              if (city) {
-                const booleanArray = await Promise.all(
-                  dataArray.map((hcp_location) => {
-                    const hcpCity = hcp_location.CITY_NAME;
-                    const hcpName = hcp_location.FULL_NAME;
-                    try {
-                      return hcpCity == city && hcpName.includes(name);
-                    } catch (error) {
-                      return false;
-                    }
-                  })
-                  );
-                console.log('booleanArray',booleanArray);
-                showHCP(booleanArray,selectedDistance);
-              };
-            })
-            .catch((error) => {
-            console.error(error);
-            });
-          };
+        if (inputText.value != "") {
+          const city = extractCity(inputText.value);
+          const state = extractState(inputText.value);
+          console.log("input city:", city);
+          console.log("input state:", state);
+          
+          const selectedDistance = distanceFilterSelect.value;
+
+          if (city&&state) {
+            geocodeAddress(city)
+              .then(async (geo_result) => {
+                document.getElementById("map").style.display='block';
+
+                console.log('city geocoding result',geo_result);
+                console.log('input city', city);
+                let origin_latlng = geo_result[0].geometry.location;
+    
+                map.setOptions({center:origin_latlng,zoom:11});
+    
+                if (city&&state) {
+                  const booleanArray = await Promise.all(
+                    dataArray.map((hcp_location) => {
+                      const hcpCity = hcp_location.CITY_NAME;
+                      const hcpState = hcp_location.STATE_CODE;
+                      const hcpName = hcp_location.FULL_NAME;
+                      try {
+                        return hcpCity == city && hcpState==state && hcpName.includes(name);
+                      } catch (error) {
+                        return false;
+                      }
+                    })
+                    );
+                  console.log('booleanArray',booleanArray);
+                  showHCP(booleanArray,"Infinity");
+                };
+              })
+              .catch((error) => {
+              console.error(error);
+              });
+            };
+        } else {
+          document.getElementById("map").style.display='block';
+          const booleanArray =
+              dataArray.map((hcp_location) => {
+                const hcpName = hcp_location.FULL_NAME;
+                try {
+                  return hcpName.includes(name);
+                } catch (error) {
+                  return false;
+                }
+              })
+          console.log('booleanArray',booleanArray);
+          showHCP(booleanArray,"Infinity");
+        }
+      };
+
+      function displayHCP(final_hcps,final_distances) {
+
+        console.log('final_hcps:',final_hcps);
+        console.log('final_distances:',final_distances);
+
+        const shape = {
+          coords: [1, 1, 1, 8, 6, 8, 6, 1],
+          type: "poly",
+        };
+
+        onLeftPanel();
+        origin_center = map.getCenter();
         
-      }
+        const HCPHeaderElement = document.createElement("div");
+        HCPHeaderElement.innerHTML = '<strong> HCP Details </strong>';
+        HCPHeaderElement.classList.add("HCP-header");
+        leftPanel.appendChild(HCPHeaderElement);
+
+        const HCPContentElement = document.createElement("div");
+        HCPContentElement.id = "leftPanelContent";
+        HCPContentElement.classList.add("HCP-content");
+
+        for (let i = 0; i < final_hcps.length; i++){
+
+          let hcp = final_hcps[i]
+          let dis = '';
+
+          if (selectedOption == "city") {
+            dis = '';
+          } else {
+            dis = final_distances[i]
+          };
+
+          console.log('dis', dis);
+
+          let pos = JSON.parse(hcp.COORDINATES)
+
+          let marker_hcp = new google.maps.Marker({
+              position: pos,
+              map: map,
+              shape: shape,
+              icon:"http://maps.google.com/mapfiles/ms/icons/red-dot.png"
+          });
+          markerArray.push(marker_hcp);
+
+          let hcp_name = capitalizeFirstLetter(hcp.FIRST_NAME) + " " + capitalizeFirstLetter(hcp.LAST_NAME);
+          let hcp_address = capitalizeFirstLetter(hcp.ADDRESS_LINE_1) + " " + capitalizeFirstLetter(hcp.ADDRESS_LINE_2);
+          let hcp_city = capitalizeFirstLetter(hcp.CITY_NAME);
+
+          let infowindow_hcp = new google.maps.InfoWindow();
+          
+          // Set the content of the InfoWindow
+          infowindow_hcp.setContent(
+            '<div style="max-width: 200px; margin: 5px;">' +
+              '<h4 style="margin: 0; color: #1a73e8; font-size: 14px; font-weight: bold;">'+ hcp_name + '</h4>' +
+              '<p style="margin: 0; margin-top: 5px; font-size: 12px; ">'+ hcp_address +'</p>' +
+              '<p style="margin: 0; margin-bottom: 5px; font-size: 12px;">'+ hcp_city + ',' + hcp.STATE_CODE + ' ' + hcp.ZIP_CODE +'</p>' +
+              // '<div style="margin: 5px 0;">'+ 
+              //   '<p style="margin:0; font-weight:bold;">'+ dis + ' miles' +'</p>'+
+              //   '</div>'+
+            '</div>'
+          );
+          
+          let HCPCardElement = document.createElement("div");
+          HCPCardElement.classList.add("HCP-card-div");
+
+          let HCPDetailElement = document.createElement("div");
+          HCPDetailElement.classList.add("HCP-detail-div");
+
+          let HCPDetail_Name = document.createElement("h4");
+          HCPDetail_Name.classList.add("HCP-detail-name");
+          HCPDetail_Name.innerHTML = hcp_name;
+          
+          let HCPDetail_Address = document.createElement("div");
+          HCPDetail_Address.classList.add("HCP-detail");
+          let HCPDetail_Address_street = document.createElement("p");
+          HCPDetail_Address_street.innerHTML = hcp_address;
+          let HCPDetail_Address_city = document.createElement("p");
+          HCPDetail_Address_city.innerHTML = hcp_city + ', ' + hcp.STATE_CODE + ' ' + hcp.ZIP_CODE;
+          HCPDetail_Address.appendChild(HCPDetail_Address_street);
+          HCPDetail_Address.appendChild(HCPDetail_Address_city);
+          
+          HCPDetailElement.appendChild(HCPDetail_Name);
+          HCPDetailElement.appendChild(HCPDetail_Address);
+
+          if (selectedOption != "city") {
+            let HCPDetail_Route = document.createElement("div");
+            HCPDetail_Route.classList.add("HCP-detail-route");
+            let HCPDetail_Distance = document.createElement("span");
+            HCPDetail_Distance.classList.add("HCP-detail-dis");
+            HCPDetail_Distance.innerHTML = dis + ' miles&nbsp;&nbsp;&nbsp;';
+            HCPDetail_Route.appendChild(HCPDetail_Distance);
+
+            if (selectedOption == 'address') {
+              // Encode the addresses for URL compatibility
+              let encodedOrigin = encodeURIComponent(inputText.value);
+              let encodedDestination = encodeURIComponent(hcp.FULL_ADDRESS);
+              // Create the Google Maps URL with the encoded addresses
+              let googleMapsURL = `https://www.google.com/maps/dir/${encodedOrigin}/${encodedDestination}`;
+  
+              const HCPDetail_Direction = document.createElement("a");
+              HCPDetail_Direction.classList.add("HCP-detail-direction");
+              HCPDetail_Direction.textContent  = "Get Directions";
+              HCPDetail_Direction.href = googleMapsURL;
+              HCPDetail_Direction.target = "_blank"; // Open in a new tab
+  
+              HCPDetail_Route.appendChild(HCPDetail_Direction);
+            };
+
+            HCPDetailElement.appendChild(HCPDetail_Route);
+          };
+
+          HCPCardElement.appendChild(HCPDetailElement);
+
+          HCPContentElement.appendChild(HCPCardElement);
+
+          let clicked = false;
+          let elementTop = HCPCardElement.offsetTop;
+
+          marker_hcp.addListener("mouseover", () => {
+            if (!clicked) {
+              infowindow_hcp.open(map, marker_hcp);
+              marker_hcp.setIcon({ url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png", scaledSize: new google.maps.Size(50, 50) });
+              HCPCardElement.classList.add("active");
+              HCPContentElement.scrollTop = elementTop-50;
+            }
+          });
+          
+          marker_hcp.addListener("mouseout", () => {
+            if (!clicked) {
+              infowindow_hcp.close();
+              marker_hcp.setIcon({ url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png" });
+              HCPCardElement.classList.remove("active");
+            }
+          });
+          
+          marker_hcp.addListener("click", () => {
+            if (clicked) {
+              clicked = false;
+              infowindow_hcp.close();
+              marker_hcp.setIcon({ url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png" });
+              HCPCardElement.classList.remove("active");
+              map.setOptions({ center: origin_center, zoom: 13 });
+              HCPContentElement.scrollTop = elementTop-50;
+            } else {
+              clicked = true;
+              infowindow_hcp.open(map, marker_hcp);
+              marker_hcp.setIcon({ url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png", scaledSize: new google.maps.Size(50, 50) });
+              HCPCardElement.classList.add("active");
+              map.setOptions({ center: marker_hcp.getPosition(), zoom: 15 });
+            }
+          });
+
+          infowindow_hcp.addListener("closeclick", () => {
+            clicked = false;
+            marker_hcp.setIcon({ url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png" });
+            HCPCardElement.classList.remove("active");
+            map.setOptions({ center: origin_center, zoom: 13 });
+          });
+
+          HCPCardElement.addEventListener("mouseover", () => {
+            if (!clicked) {
+              infowindow_hcp.open(map, marker_hcp);
+              marker_hcp.setIcon({ url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png", scaledSize: new google.maps.Size(50, 50) });
+              HCPCardElement.classList.add("active");
+            }
+          });
+          
+          HCPCardElement.addEventListener("mouseout", () => {
+            if (!clicked) {
+              infowindow_hcp.close();
+              marker_hcp.setIcon({ url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png" });
+              HCPCardElement.classList.remove("active");
+            }
+          });
+          
+          HCPCardElement.addEventListener("click", () => {
+            if (clicked) {
+              clicked = false;
+              infowindow_hcp.close();
+              marker_hcp.setIcon({ url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png" });
+              HCPCardElement.classList.remove("active");
+              map.setOptions({ center: origin_center, zoom: 13 });
+            } else {
+              clicked = true;
+              infowindow_hcp.open(map, marker_hcp);
+              marker_hcp.setIcon({ url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png", scaledSize: new google.maps.Size(50, 50) });
+              HCPCardElement.classList.add("active");
+              map.setOptions({ center: marker_hcp.getPosition(), zoom: 15 });
+            }
+          });
+
+        };
+        leftPanel.appendChild(HCPContentElement);
+      };
   
       function showHCP(booleanArray,selectedDistance) {
+
         const sum = booleanArray.reduce((accumulator, currentValue) => accumulator + Number(currentValue), 0);
     
         if (sum !== 0) {
           // Filter HCPs array
           const filteredArray = dataArray.filter((_, index) => Boolean(booleanArray[index]));
-  
-          // Display HCPs on map
-          HCPDistance(filteredArray, inputText)
-              .then((result) => {
-                  
-                let distances = result.distance;
-                let latlngs = result.latlng;
-                let hcps = result.hcp;
+          
+          if (selectedDistance != "Infinity") {
+            // Display HCPs on map
+            HCPDistance(filteredArray, inputText)
+            .then((result) => {
                 
+              let distances = result.distance;
+              let hcps = result.hcp;
+              
 
-                let booldistance = [];
-                distances.forEach((dis) => {
-                  if (parseFloat(dis) <= parseFloat(selectedDistance)) {
-                    
-                    console.log('distance comparison:',dis, typeof dis, selectedDistance, typeof selectedDistance);
-                    booldistance.push(true);
-                  } else {
-                    booldistance.push(false);
-                  }
-                });
-
-                console.log(booldistance);
-
-                let final_distances =  distances.filter((_, index) => Boolean(booldistance[index]));
-                let final_latlngs = latlngs.filter((_, index) => Boolean(booldistance[index]));
-                let final_hcps = hcps.filter((_, index) => Boolean(booldistance[index]));
-                
-                console.log(final_distances);
-  
-                  // Sort the combined array based on Distance
-                  const combined = final_latlngs.map((hcp_latlng, index) => ({ hcp_latlng, hcp: final_hcps[index], distance: final_distances[index]}));
-                  const sortedCombined = combined.sort((a, b) => {
-                  if (a.hcp_latlng.lat !== b.hcp_latlng.lat) {
-                      return a.hcp_latlng.lat - b.hcp_latlng.lat;
-                  } else {
-                      return a.hcp_latlng.lng - b.hcp_latlng.lng;
-                  }
-                  });
-  
-                  // Initialize the result arrays
-                  let Group_HCP = [];
-                  let Group_latlng = []
-                  let Group_Distance = [];
-  
-                  // Iterate over the sorted combined array and group HCPs based on Distance
-                  let currentlatlng = {lat:null, lng:null};
-                  let currentGroup = [];
-                  let currentDistance = [];
-  
-                  sortedCombined.forEach(({ hcp_latlng, hcp, distance }) => {
-                  if (hcp_latlng.lat === currentlatlng.lat & hcp_latlng.lng === currentlatlng.lng) {
-                      currentGroup.push(hcp);
-                      currentDistance=distance;
-                  } else {
-                      if (currentlatlng.lat !== null) {
-                      Group_HCP.push(currentGroup);
-                      Group_latlng.push(currentlatlng);
-                      Group_Distance.push(currentDistance);
-                      }
-                      currentlatlng = hcp_latlng;
-                      currentGroup = [hcp];
-                      currentDistance = distance;
-                  }
-                  });
-  
-                  // Add the last group to the result arrays
-                  Group_HCP.push(currentGroup);
-                  Group_latlng.push(currentlatlng);
-                  Group_Distance.push(currentDistance);
-                  
-                  Group_HCP_markers = [];
-                  Group_HCP_details = [];
-  
-                  const shape = {
-                  coords: [1, 1, 1, 8, 6, 8, 6, 1],
-                  type: "poly",
-                  };
-  
-                  onLeftPanel();
-                  origin_center = map.getCenter();
-                  
-                  const HCPHeaderElement = document.createElement("div");
-                  HCPHeaderElement.innerHTML = '<strong> HCP Details </strong>';
-                  HCPHeaderElement.classList.add("HCP-header");
-                  leftPanel.appendChild(HCPHeaderElement);
-
-                  const HCPContentElement = document.createElement("div");
-                  HCPContentElement.id = "leftPanelContent";
-                  HCPContentElement.classList.add("HCP-content");
-                  
-                
-                  for (let i = 0; i < Group_HCP.length; i++){
-                    group = Group_HCP[i]
-                    dis = Group_Distance[i]
-  
-                    group_pos = JSON.parse(group[0].COORDINATES)
-  
-                    let marker_hcp = new google.maps.Marker({
-                        position: group_pos,
-                        map: map,
-                        shape: shape,
-                        icon:"http://maps.google.com/mapfiles/ms/icons/red-dot.png"
-                    });
-                    markerArray.push(marker_hcp);
-  
-  
-                    tooltips = '<strong>HCP</strong>' + "<br>"
-  
-                    // Create a new element for the tooltip text
-                    const HCPGroupElement = document.createElement("div");
-                    HCPGroupElement.classList.add("HCP-group-div");
-                    let HCPGroupElement_Text = '';
-  
-                    for (let j = 0; j < group.length; j++){
-  
-                      hcp = group[j]
-                      tooltips += "<strong> Name: </strong>" + capitalizeFirstLetter(hcp.FIRST_NAME) + " " + capitalizeFirstLetter(hcp.LAST_NAME) +
-                      "<strong> Address: </strong>" + hcp.ADDRESS_LINE_1 + ' , ' + hcp.ADDRESS_LINE_2  + "<br>"
-  
-                      const HCPElement = document.createElement("div");
-                      let HCPElement_Text = "<br>"+ "<strong> Name: </strong>" + capitalizeFirstLetter(hcp.FIRST_NAME) + " " + capitalizeFirstLetter(hcp.LAST_NAME) +"<br>"+
-                      "<strong> Specialty: </strong>" + 'Temp'+ "<br>" + 
-                      "<strong> Phone Number: </strong>" + '(xxx)-xxx-xxxx'+ "<br>" + 
-                      "<strong> Address: </strong>" + hcp.ADDRESS_LINE_1 + ' , ' + hcp.ADDRESS_LINE_2  + "<br>"+
-                      "<strong> City: </strong>" + hcp.CITY_NAME + "<br>"+
-                      "<strong> Zipcode: </strong>" + hcp.ZIP_CODE + "<br>"
-                      HCPElement.innerHTML = HCPElement_Text;
-                      HCPGroupElement.appendChild(HCPElement);
-                    }
-                    const HCPGroupTextElement = document.createElement("div");
-                    HCPGroupElement_Text +="<br>" + "<strong>Distance: </strong>" + dis + "miles" + "<br>" + "<br>"
-                    HCPGroupTextElement.innerHTML = HCPGroupElement_Text
-                    HCPGroupElement.appendChild(HCPGroupTextElement);
-
-                    if (selectedOption == 'address') {
-                      // Encode the addresses for URL compatibility
-                      let encodedOrigin = encodeURIComponent(inputText.value);
-                      let encodedDestination = encodeURIComponent(hcp.FULL_ADDRESS);
-                      // Create the Google Maps URL with the encoded addresses
-                      let googleMapsURL = `https://www.google.com/maps/dir/${encodedOrigin}/${encodedDestination}`;
-
-
-                      const HCPDirElement = document.createElement("a");
-                      HCPDirElement.textContent  = "Get Directions";
-                      HCPDirElement.href = googleMapsURL;
-                      HCPDirElement.target = "_blank"; // Open in a new tab
-
-                      HCPGroupElement.appendChild(HCPDirElement);
-                      HCPGroupElement.appendChild(document.createElement("br")); // Add a <br> element
-                      HCPGroupElement.appendChild(document.createElement("br")); // Add a <br> element
-                    }
-
-                    HCPContentElement.appendChild(HCPGroupElement);
-                    leftPanel.appendChild(HCPContentElement);
-  
-                    tooltips += "<strong>Distance: </strong>" + dis + "miles"
-                    let infowindow_hcp = new google.maps.InfoWindow({content:tooltips});
-                    
-                    let clicked = false;
-                    
-                    const elementTop = HCPGroupElement.offsetTop;
-
-                    marker_hcp.addListener("mouseover", () => {
-                      if (!clicked) {
-                        infowindow_hcp.open(map, marker_hcp);
-                        marker_hcp.setIcon({ url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png", scaledSize: new google.maps.Size(50, 50) });
-                        HCPGroupElement.classList.add("active");
-                        HCPContentElement.scrollTop = elementTop-50;
-                      }
-                    });
-                    
-                    marker_hcp.addListener("mouseout", () => {
-                      if (!clicked) {
-                        infowindow_hcp.close();
-                        marker_hcp.setIcon({ url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png" });
-                        HCPGroupElement.classList.remove("active");
-                      }
-                    });
-                    
-                    marker_hcp.addListener("click", () => {
-                      if (clicked) {
-                        clicked = false;
-                        infowindow_hcp.close();
-                        marker_hcp.setIcon({ url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png" });
-                        HCPGroupElement.classList.remove("active");
-                        map.setOptions({ center: origin_center, zoom: 13 });
-                        HCPContentElement.scrollTop = elementTop-50;
-                      } else {
-                        clicked = true;
-                        infowindow_hcp.open(map, marker_hcp);
-                        marker_hcp.setIcon({ url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png", scaledSize: new google.maps.Size(50, 50) });
-                        HCPGroupElement.classList.add("active");
-                        map.setOptions({ center: marker_hcp.getPosition(), zoom: 15 });
-                      }
-                    });
-                    
-                    infowindow_hcp.addListener("closeclick", () => {
-                      clicked = false;
-                      marker_hcp.setIcon({ url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png" });
-                      HCPGroupElement.classList.remove("active");
-                      map.setOptions({ center: origin_center, zoom: 13 });
-                    });
-                    
-                    Group_HCP_markers.push(marker_hcp);
-                    
-                    HCPGroupElement.addEventListener("mouseover", () => {
-                      if (!clicked) {
-                        infowindow_hcp.open(map, marker_hcp);
-                        marker_hcp.setIcon({ url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png", scaledSize: new google.maps.Size(50, 50) });
-                        HCPGroupElement.classList.add("active");
-                      }
-                    });
-                    
-                    HCPGroupElement.addEventListener("mouseout", () => {
-                      if (!clicked) {
-                        infowindow_hcp.close();
-                        marker_hcp.setIcon({ url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png" });
-                        HCPGroupElement.classList.remove("active");
-                      }
-                    });
-                    
-                    HCPGroupElement.addEventListener("click", () => {
-                      if (clicked) {
-                        clicked = false;
-                        infowindow_hcp.close();
-                        marker_hcp.setIcon({ url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png" });
-                        HCPGroupElement.classList.remove("active");
-                        map.setOptions({ center: origin_center, zoom: 13 });
-                      } else {
-                        clicked = true;
-                        infowindow_hcp.open(map, marker_hcp);
-                        marker_hcp.setIcon({ url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png", scaledSize: new google.maps.Size(50, 50) });
-                        HCPGroupElement.classList.add("active");
-                        map.setOptions({ center: marker_hcp.getPosition(), zoom: 15 });
-                      }
-                    });
-                    Group_HCP_details.push(HCPGroupElement);
-                  }
-  
-                  // distanceFilterSelect.style.display="block";
-  
-                  // distanceFilterSelect.addEventListener("change", () => {
-                  //     let selectedDistance = distanceFilterSelect.value;
-                      
-                  //     if (selectedDistance === 'Infinity') {
-                  //         selectedDistance = Infinity;
-                          
-                  //     } else {
-                  //         selectedDistance = parseInt(selectedDistance);
-                  //     };
-                      
-                  //     filterMarkersByDistance(selectedDistance, Group_HCP_markers, Group_Distance, Group_HCP_details);
-                  // });
-  
-              })
-              .catch((error) => {
-                  console.error(error);
+              let booldistance = [];
+              distances.forEach((dis) => {
+                if (parseFloat(dis) <= parseFloat(selectedDistance)) {                  
+                  // console.log('distance comparison:',dis, typeof dis, selectedDistance, typeof selectedDistance);
+                  booldistance.push(true);
+                } else {
+                  booldistance.push(false);
+                }
               });
+
+              // console.log(booldistance);
+
+              let final_distances = distances.filter((_, index) => Boolean(booldistance[index]));
+              let final_hcps = hcps.filter((_, index) => Boolean(booldistance[index]));
+              
+              // console.log(final_distances);
+
+              displayHCP(final_hcps,final_distances);
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+          } else {
+            displayHCP(filteredArray,'');
+          };
+          
         } else {
           setTimeout(function() {
             alert("There's no HCP near your entered information");
           }, 500); 
         };                                
       };
+
+
   
   
       function displayOrigin(origin_latlng, address){
@@ -697,14 +726,22 @@ fetch('/data')
       }
   
       function clear() {
+        document.getElementById("map").style.display='none';
+        distanceFilterSelect.value = 50;
+        inputText.value="";
+        nameInput.vallue="";
+        inputTextAlert.innerHTML="";
+        nameInputAlert.innerHTML="";
+        clearmarkers();
+      };
+  
+      function clearmarkers() {
         offLeftPanel();
-        map.setOptions({center:center,zoom:4});
         for (var i = 0; i < markerArray.length; i++) {
           markerArray[i].setMap(null);
         }
         markerArray = [];
-      };
-  
+      }
       function getAddress(latlng) {
         return new Promise((resolve, reject) => {
           const geocoder = new google.maps.Geocoder();
@@ -743,7 +780,7 @@ fetch('/data')
         if (match) {
           return match[0]; // Return the first matched zip code
         } else {
-          alert("Unable to get zipcode.")
+          // alert("Unable to get zipcode.")
           return ''; // Return empty string if no zip code found
         }
       }
@@ -753,7 +790,17 @@ fetch('/data')
         if (city) {
           return city;
         } else {
-          alert("Unable to get city name.")
+          // alert("Unable to get city name.")
+          return ''; // Return empty string if no zip code found
+        }
+      }
+
+      function extractState(address) {
+        const state = address.split(',')[1].trim().toUpperCase();
+        if (state) {
+          return state;
+        } else {
+          // alert("Unable to get city name.")
           return ''; // Return empty string if no zip code found
         }
       }
@@ -821,30 +868,12 @@ fetch('/data')
               });
       };
   
-      function filterMarkersByDistance(distance, markers, distances, details) {
-        for (let i = 0; i < markers.length; i++) {
-          const marker = markers[i];
-          const markerDistance = distances[i];
-          const detail = details[i];
-  
-          if (markerDistance <= distance) {
-            marker.setMap(map);
-            detail.style.display = 'block';
-          } else {
-            marker.setMap(null);
-            detail.style.display = 'none';
-          }
-          console.log('marker distance',markerDistance, 'set distance', distance, 'hcp details', detail);
-        }
-      };
-  
       function capitalizeFirstLetter(str) {
         return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
       };
 
     };
 
-    
 
     initMap();
 

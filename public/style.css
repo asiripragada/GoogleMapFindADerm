@@ -1,39 +1,30 @@
 /* @author: Violet(Yafan) Zeng */
-h3 {
-  margin: 5px;
-  margin-left: 5px;
-  margin-top:10px;
-  font-size: 18px;
+.main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Horizontally center the content */
+  height:100%;
 }
-.search-text-p {
-  margin: 0px;
-  margin-left: 5px;
-  margin-top:10px;
-  padding: 0;
+.main h1 {
+  text-align: center;
+  margin: 0; 
+  font-size: 30px;
+  /* align-items: center;  */
+  margin: 20px auto;
 }
 
-#loading-sign {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: block;
-}
-#loading-sign img {
-  width: 200px; /* Adjust the width as per your requirement */
-  height: 132px; /* Adjust the height as per your requirement */
-}
+
+
+
 
 #container {
-  border-radius: 2px;
-  box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
-  border: 2px solid #1a73e8;
+  border: 1px solid rgba(0, 0, 0, 0.064);
   position: relative;
   display: flex;
   flex-direction: column;
   height: 100%;
-  width: 60%;
-  margin: 0 auto; /* Add this line to center the container horizontally */
+  width: 98%;
+  margin: 10px auto; /* Add this line to center the container horizontally */
 }
 
 #control-panel {
@@ -79,6 +70,12 @@ h3 {
   background-color: #eaf3f9;
 }
 
+.search-text-p {
+  margin: 0px;
+  margin-left: 5px;
+  margin-top:10px;
+  padding: 0;
+}
 #input-panel {
   display:flex;
   flex-direction: column;
@@ -172,69 +169,157 @@ h3 {
 .button-secondary:hover {
   background-color: #eaf3f9;
 }
+.map-main {
+  position:relative;
+  width: 100%;
+  flex:1;
+}
+
+#loading-sign {
+  position: absolute;
+  height:100%;
+  width: 100%;
+  z-index:3;
+  background-color: #fff;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: block;
+}
+#loading-sign img {
+  width: 200px; 
+  height: 132px; 
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#map-shield {
+  position: absolute;
+  z-index: 2;
+  background-color:rgb(10, 22, 80);
+  opacity: 0.8;
+  width:100%;
+  height:100%;
+  /* display:flex;
+  flex-direction: row;
+  align-items: center; 
+  justify-content: center;  */
+}
+#map-shield-message-container {
+  text-align: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.map-shield-message-white {
+  font-size: 18px;
+  color:#fff;
+}
+.map-shield-message-yellow {
+  font-size: 18px;
+  color:rgb(255, 208, 0);
+}
+#map-shield-icon {
+  position: absolute;
+  top: 50%;
+  right: 25%;
+  transform: translateY(-90%);
+}
+#map-shield-icon img {
+  width: 100px;
+  height: 100px;
+}
 
 .map-container {
-  position: relative; /* Change from absolute to relative positioning */
-  display: flex;
+  position: relative;
+  z-index: 1;
   flex: 1;
   width: 100%;
-  overflow-y: auto;
+  height:100%;
+  display: flex;
 }
 #map {
   flex: 1;
   width:100%;
-  
 }
-
 #left-panel {
   top:0;
   background-color: #fff;
-  width: 40%;
+  width: 30%;
   height:100%;
-  display: none; 
   border: 0;
   border-radius: 2px;
   box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
   font: 400 14px Roboto, Arial, sans-serif;
-  order:2;
+  display: none; 
+  flex-direction: column;
 }
 .left-panel-hidden #map {
-  right: 0;
+  left: 0;
 }
 .HCP-header {
-  font: 400 16px Roboto, Arial, sans-serif;
-  color: #1a73e8;
-  border: 0;
-  border-radius: 2px;
-  box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
-  padding: 10px;
+  text-align: center;
+  font-size: 12px;
+  padding: 5px;
 }
 .HCP-content{
   background-color: #fff;
-  border: 0;
-  border-radius: 2px;
-  box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
   overflow-y: auto;
   flex:1;
-  padding: 10px 0;
-  /* height: calc(100% - 50px); */
-  /* margin-top: 40px; */
 }
 .HCP-card-div {
-  margin:0;
+  margin:5px 10px;
   background-color: #fff;
+  height:100px;
+  border: 0;
+  border-radius: 10px;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.2),0 0 2px rgba(0, 0, 0, 0.2),0 0 2px rgba(0, 0, 0, 0.2),0 0 2px rgba(0, 0, 0, 0.2);
+  /* box-shadow: 0 1pxrgba(0, 0, 0, 0.17)0, 0, 0.3); */
+  display:flex;
+  flex-direction: row;
+}
+.HCP-card-tab {
+  position: relative;
+  z-index: 2;
+  border:0;
+  border-radius: 10px 0 0 10px;
+  background-color: #eaf3f9;
+  height:100%;
+  margin:0;
+  width:10px;
+  order:1;
 }
 .HCP-card-div.active {
   background-color: #eaf3f9;
 }
+.HCP-number-div {
+  /* display: flex; */
+  justify-content: center; /* Center content horizontally */
+  align-items: flex-start; /* Align content at the top */
+  font-size: 20px;
+  font-weight: bold;
+  color:#1a73e8;
+  background-color: transparent;
+  padding:5px;
+  height:100%;
+  width:calc(10%-5px);
+  order:2;
+}
 .HCP-detail-div {
   background-color: transparent;
-  margin:5px;
+  padding:5px;
+  height:100%;
+  width:70%;
+  order:3;
 }
 .HCP-detail-name {
   margin: 0; 
+  padding-top:5px;
   color: #1a73e8; 
-  font: 400 14px Roboto, Arial, sans-serif;
+  font: 24px;
   font-weight: bold;
   background-color: transparent;
 }
@@ -249,6 +334,12 @@ h3 {
   margin-bottom: 5px;
   font-size: 12px; 
   background-color: transparent;
+}
+.HCP-detail-line {
+  margin-left:0;
+  width:70%;
+  /* color:rgba(0, 0, 0, 0.2); */
+  border-top: 1px solid rgba(0, 0, 0, 0.2);
 }
 .HCP-detail-route {
   margin: 0; 
@@ -265,7 +356,21 @@ h3 {
 .HCP-detail-direction {
   font-size: 12px; 
 }
-
+.HCP-contact-div {
+  background-color: transparent;
+  padding:5px;
+  height:100%;
+  align-items: center; 
+  justify-content: center;
+  width:20%;
+  order:4;
+  display:flex;
+  flex-direction: column;
+}
+.HCP-detail-icons img {
+  height: 40px;
+  width:40px;
+}
 
 
 
