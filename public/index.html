@@ -4,33 +4,31 @@
   <head>
     <title>Distance Matrix Service</title> 
     <link rel="stylesheet" href="style.css"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:400,500&display=swap">
   </head>
   <body>
     <div class="main">
       <h1> Find a dermatologist near you </h1>
       <div id="container">
-        <div id="control-panel">
-          <div id="search-option-panel"></div>
-          <div id="input-panel"></div>
-          <div id="search-clear-panel"></div>
+        <div id="loading-sign">
+          <img src="pics/Loading_icon.gif" alt="Loading..." />
+        </div>
+        <div id="control-container">
+          <div id="control-panel">
+            <!-- <div id="search-clear-panel"></div> -->
+          </div>
         </div>
         <div class="map-main">
-          <div id="loading-sign">
-            <img src="pics/Loading_icon.gif" alt="Loading..." />
-          </div>
           <div id="map-shield">
-            <div id="map-shield-message-container">
-              <span id="map-shield-message-1" class="map-shield-message-white"> Please </span>
-              <span id="map-shield-message-2" class="map-shield-message-yellow"> search a location </span>
-              <span id="map-shield-message-3" class="map-shield-message-white"> to view the map </span>
-            </div>
             <div id="map-shield-icon">
-              <img src="pics/blur arrow.png" />
+              <img src="pics/map-shield.png" />
             </div>
           </div>
-          <div class="map-container">
-            <div id="left-panel">Stuff you want in the panel</div>
-            <div id="map"></div>
+          <div id="map-main-container">
+            <div class="map-container">
+              <div id="left-panel">Stuff you want in the panel</div>
+              <div id="map"></div>
+            </div>
           </div>
         </div>  
       </div>

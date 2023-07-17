@@ -3,7 +3,6 @@
 fetch('/data')
   .then(response => response.json())
   .then(data => {
-    let map;
     let dataArray = []; // Array to store CSV data
     let markerArray = [];
 
@@ -27,7 +26,7 @@ fetch('/data')
 
     function onLeftPanel() {
       mapContainer.classList.remove("left-panel-hidden");
-      leftPanel.style.display = "block";
+      leftPanel.style.display = "flex";
       leftPanel.innerHTML = "";
     }
 
@@ -48,10 +47,12 @@ fetch('/data')
       const map = new google.maps.Map(document.getElementById("map"), {
           zoom: 4,
           center: center,
-          streetViewControl: false
+          streetViewControl: false,
+          mapTypeControl:false,
+          fullscreenControl: false
       });
 
-      document.getElementById("map").style.display='none';
+      // document.getElementById("map").style.display='none';
 
       // Hide the loading sign
       document.getElementById("loading-sign").style.display = "none";
@@ -276,7 +277,8 @@ fetch('/data')
         if (zipcode) {
           geocodeAddress(zipcode)
             .then(async (geo_result) => {
-              document.getElementById("map").style.display='block';
+              // document.getElementById("map").style.display='block';
+              document.getElementById("map-shield").style.display='none';
 
               console.log('zipcode geocoding result',geo_result);
               console.log('input zipcode', zipcode);
@@ -349,7 +351,8 @@ fetch('/data')
         if (address) { 
         geocodeAddress(address)
             .then(async (geo_result) => {
-              document.getElementById("map").style.display='block';
+              // document.getElementById("map").style.display='block';
+              document.getElementById("map-shield").style.display='none';
 
               let origin_latlng = geo_result[0].geometry.location;
       
@@ -404,7 +407,8 @@ fetch('/data')
           if (city&&state) {
             geocodeAddress(city)
               .then(async (geo_result) => {
-                document.getElementById("map").style.display='block';
+                // document.getElementById("map").style.display='block';
+                document.getElementById("map-shield").style.display='none';
 
                 console.log('city geocoding result',geo_result);
                 console.log('input city', city);
@@ -434,7 +438,8 @@ fetch('/data')
               });
             };
         } else {
-          document.getElementById("map").style.display='block';
+          // document.getElementById("map").style.display='block';
+          document.getElementById("map-shield").style.display='none';
           const booleanArray =
               dataArray.map((hcp_location) => {
                 const hcpName = hcp_location.FULL_NAME;
@@ -463,7 +468,7 @@ fetch('/data')
         origin_center = map.getCenter();
         
         const HCPHeaderElement = document.createElement("div");
-        HCPHeaderElement.innerHTML = '<strong> HCP Details </strong>';
+        HCPHeaderElement.innerHTML = 'Search Results';
         HCPHeaderElement.classList.add("HCP-header");
         leftPanel.appendChild(HCPHeaderElement);
 
@@ -475,6 +480,7 @@ fetch('/data')
 
           let hcp = final_hcps[i]
           let dis = '';
+          let number = i+1;
 
           if (selectedOption == "city") {
             dis = '';
@@ -486,17 +492,45 @@ fetch('/data')
 
           let pos = JSON.parse(hcp.COORDINATES)
 
+          const marker_hcp_icon_normal = {
+            path: MAP_PIN,
+            fillColor: '#1a73e8',
+            fillOpacity: 1,
+            strokeColor: '#000000',
+            strokeWeight: 2,
+            scale: 0.5,
+            labelOrigin: new google.maps.Point(0, -30)
+          };
+
+          const marker_hcp_icon_hover = {
+            path: MAP_PIN,
+            fillColor: '#1a73e8',
+            fillOpacity: 1,
+            strokeColor: '#000000',
+            strokeWeight: 2,
+            scale: 0.7,
+            labelOrigin: new google.maps.Point(0, -30)
+          };
+
           let marker_hcp = new google.maps.Marker({
               position: pos,
               map: map,
               shape: shape,
-              icon:"http://maps.google.com/mapfiles/ms/icons/red-dot.png"
+              icon:marker_hcp_icon_normal,
+              label:{
+                text: number+"", 
+                fontWeight: "bold",
+                fontSize:"16px",
+                color:"white"
+              }
           });
           markerArray.push(marker_hcp);
 
           let hcp_name = capitalizeFirstLetter(hcp.FIRST_NAME) + " " + capitalizeFirstLetter(hcp.LAST_NAME);
           let hcp_address = capitalizeFirstLetter(hcp.ADDRESS_LINE_1) + " " + capitalizeFirstLetter(hcp.ADDRESS_LINE_2);
           let hcp_city = capitalizeFirstLetter(hcp.CITY_NAME);
+          let hcp_email = "example@example.com";
+          // let hcp_phone = "+1234567890"; "tel:"+hcp_phone
 
           let infowindow_hcp = new google.maps.InfoWindow();
           
@@ -515,12 +549,18 @@ fetch('/data')
           let HCPCardElement = document.createElement("div");
           HCPCardElement.classList.add("HCP-card-div");
 
+          let HCPNumberElement = document.createElement("div");
+          HCPNumberElement.classList.add("HCP-number-div");
+          HCPNumberElement.innerHTML = number;
+
+          HCPCardElement.appendChild(HCPNumberElement);
+
           let HCPDetailElement = document.createElement("div");
           HCPDetailElement.classList.add("HCP-detail-div");
 
           let HCPDetail_Name = document.createElement("h4");
           HCPDetail_Name.classList.add("HCP-detail-name");
-          HCPDetail_Name.innerHTML = hcp_name;
+          HCPDetail_Name.innerHTML = 'Dr. ' + hcp_name;
           
           let HCPDetail_Address = document.createElement("div");
           HCPDetail_Address.classList.add("HCP-detail");
@@ -534,7 +574,27 @@ fetch('/data')
           HCPDetailElement.appendChild(HCPDetail_Name);
           HCPDetailElement.appendChild(HCPDetail_Address);
 
+          let HCPContactElement = document.createElement("div");
+          HCPContactElement.classList.add("HCP-contact-div");
+
+          const HCPDetail_Email = document.createElement("a");
+          HCPDetail_Email.classList.add("HCP-detail-icons");
+          HCPDetail_Email.href = "mailto:" + hcp_email;
+
+          const emailIcon = document.createElement("img");
+          
+          emailIcon.src = "pics/call.png"; // Replace with the path to your direction icon image
+          emailIcon.alt = "Send Email";
+          HCPDetail_Email.appendChild(emailIcon);
+
+          HCPContactElement.appendChild(HCPDetail_Email);
+
+
           if (selectedOption != "city") {
+            let HCPDetail_line = document.createElement("hr");
+            HCPDetail_line.classList.add("HCP-detail-line");
+            HCPDetailElement.appendChild(HCPDetail_line);
+
             let HCPDetail_Route = document.createElement("div");
             HCPDetail_Route.classList.add("HCP-detail-route");
             let HCPDetail_Distance = document.createElement("span");
@@ -542,7 +602,10 @@ fetch('/data')
             HCPDetail_Distance.innerHTML = dis + ' miles&nbsp;&nbsp;&nbsp;';
             HCPDetail_Route.appendChild(HCPDetail_Distance);
 
-            if (selectedOption == 'address') {
+            HCPDetailElement.appendChild(HCPDetail_Route);
+
+            // if (selectedOption == 'address') {
+            if (selectedOption != 'city') {
               // Encode the addresses for URL compatibility
               let encodedOrigin = encodeURIComponent(inputText.value);
               let encodedDestination = encodeURIComponent(hcp.FULL_ADDRESS);
@@ -550,18 +613,28 @@ fetch('/data')
               let googleMapsURL = `https://www.google.com/maps/dir/${encodedOrigin}/${encodedDestination}`;
   
               const HCPDetail_Direction = document.createElement("a");
-              HCPDetail_Direction.classList.add("HCP-detail-direction");
-              HCPDetail_Direction.textContent  = "Get Directions";
+              HCPDetail_Direction.classList.add("HCP-detail-icons");
               HCPDetail_Direction.href = googleMapsURL;
               HCPDetail_Direction.target = "_blank"; // Open in a new tab
   
-              HCPDetail_Route.appendChild(HCPDetail_Direction);
-            };
+              const directionIcon = document.createElement("img");
+              directionIcon.src = "pics/navigate.png"; 
+              directionIcon.alt = "Get Directions";
+              // directionIcon.height = 40;
+              // directionIcon.width = 40;
+              HCPDetail_Direction.appendChild(directionIcon);
+              
+              HCPContactElement.appendChild(HCPDetail_Direction);
 
-            HCPDetailElement.appendChild(HCPDetail_Route);
+              HCPCardElement.appendChild(HCPContactElement);
+            };
           };
 
           HCPCardElement.appendChild(HCPDetailElement);
+
+          let HCPCardtab = document.createElement("div");
+          HCPCardtab.classList.add("HCP-card-tab");
+          HCPCardElement.appendChild(HCPCardtab);
 
           HCPContentElement.appendChild(HCPCardElement);
 
@@ -571,7 +644,7 @@ fetch('/data')
           marker_hcp.addListener("mouseover", () => {
             if (!clicked) {
               infowindow_hcp.open(map, marker_hcp);
-              marker_hcp.setIcon({ url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png", scaledSize: new google.maps.Size(50, 50) });
+              marker_hcp.setIcon(marker_hcp_icon_hover);
               HCPCardElement.classList.add("active");
               HCPContentElement.scrollTop = elementTop-50;
             }
@@ -580,7 +653,7 @@ fetch('/data')
           marker_hcp.addListener("mouseout", () => {
             if (!clicked) {
               infowindow_hcp.close();
-              marker_hcp.setIcon({ url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png" });
+              marker_hcp.setIcon(marker_hcp_icon_normal);
               HCPCardElement.classList.remove("active");
             }
           });
@@ -589,14 +662,14 @@ fetch('/data')
             if (clicked) {
               clicked = false;
               infowindow_hcp.close();
-              marker_hcp.setIcon({ url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png" });
+              marker_hcp.setIcon(marker_hcp_icon_normal);
               HCPCardElement.classList.remove("active");
               map.setOptions({ center: origin_center, zoom: 13 });
               HCPContentElement.scrollTop = elementTop-50;
             } else {
               clicked = true;
               infowindow_hcp.open(map, marker_hcp);
-              marker_hcp.setIcon({ url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png", scaledSize: new google.maps.Size(50, 50) });
+              marker_hcp.setIcon(marker_hcp_icon_hover);
               HCPCardElement.classList.add("active");
               map.setOptions({ center: marker_hcp.getPosition(), zoom: 15 });
             }
@@ -604,7 +677,7 @@ fetch('/data')
 
           infowindow_hcp.addListener("closeclick", () => {
             clicked = false;
-            marker_hcp.setIcon({ url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png" });
+            marker_hcp.setIcon(marker_hcp_icon_normal);
             HCPCardElement.classList.remove("active");
             map.setOptions({ center: origin_center, zoom: 13 });
           });
@@ -612,7 +685,7 @@ fetch('/data')
           HCPCardElement.addEventListener("mouseover", () => {
             if (!clicked) {
               infowindow_hcp.open(map, marker_hcp);
-              marker_hcp.setIcon({ url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png", scaledSize: new google.maps.Size(50, 50) });
+              marker_hcp.setIcon(marker_hcp_icon_hover);
               HCPCardElement.classList.add("active");
             }
           });
@@ -620,7 +693,7 @@ fetch('/data')
           HCPCardElement.addEventListener("mouseout", () => {
             if (!clicked) {
               infowindow_hcp.close();
-              marker_hcp.setIcon({ url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png" });
+              marker_hcp.setIcon(marker_hcp_icon_normal);
               HCPCardElement.classList.remove("active");
             }
           });
@@ -629,18 +702,18 @@ fetch('/data')
             if (clicked) {
               clicked = false;
               infowindow_hcp.close();
-              marker_hcp.setIcon({ url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png" });
+              marker_hcp.setIcon(marker_hcp_icon_normal);
               HCPCardElement.classList.remove("active");
               map.setOptions({ center: origin_center, zoom: 13 });
             } else {
               clicked = true;
               infowindow_hcp.open(map, marker_hcp);
-              marker_hcp.setIcon({ url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png", scaledSize: new google.maps.Size(50, 50) });
+              marker_hcp.setIcon(marker_hcp_icon_hover);
               HCPCardElement.classList.add("active");
               map.setOptions({ center: marker_hcp.getPosition(), zoom: 15 });
             }
           });
-
+          
         };
         leftPanel.appendChild(HCPContentElement);
       };
@@ -701,32 +774,52 @@ fetch('/data')
       function displayOrigin(origin_latlng, address){
   
         map.setOptions({center:origin_latlng,zoom:13});
+
+        const marker_O_icon_normal = {
+          path: MAP_PIN,
+          fillColor: '#FF0000',
+          fillOpacity: 1,
+          strokeColor: '#000000',
+          strokeWeight: 2,
+          scale:0.5
+        };
+
+        const marker_O_icon_hover = {
+          path: MAP_PIN,
+          fillColor: '#FF0000',
+          fillOpacity: 1,
+          strokeColor: '#000000',
+          strokeWeight: 2,
+          scale:0.7
+        };
+
         // Display origin location marker & infowindow
         const marker_O = new google.maps.Marker({
           map: map,
           position: origin_latlng,
           zoom:15,
-          icon:"http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+          icon:marker_O_icon_normal
         });
   
         markerArray.push(marker_O);
   
         const infowindow_O = new google.maps.InfoWindow({
-            content: address,
+            content: "Center",
         });
   
         marker_O.addListener("mouseover", () => {
           infowindow_O.open(map, marker_O);
-          marker_O.setIcon({url:"http://maps.google.com/mapfiles/ms/icons/blue-dot.png" ,scaledSize: new google.maps.Size(50, 50)});
+          marker_O.setIcon(marker_O_icon_hover);
         }); 
         marker_O.addListener("mouseout", () => {
           infowindow_O.close(map, marker_O);
-          marker_O.setIcon({url:"http://maps.google.com/mapfiles/ms/icons/blue-dot.png" });
+          marker_O.setIcon(marker_O_icon_normal);
         }); 
       }
   
       function clear() {
-        document.getElementById("map").style.display='none';
+        // document.getElementById("map").style.display='none';
+        document.getElementById("map-shield").style.display='block';
         distanceFilterSelect.value = 50;
         inputText.value="";
         nameInput.vallue="";
