@@ -1055,6 +1055,7 @@ fetch('/data')
         nameInput.classList.remove("error");
         sumbitIcon.src = "pics/Search.png";
         inputPanel.classList.remove("error");
+        clearmarkers();
       };
   
       function clearmarkers() {

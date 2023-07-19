@@ -1,0 +1,40 @@
+<!-- @author: Violet(Yafan) Zeng -->
+
+<html>
+  <head>
+    <title>Distance Matrix Service</title> 
+    <link rel="stylesheet" href="style.css"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:400,500&display=swap">
+  </head>
+  <body>
+    <div class="main">
+      <h1> Find a dermatologist near you </h1>
+      <div id="container">
+        <div id="loading-sign">
+          <img src="pics/Loading_icon.gif" alt="Loading..." />
+        </div>
+        <div id="control-container">
+          <div id="control-panel">
+            <!-- <div id="search-clear-panel"></div> -->
+          </div>
+        </div>
+        <div class="map-main">
+          <div id="map-shield">
+            <div id="map-shield-icon">
+              <img src="pics/map-shield.png" />
+            </div>
+          </div>
+          <div id="map-main-container">
+            <div class="map-container">
+              <div id="left-panel">Stuff you want in the panel</div>
+              <div id="map"></div>
+            </div>
+          </div>
+        </div>  
+      </div>
+    </div>
+    <script src="code.js"></script>
+    <script src="map-icons.min.js"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBnORU4D_5ea-mZttvUO1fjY0_BXa6PkB8&libraries=places" type="text/javascript"></script>
+  </body>
+</html>
