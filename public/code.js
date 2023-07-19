@@ -3,12 +3,12 @@
 fetch('/data')
   .then(response => response.json())
   .then(data => {
-    let dataArray = []; // Array to store CSV data
     let markerArray = [];
 
-    dataArray = data;  
-    console.log(dataArray);
+    console.log(data);
 
+    const dataArray = data.filter(row => row["COORDINATES"] !== 'nan');
+    console.log("dataArray.length",dataArray.length);
 
     const mapMain = document.getElementById("map-main-container");
 
@@ -170,28 +170,115 @@ fetch('/data')
       inputDivider_1.classList.add("vertical-line");
       distanceFilterSelectDiv.appendChild(inputDivider_1);
 
-      // Distance filter select element
-      const distanceFilterSelect = document.createElement("select");
-      distanceFilterSelect.id = "distance-filter-select";
+      // // Distance filter select element
+      // const distanceFilterSelect = document.createElement("select");
+      // distanceFilterSelect.id = "distance-filter-select";
 
-      const distanceOptions = [
-          { label: "5 miles", value: 5 },
-          { label: "10 miles", value: 10 },
-          { label: "20 miles", value: 20 },
-          { label: "50 miles", value: 50 },
-          { label: "100 miles", value: 100 }
-      ];
+      // const distanceOptions = [
+      //     { label: "5 miles", value: 5 },
+      //     { label: "10 miles", value: 10 },
+      //     { label: "20 miles", value: 20 },
+      //     { label: "50 miles", value: 50 },
+      //     { label: "100 miles", value: 100 }
+      // ];
 
-      distanceOptions.forEach((option) => {
-          const optionElement = document.createElement("option");
-          optionElement.value = option.value;
-          optionElement.textContent = option.label;
-          distanceFilterSelect.appendChild(optionElement);
+      // distanceOptions.forEach((option) => {
+      //     const optionElement = document.createElement("option");
+      //     optionElement.value = option.value;
+      //     optionElement.textContent = option.label;
+      //     distanceFilterSelect.appendChild(optionElement);
+      // });
+
+      // distanceFilterSelect.value = 50;
+
+      // distanceFilterSelectDiv.appendChild(distanceFilterSelect);
+      // controlPanel.appendChild(distanceFilterSelectDiv);
+
+      const distanceText = document.createElement("div");
+      distanceText.id = "distance-text";
+      distanceText.innerHTML = "Select radius (miles): ";
+      distanceFilterSelectDiv.appendChild(distanceText);
+
+      const distanceChoices = [5,10,20,50,100];
+      
+      let distanceSelected = 50;
+
+      const distanceFilterDiv = document.createElement("div");
+      distanceFilterDiv.id = "distance-filter-div";
+
+      const distanceButtonDiv = document.createElement("div");
+      distanceButtonDiv.id = "distance-button-div";
+
+      const distanceButton = document.createElement("div");
+      distanceButton.id = "distance-button";
+      distanceButton.innerHTML = distanceSelected;
+      distanceButtonDiv.appendChild(distanceButton);
+
+      distanceFilterDiv.appendChild(distanceButtonDiv);
+
+
+      const distanceSliderDiv = document.createElement("div");
+      distanceSliderDiv.id = "distance-slider-div";
+
+
+      const distanceSlider = document.createElement("input");
+      distanceSlider.type = "range";
+      distanceSlider.id = "distance-slider";
+      distanceSlider.min = "0";
+      distanceSlider.max = "4";
+      distanceSlider.step = "1";
+      distanceSlider.value = "3";
+
+      distanceSlider.addEventListener("input",() => {
+        distanceSelected = distanceChoices[distanceSlider.value];
+        distanceButton.innerHTML = distanceSelected;
+        console.log('distanceSelected',distanceSelected);
       });
 
-      distanceFilterSelect.value = 50;
+      distanceSliderDiv.appendChild(distanceSlider);
 
-      distanceFilterSelectDiv.appendChild(distanceFilterSelect);
+      const distanceMarker = document.createElement("div");
+      distanceMarker.id = "distance-markers-div";
+
+      for (let i = 0; i < 5; i++){
+        const marker = document.createElement('div');
+        marker.classList.add("distance-markers");
+        distanceMarker.appendChild(marker);
+      };
+      distanceSliderDiv.appendChild(distanceMarker);
+
+      distanceFilterDiv.appendChild(distanceSliderDiv);
+
+      const distanceLabel = document.createElement("div");
+      distanceLabel.id = "distance-labels-div";
+
+      distanceChoices.forEach(option => {
+        const label = document.createElement('div');
+        label.classList.add("distance-labels")
+        label.innerHTML = option;
+        distanceLabel.appendChild(label);
+      });
+
+      distanceSliderDiv.appendChild(distanceLabel);
+
+      distanceFilterDiv.appendChild(distanceSliderDiv);
+
+      distanceSliderDiv.style.display="none";
+
+      let distance_clicked = false;
+      
+      distanceButton.addEventListener("click", () => {
+        if (distance_clicked) {
+          distance_clicked = false;
+          distanceSliderDiv.style.display="none";
+        } else {
+          distance_clicked = true;
+          
+          distanceSliderDiv.style.display="flex";
+        }
+      });
+
+      distanceFilterSelectDiv.appendChild(distanceFilterDiv);
       controlPanel.appendChild(distanceFilterSelectDiv);
 
        // Input box
@@ -323,6 +410,7 @@ fetch('/data')
       });
 
       sumbitIcon.addEventListener("click", () => {     
+        clearmarkers();
         console.log("selectedOption",selectedOption);   
         document.getElementById("map-shield").style.display='none';
         if(selectedOption == "zipcode") {
@@ -344,10 +432,6 @@ fetch('/data')
       });
                       
       clearIcon.addEventListener("click", function() {
-        // selectedOption = "zipcode";
-        // radioInput_zipcode.checked= true;
-        // radioOption_address.checked = false;
-        // radioOption_city.checked = false;
         clear();
       });  
 
@@ -355,7 +439,7 @@ fetch('/data')
         clearmarkers();
         
         const zipcode = extractZipCode(inputText.value);
-        const selectedDistance = distanceFilterSelect.value;
+        const selectedDistance = distanceChoices[distanceSlider.value];
         console.log(selectedDistance);
 
         if (zipcode) {
@@ -381,7 +465,7 @@ fetch('/data')
               if (initialZipcode) {
                 const booleanArray = await Promise.all(
                   dataArray.map((hcp_location) => {
-                      const hcpZipcode = hcp_location.ZIP_CODE;
+                      const hcpZipcode = hcp_location.PRIMARY_ZIP_CODE;
                       try {
                         return hcpZipcode == initialZipcode;
                       } catch (error) {
@@ -430,7 +514,7 @@ fetch('/data')
         clearmarkers();
     
         const address = inputText.value;
-        const selectedDistance = distanceFilterSelect.value;
+        const selectedDistance = distanceChoices[distanceSlider.value];
     
         if (address) { 
         geocodeAddress(address)
@@ -450,7 +534,7 @@ fetch('/data')
               if (initialAddress) {
                   const booleanArray = await Promise.all(
                   dataArray.map((hcp_location) => {
-                      const hcpZipcode = hcp_location.ZIP_CODE;
+                      const hcpZipcode = hcp_location.PRIMARY_ZIP_CODE;
                       try {
                         const addressComponents = geo_result[0].address_components;
                         const zipcodeComponent = addressComponents.find(
@@ -486,8 +570,6 @@ fetch('/data')
           console.log("input city:", city);
           console.log("input state:", state);
           
-          const selectedDistance = distanceFilterSelect.value;
-
           if (city&&state) {
             geocodeAddress(city)
               .then(async (geo_result) => {
@@ -503,8 +585,8 @@ fetch('/data')
                 if (city&&state) {
                   const booleanArray = await Promise.all(
                     dataArray.map((hcp_location) => {
-                      const hcpCity = hcp_location.CITY_NAME;
-                      const hcpState = hcp_location.STATE_CODE;
+                      const hcpCity = hcp_location.PRIMARY_CITY;
+                      const hcpState = hcp_location.PRIMARY_STATE_CODE;
                       const hcpName = hcp_location.FULL_NAME;
                       try {
                         return hcpCity == city && hcpState==state && hcpName.includes(name);
@@ -594,8 +676,8 @@ fetch('/data')
           markerArray.push(marker_hcp);
 
           let hcp_name = 'Dr. ' + capitalizeFirstLetter(hcp.FIRST_NAME) + " " + capitalizeFirstLetter(hcp.LAST_NAME);
-          let hcp_address = hcp.ADDRESS_LINE_1 + " " + hcp.ADDRESS_LINE_2;
-          let hcp_city = capitalizeFirstLetter(hcp.CITY_NAME);
+          let hcp_address = capitalizeFirstLetter(hcp.PRIMARY_ADDRESS_LINE_1) + " " + capitalizeFirstLetter(hcp.PRIMARY_ADDRESS_LINE_2);
+          let hcp_city = capitalizeFirstLetter(hcp.PRIMARY_CITY);
           let hcp_phone = "(000) 000-000";
           let hcp_call = "tel:" + hcp_phone;
           // Create the Google Maps URL with the encoded addresses
@@ -636,7 +718,7 @@ fetch('/data')
           HCPDetail_Address_street.innerHTML = hcp_address;
           HCPDetail_Address.appendChild(HCPDetail_Address_street);
           let HCPDetail_Address_city = document.createElement("p");
-          HCPDetail_Address_city.innerHTML = hcp_city + ", " + hcp.STATE_CODE + " " + hcp.ZIP_CODE;
+          HCPDetail_Address_city.innerHTML = hcp_city + ", " + hcp.PRIMARY_STATE_CODE + " " + hcp.PRIMARY_ZIP_CODE;
           HCPDetail_Address.appendChild(HCPDetail_Address_city);
           HCPDetailElement.appendChild(HCPDetail_Address);
 
@@ -704,28 +786,10 @@ fetch('/data')
           HCPContentElement.appendChild(HCPCardElement);
 
           if (selectedOption != "city") {
-            // infowindow_hcp.setContent(`
-            //   <div id="info_div_1" style="margin:0;width: 208px; height: 149px; border-radius: 8px; background: #FFF; box-shadow: 0 0 2px rgba(0, 0, 0, 0.2),0 0 2px rgba(0, 0, 0, 0.2),0 0 2px rgba(0, 0, 0, 0.2),0 0 2px rgba(0, 0, 0, 0.2);">
-            //     <div id="info_div_2" style="margin:0;width: 7px; height: 208px; transform: rotate(90deg);border-radius: 8px 0px 0px 8px;background: linear-gradient(185deg, #1B00C9 0%, #AC00EC 100%);"></div>
-            //     <p style="margin-top:10px;color: #140065; font-family: Poppins; font-size: 16px; font-weight: 500;">${hcp_name}</p>
-            //     <p style="color: #818181;font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${hcp_address + ', ' + hcp_city}</p>
-            //     <hr style="width: 168px;margin-top: 6px; border-top: 0.7px solid #929292;margin-left:18px;"></hr>
-            //     <div id="info_div_3" style="margin-top: 10px;margin-left: 16px;display:flex;flex-direction: row;align-items: center;">
-            //       <img style="width: 15px;height: 15px;" src="pics/Distance.png"></img>
-            //       <span style="margin-left:10px;color: #929292; font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${dis + ' miles'}</span>
-            //       <a href="${hcp_call}" style="margin-left:22px">
-            //         <img style="width: 30px;height: 30px;" src="pics/call.png"></img>
-            //       </a>
-            //       <a href="${googleMapsURL}" target="_blank">
-            //         <img style="width: 30px;height: 30px;" src="pics/navigate.png"></img>
-            //       </a>
-            //     </div>
-            //   </div>
-            // `);
             infowindow_hcp.setContent(`
                 <p style="margin:0; color: #140065; font-family: Poppins; font-size: 16px; font-weight: 500;">${hcp_name}</p>
                 <p style="margin:0; color: #818181;font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${hcp_address + ', ' + hcp_city}</p>
-                <hr style="width: 168px; margin:0; margin-top: 6px; border-top: 0.7px solid #929292;"></hr>
+                <hr style="width: 80%; margin:0; margin-top: 6px; border-top: 0.7px solid #929292;"></hr>
                 <div id="info_div_3" style="margin-top: 7px; margin-right:0px; display:flex;flex-direction: row;align-items: center;">
                   <img style="width: 15px;height: 15px;" src="pics/Distance.png"></img>
                   <span style="margin-left:10px;color: #929292; font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${dis + ' miles'}</span>
@@ -765,9 +829,7 @@ fetch('/data')
             HCPDetail_Address_city.classList.add("active");
             phoneIcon.src = "pics/Phone call_active.png";
             HCPDetail_phone_number.classList.add("active");
-            console.log("type of routeicon", typeof routeIcon);
             if(selectedOption != "city") {
-              console.log("routeIcon is not undefined")
               routeIcon.src = "pics/Distance_active.png";
               HCPDetail_Route_dis.classList.add("active");
             };
@@ -906,7 +968,7 @@ fetch('/data')
                 console.error(error);
             });
           } else {
-            displayHCP(filteredArray,'');
+            displayHCP(filteredArray,'',sum);
           };
           
         } else {
@@ -986,7 +1048,7 @@ fetch('/data')
         controlPanel.classList.remove("error");
         mapErrorMessageBody1.innerHTML = "We were not able find a match";
         mapErrorDiv.style.display = "none";
-        distanceFilterSelect.value = 50;
+        distanceSlider.value = 3;
         inputText.value="";
         nameInput.value="";
         inputText.classList.remove("error");
@@ -1128,8 +1190,20 @@ fetch('/data')
               });
       };
   
-      function capitalizeFirstLetter(str) {
-        return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+      function capitalizeFirstLetter(address) {
+        // Split the address into words
+        const words = address.split(' ');
+
+        // Convert the first letter of each word to uppercase and the rest to lowercase
+        const formattedWords = words.map((word) => {
+          const lowercaseWord = word.toLowerCase();
+          return lowercaseWord.charAt(0).toUpperCase() + lowercaseWord.slice(1);
+        });
+
+        // Join the formatted words back into an address string
+        const formattedAddress = formattedWords.join(' ');
+
+        return formattedAddress;
       };
 
     };
