@@ -3,46 +3,36 @@
 fetch('/data')
   .then(response => response.json())
   .then(data => {
-    let dataArray = []; // Array to store CSV data
     let markerArray = [];
 
+    console.log(data);
 
-    dataArray = data;  
-    console.log(dataArray);
-
-    // // Create a Set to store unique values
-    // const nameValues = new Set();
-    // // Get the values from data FULL_NAME
-    // data.forEach(item => {
-    //   nameValues.add(item.FULL_NAME);
-    // });
-
-    // // Convert Set to array and sort alphabetically
-    // const sortedNameArray = Array.from(nameValues).sort();
+    const dataArray = data.filter(row => row["COORDINATES"] !== 'nan');
+    console.log("dataArray.length",dataArray.length);
 
     // JavaScript code to toggle left panel display
-    let mapContainer = document.querySelector('.map-container');
-    let leftPanel = document.getElementById('left-panel');
+    const mapContainer = document.getElementById('map-container');
+    const mapViewContainer = document.getElementById('map-view-container');
+    const leftPanel = document.getElementById('left-panel');
+
+
 
     function onLeftPanel() {
-      mapContainer.classList.remove("left-panel-hidden");
+      mapViewContainer.classList.remove("left-panel-hidden");
       leftPanel.style.display = "flex";
       leftPanel.innerHTML = "";
     }
 
     function offLeftPanel() {
-      mapContainer.classList.add("left-panel-hidden");
+      mapViewContainer.classList.add("left-panel-hidden");
       leftPanel.style.display = "none";
       leftPanel.innerHTML = "";
     }
 
     function initMap() {
-
       
       // Default map
       const center = { lat: 37.0902, lng: -95.7129 }; // Center coordinates (US)
-
-      // const center = { lat: 40.103844, lng: -75.382324 }; // Center to King of Prussia, PA
 
       const map = new google.maps.Map(document.getElementById("map"), {
           zoom: 4,
@@ -57,24 +47,19 @@ fetch('/data')
       // Hide the loading sign
       document.getElementById("loading-sign").style.display = "none";
 
-      // Input box for user to enter their address
-      const inputText = document.createElement("input");
-      inputText.id = "inputText";
-      inputText.type = "text";
-      inputText.placeholder = "Enter a zipcode";
+      // Search Input Div
+      const controlPanel = document.getElementById("control-panel");
 
-      const submitButton = document.createElement("input");
-      submitButton.type = "button";
-      submitButton.value = "Search";
-      submitButton.classList.add("button", "button-primary");
+      // Search Options Div (zipcode, city&hcp, current location)
+      const searchOptionDiv = document.createElement("div");
+      searchOptionDiv.id = "search-option-div";
 
-      const clearButton = document.createElement("input");
-      clearButton.type = "button";
-      clearButton.value = "Clear";
-      clearButton.classList.add("button", "button-secondary");
+      const searchOptionText = document.createElement("span");
+      searchOptionText.innerHTML = "Search by:";
+      searchOptionDiv.appendChild(searchOptionText);
 
       const searchOptions = document.createElement("div");
-      searchOptions.id = "searchOptions";
+      searchOptions.id = "search-options";
       searchOptions.classList.add("btn-group", "btn-group-toggle");
       searchOptions.setAttribute("data-toggle", "buttons");
 
@@ -84,7 +69,6 @@ fetch('/data')
       zipcodeOptionButton.classList.add("search-option-button","active");
       zipcodeOptionButton.name = "searchOption";
       zipcodeOptionButton.id = "zipcodeOption";
-      zipcodeOptionButton.autocomplete = "off";
 
       const addressOptionButton = document.createElement("input");
       addressOptionButton.type = "button";
@@ -92,38 +76,133 @@ fetch('/data')
       addressOptionButton.classList.add("search-option-button");
       addressOptionButton.name = "searchOption";
       addressOptionButton.id = "addressOption";
-      addressOptionButton.autocomplete = "off";
 
       const cityOptionButton = document.createElement("input");
       cityOptionButton.type = "button";
-      cityOptionButton.value = "City + HCP Name";
+      cityOptionButton.value = "City/HCP Name";
       cityOptionButton.classList.add("search-option-button");
       cityOptionButton.name = "searchOption";
       cityOptionButton.id = "cityOption";
-      cityOptionButton.autocomplete = "off";
 
       searchOptions.appendChild(zipcodeOptionButton);
       searchOptions.appendChild(addressOptionButton);
       searchOptions.appendChild(cityOptionButton);
 
-      // // HCP Name Dropdown
-      // const nameSelect = document.createElement("select");
-      // nameSelect.id = "name-select";
+      searchOptionDiv.appendChild(searchOptions);
+      controlPanel.appendChild(searchOptionDiv);
 
-      // sortedNameArray.forEach(value => {
-      //   const nameOption = document.createElement("option");
-      //   nameOption.value = value;
-      //   nameOption.textContent = value;
-      //   nameSelect.appendChild(nameOption);
-      // });
+      // Inputs Div (zipcode/city, name, distance)
+      const inputDiv = document.createElement("div");
+      inputDiv.id = "input-div";
 
-      // HCP Name Input
+      // Zipcode Div 
+      const inputZipcodeDiv = document.createElement("div");
+      inputZipcodeDiv.classList.add("input-text-div");
+
+      const inputZipcodeTextDiv = document.createElement("div");
+      inputZipcodeTextDiv.classList.add("input-text-span-div");
+
+      const inputZipcodeText = document.createElement("span");
+      inputZipcodeText.innerHTML = "Please enter Zip Code:";
+      inputZipcodeTextDiv.appendChild(inputZipcodeText);
+      inputZipcodeDiv.appendChild(inputZipcodeTextDiv);
+
+      const zipcodeInput = document.createElement("input");
+      zipcodeInput.classList.add("input-text-input");
+      zipcodeInput.type = "text";
+      zipcodeInput.placeholder = "Enter a zipcode";
+      inputZipcodeDiv.appendChild(zipcodeInput);
+
+      const inputZipcodeErrorDiv = document.createElement("div");
+      inputZipcodeErrorDiv.classList.add("input-text-error-div");
+
+      const inputZipcodeErrorImg = document.createElement("img");
+      inputZipcodeErrorImg.src = "pics/Danger.png";
+      inputZipcodeErrorDiv.appendChild(inputZipcodeErrorImg);
+
+      const inputZipcodeErrorText = document.createElement("span");
+      inputZipcodeErrorText.innerHTML = "Invalid Zip Code";
+      inputZipcodeErrorDiv.appendChild(inputZipcodeErrorText);
+      inputZipcodeDiv.appendChild(inputZipcodeErrorDiv);
+
+      inputDiv.appendChild(inputZipcodeDiv);
+
+      // City Div 
+      const inputCityDiv = document.createElement("div");
+      inputCityDiv.classList.add("input-text-div");
+
+      const inputCityTextDiv = document.createElement("div");
+      inputCityTextDiv.classList.add("input-text-span-div");
+
+      const inputCityText = document.createElement("span");
+      inputCityText.innerHTML = "Please enter City Name:";
+      inputCityTextDiv.appendChild(inputCityText);
+      inputCityDiv.appendChild(inputCityTextDiv);
+
+      const cityInput = document.createElement("input");
+      cityInput.classList.add("input-text-input");
+      cityInput.type = "text";
+      cityInput.placeholder = "Enter a city";
+      inputCityDiv.appendChild(cityInput);
+
+      const inputCityErrorDiv = document.createElement("div");
+      inputCityErrorDiv.classList.add("input-text-error-div");
+
+      const inputCityErrorImg = document.createElement("img");
+      inputCityErrorImg.src = "pics/Danger.png";
+      inputCityErrorDiv.appendChild(inputCityErrorImg);
+
+      const inputCityErrorText = document.createElement("span");
+      inputCityErrorText.innerHTML = "Invalid City Name";
+      inputCityErrorDiv.appendChild(inputCityErrorText);
+      inputCityDiv.appendChild(inputCityErrorDiv);
+
+      inputDiv.appendChild(inputCityDiv);
+
+      // Name Div 
+      const inputNameDiv = document.createElement("div");
+      inputNameDiv.classList.add("input-text-div");
+
+      const inputNameTextDiv = document.createElement("div");
+      inputNameTextDiv.classList.add("input-text-span-div");
+
+      const inputNameText = document.createElement("span");
+      inputNameText.innerHTML = "Please enter HCP Name:";
+      inputNameTextDiv.appendChild(inputNameText);
+      inputNameDiv.appendChild(inputNameTextDiv);
+
       const nameInput = document.createElement("input");
-      nameInput.id = "nameInputText";
+      nameInput.classList.add("input-text-input");
       nameInput.type = "text";
-      nameInput.placeholder = "Enter a hcp name";
+      nameInput.placeholder = "Enter a name";
+      inputNameDiv.appendChild(nameInput);
 
-      // Distance filter select element
+      const inputNameErrorDiv = document.createElement("div");
+      inputNameErrorDiv.classList.add("input-text-error-div");
+
+      const inputNameErrorImg = document.createElement("img");
+      inputNameErrorImg.src = "pics/Danger.png";
+      inputNameErrorDiv.appendChild(inputNameErrorImg);
+
+      const inputNameErrorText = document.createElement("span");
+      inputNameErrorText.innerHTML = "Invalid HCP Name";
+      inputNameErrorDiv.appendChild(inputNameErrorText);
+      inputNameDiv.appendChild(inputNameErrorDiv);
+
+      inputDiv.appendChild(inputNameDiv);
+
+      // Distance Div
+      const distanceInputDiv = document.createElement("div");
+      distanceInputDiv.id = "distance-input-div";
+
+      const distanceInputTextDiv = document.createElement("div");
+      distanceInputTextDiv.id = "distance-input-span-div";
+
+      const distanceInputText = document.createElement("span");
+      distanceInputText.innerHTML = "Please define the radius:";
+      distanceInputTextDiv.appendChild(distanceInputText);
+      distanceInputDiv.appendChild(distanceInputTextDiv);
+
       const distanceFilterSelect = document.createElement("select");
       distanceFilterSelect.id = "distance-filter-select";
 
@@ -144,121 +223,260 @@ fetch('/data')
 
       distanceFilterSelect.value = 50;
 
-      // set up inpur search panel
-      const controlPanel = document.getElementById("control-panel");
-      const searchOptionPanel = document.getElementById("search-option-panel");
-      searchOptionPanel.appendChild(searchOptions);
+      distanceInputDiv.appendChild(distanceFilterSelect);
 
-      const inputPanel = document.getElementById("input-panel");
-      textInputTitle = document.createElement("p");
-      textInputTitle.classList.add("search-text-p");
-      textInputTitle.innerHTML="Please fill in the following fields:";
-      inputPanel.appendChild(textInputTitle);
-      inputPanel.appendChild(inputText);
-      const inputTextAlert = document.createElement("p");
-      inputTextAlert.classList.add("alert-p");
-      inputTextAlert.innerHTML = "";
-      inputPanel.appendChild(inputTextAlert);
-      inputPanel.appendChild(nameInput);
-      const nameInputAlert = document.createElement("p");
-      nameInputAlert.classList.add("alert-p");
-      nameInputAlert.innerHTML = "";
-      inputPanel.appendChild(nameInputAlert);
-      inputPanel.appendChild(distanceFilterSelect);
+      inputDiv.appendChild(distanceInputDiv);
 
-      const searchClearPanel = document.getElementById("search-clear-panel");
-      searchClearPanel.appendChild(submitButton);
-      searchClearPanel.appendChild(clearButton);
+      // Specialty Options
+      const specialtyInputDiv = document.createElement("div");
+      specialtyInputDiv.id = "specialty-input-div";
+
+      const specialtyInputTextDiv = document.createElement("div");
+      specialtyInputTextDiv.id = "specialty-input-span-div";
+
+      const specialtyInputText = document.createElement("span");
+      specialtyInputText.innerHTML = "Please choose area of specialty:";
+      specialtyInputTextDiv.appendChild(specialtyInputText);
+      specialtyInputDiv.appendChild(specialtyInputTextDiv);
+
+      const specialtyInputOptions = document.createElement("div");
+      specialtyInputOptions.classList.add("specialty-options");
+
+      const radioOption_all = document.createElement("label");
+      radioOption_all.classList.add("specialty-option-input");
+
+      const radioinput_all = document.createElement("input");
+      radioinput_all.classList.add("specialty-option-input");
+      radioinput_all.type = "checkbox";
+      radioinput_all.value = "all";
+      radioinput_all.checked = false;
+
+      const radioLabel_all = document.createElement("span");
+      radioLabel_all.classList.add("specialty-option-input");
+      radioLabel_all.textContent = "All Prescribers";
+      
+      radioOption_all.appendChild(radioinput_all);
+      radioOption_all.appendChild(radioLabel_all);      
+      specialtyInputOptions.appendChild(radioOption_all);
+
+      const radioOption_derm = document.createElement("label");
+      radioOption_derm.classList.add("specialty-option-input");
+
+      const radioinput_derm = document.createElement("input");
+      radioinput_derm.classList.add("specialty-option-input");
+      radioinput_derm.type = "checkbox";
+      radioinput_derm.value = "derm";
+      radioinput_derm.checked = true;
+
+      const radioLabel_derm = document.createElement("span");
+      radioLabel_derm.classList.add("specialty-option-input");
+      radioLabel_derm.textContent = "Dermatologist";
+      
+      radioOption_derm.appendChild(radioinput_derm);
+      radioOption_derm.appendChild(radioLabel_derm);      
+      specialtyInputOptions.appendChild(radioOption_derm);
+
+
+      specialtyInputDiv.appendChild(specialtyInputOptions);
+      inputDiv.appendChild(specialtyInputDiv);
+
+      controlPanel.appendChild(inputDiv);
+
+      // Disclosure Div (zipcode/city, name, distance)
+      const disclosureDiv = document.createElement("div");
+      disclosureDiv.id = "disclosure-div";
+
+      const disclosureCheckDiv = document.createElement("div");
+      disclosureCheckDiv.id = "disclosure-check-div";
+
+      const disclosureCheck = document.createElement("input");
+      disclosureCheck.type = "checkbox";
+      disclosureCheck.checked = false;
+
+      disclosureCheck.addEventListener("click", () => {
+        disclosureCheckDiv.classList.remove("error");
+      });
+
+      disclosureCheckDiv.appendChild(disclosureCheck);
+      disclosureDiv.appendChild(disclosureCheckDiv);
+
+      const disclosureTextDiv = document.createElement("div");
+      disclosureTextDiv.id = "disclosure-text-div";
+
+      const disclosureTextHeader = document.createElement("h");
+      disclosureTextHeader.id = "disclosure-text";
+      disclosureTextHeader.innerHTML = "By checking this box you acknowledge that you have read and agree with the statement below."
+
+      const disclosureTextMessage = document.createElement("p");
+      disclosureTextMessage.id = "disclosure-text";
+      disclosureTextMessage.innerHTML = `Dermavant Sciences, Inc. offers this service to assist patients in locating local specialists experienced in VTAMA. 
+        Inclusion in this directory does not imply endorsement or recommendation by Dermavant Sciences, Inc., nor does it guarantee that specialists listed will 
+        determine VTAMA to be the appropriate treatment for you. Selecting a physician is your sole responsibility, and it is a crucial decision that requires 
+        careful consideration. This specialist locator is just one of several sources of information available to you. Dermavant Sciences, Inc. manufactures 
+        and markets VTAMA.`
+
+      disclosureTextDiv.appendChild(disclosureTextHeader);
+      disclosureTextDiv.appendChild(disclosureTextMessage);
+      disclosureDiv.appendChild(disclosureTextDiv);
+
+      controlPanel.appendChild(disclosureDiv);
+
+      // Search & Clear Div
+      const searchDiv = document.createElement("div");
+      searchDiv.id = "search-clear-div";
+
+      // Search button
+      const submitButton = document.createElement("input");
+      submitButton.type = "button";
+      submitButton.value = "Search";
+      submitButton.id = "submit-button";
+      searchDiv.appendChild(submitButton);
+
+      const submitErrorDiv = document.createElement("div");
+      submitErrorDiv.id = "submit-error-div";
+
+      const submitErrorText = document.createElement("span");
+      submitErrorText.innerHTML = "Please fill in all the mandatory details";
+      submitErrorDiv.appendChild(submitErrorText);
+
+      searchDiv.appendChild(submitErrorDiv);
+
+      const clearButton = document.createElement("input");
+      clearButton.type = "button";
+      clearButton.value = "Clear";
+      clearButton.id = "clear-button";
+      searchDiv.appendChild(clearButton);
+
+      controlPanel.appendChild(searchDiv);
       
       // set up auto complete
-      const address_options = {
-        // bounds: defaultBounds,
+      const auto_zipcode_options = {
         componentRestrictions: { country: "us" },
         strictBounds: true,
         types:['postal_code']
       };
 
-      const autocomplete = new google.maps.places.Autocomplete(inputText, address_options);
+      const auto_city_options = {
+        componentRestrictions: { country: "us" },
+        strictBounds: true,
+        types:['locality',"administrative_area_level_1"]
+      };
+
+      const autocomplete_zipcode = new google.maps.places.Autocomplete(zipcodeInput, auto_zipcode_options);
+      const autocomplete_city = new google.maps.places.Autocomplete(cityInput, auto_city_options);
 
       // Set initial option
       let selectedOption = "zipcode";
+      inputZipcodeDiv.style.display='flex';
+      inputCityDiv.style.display='none';
+      inputNameDiv.style.display='none';
+      distanceInputDiv.style.display='flex';
 
       zipcodeOptionButton.addEventListener("click", () => {
         if (!zipcodeOptionButton.classList.contains("active")) {
           clear();
-          distanceFilterSelect.value = 50;
-          inputText.value="";
-          inputText.style.display='block';
-          nameInput.style.display='none';
-          inputTextAlert.style.display='block';
-          nameInputAlert.style.display='none';
-          distanceFilterSelect.style.display='block';
+          zipcodeInput.value="";
+          inputZipcodeDiv.style.display='flex';
+          inputCityDiv.style.display='none';
+          inputNameDiv.style.display='none';
+          distanceInputDiv.style.display='flex';
           zipcodeOptionButton.classList.add("active");
           addressOptionButton.classList.remove("active");
           cityOptionButton.classList.remove("active");
           selectedOption = "zipcode";
-          inputText.placeholder = "Enter a Zipcode";
-          autocomplete.setTypes(['postal_code']);
-          autocomplete.getPlace();
+          autocomplete_zipcode.getPlace();
+          console.log("click on", selectedOption);
         }
       });
 
       addressOptionButton.addEventListener("click", () => {
         if (!addressOptionButton.classList.contains("active")) {
           clear();
-          distanceFilterSelect.value = 50;
-          inputText.value="";
-          inputText.style.display='none';
-          nameInput.style.display='none';
-          inputTextAlert.style.display='none';
-          nameInputAlert.style.display='none';
-          distanceFilterSelect.style.display='block';
+          inputZipcodeDiv.style.display='none';
+          inputCityDiv.style.display='none';
+          inputNameDiv.style.display='none';
+          distanceInputDiv.style.display='flex';
           addressOptionButton.classList.add("active");
           zipcodeOptionButton.classList.remove("active");
           cityOptionButton.classList.remove("active");
           selectedOption = "address";
+          console.log("click on", selectedOption);
         }
       });
       
       cityOptionButton.addEventListener("click", () => {
         if (!cityOptionButton.classList.contains("active")) {
           clear();
-          distanceFilterSelect.value = 50;
-          inputText.value="";
-          inputText.style.display='block';
-          nameInput.style.display='block';
-          inputTextAlert.style.display='block';
-          nameInputAlert.style.display='block';
-          distanceFilterSelect.style.display='none';
+          inputZipcodeDiv.style.display='none';
+          inputCityDiv.style.display='flex';
+          inputNameDiv.style.display='flex';
+          distanceInputDiv.style.display='none';
           cityOptionButton.classList.add("active");
           addressOptionButton.classList.remove("active");
           zipcodeOptionButton.classList.remove("active");
           selectedOption = "city";
-          inputText.placeholder = "Enter a city";
-          autocomplete.setTypes(['locality']);
-          autocomplete.getPlace();
+          autocomplete_city.getPlace();
+          console.log("click on", selectedOption);
+        }
+      });
+
+      // set initial specialty
+      let selectedSpecialty = "derm";
+
+      // add event on specialty
+      radioOption_all.addEventListener("click", () => {
+        if (radioinput_all.checked) {
+          selectedSpecialty = "all";
+          radioinput_all.checked = true;
+          radioinput_derm.checked = false;
+        }
+      });
+
+      radioOption_derm.addEventListener("click", () => {
+        if (radioinput_derm.checked) {
+          selectedSpecialty = "derm";
+          radioinput_all.checked = false;
+          radioinput_derm.checked = true;
         }
       });
 
       submitButton.addEventListener("click", () => {        
         if(zipcodeOptionButton.classList.contains("active")) {
-          if (inputText.value != "") {
+          if (zipcodeInput.value != "" && disclosureCheck.checked ) {
             zipcodeSearch();  
           } else {
-            inputTextAlert.innerHTML="Please enter a zipcode.";
+            showError();
           };
         } else if (addressOptionButton.classList.contains("active")){
-          currentAddressSearch();
+          if (disclosureCheck.checked ) {
+            currentAddressSearch();
+          } else {
+            showError();
+          };
         } else {
-          if (inputText.value != "" || nameInput.value != "") {
+          if ((cityInput.value != "" || nameInput.value != "") && disclosureCheck.checked ) {
             citySearch();  
           } else {
-            inputTextAlert.innerHTML="Please enter a city name or a HCP name.";
-            nameInputAlert.innerHTML="Please enter a city name or a HCP name.";
+            showError();
           };          
         };        
       });
 
+      function showError() {
+        if (zipcodeInput.value == "") {
+          inputZipcodeErrorDiv.style.display = "flex";
+        };
+        if (cityInput.value == "") {
+          inputCityErrorDiv.style.display = "flex";
+        };
+        if (nameInput.value == "") {
+          inputNameErrorDiv.style.display = "flex";
+        };
+        if (!disclosureCheck.checked) {
+          disclosureCheckDiv.classList.add("error");
+        };
+        submitErrorDiv.style.display = "flex";
+      };
                       
       clearButton.addEventListener("click", function() {
         clear();
@@ -267,21 +485,23 @@ fetch('/data')
       });  
 
       function zipcodeSearch(){
+
         clearmarkers();
         
         
-        const zipcode = extractZipCode(inputText.value);
+        const zipcode = extractZipCode(zipcodeInput.value);
         const selectedDistance = distanceFilterSelect.value;
-        console.log(selectedDistance);
+        console.log("selectedDistance", selectedDistance);
 
         if (zipcode) {
           geocodeAddress(zipcode)
             .then(async (geo_result) => {
-              // document.getElementById("map").style.display='block';
-              document.getElementById("map-shield").style.display='none';
+
+              mapViewContainer.style.display='flex';
 
               console.log('zipcode geocoding result',geo_result);
               console.log('input zipcode', zipcode);
+              
               let origin_latlng = geo_result[0].geometry.location;
   
               displayOrigin(origin_latlng,"Zipcode: "+zipcode);
@@ -290,16 +510,16 @@ fetch('/data')
               const zipcodeComponent = addressComponents.find(
                 (component) => component.types[0] === "postal_code"
               );
-              const initialZipcode = zipcodeComponent ? zipcodeComponent.short_name : null;
+              const geoZipcode = zipcodeComponent ? zipcodeComponent.short_name : null;
   
-              console.log('initial zipcode:', initialZipcode)
+              console.log('geo zipcode:', geoZipcode)
   
-              if (initialZipcode) {
+              if (geoZipcode) {
                 const booleanArray = await Promise.all(
                   dataArray.map((hcp_location) => {
-                      const hcpZipcode = hcp_location.ZIP_CODE;
+                      const hcpZipcode = hcp_location.PRIMARY_ZIP_CODE;
                       try {
-                        return hcpZipcode == initialZipcode;
+                        return hcpZipcode == geoZipcode;
                       } catch (error) {
                         console.error(error);
                         return false; // or handle the error in an appropriate way
@@ -312,6 +532,7 @@ fetch('/data')
             })
             .catch((error) => {
             console.error(error);
+            inputZipcodeErrorDiv.style.display = "flex";
             });
           };
       };
@@ -776,21 +997,12 @@ fetch('/data')
         map.setOptions({center:origin_latlng,zoom:13});
 
         const marker_O_icon_normal = {
-          path: MAP_PIN,
-          fillColor: '#FF0000',
-          fillOpacity: 1,
-          strokeColor: '#000000',
-          strokeWeight: 2,
-          scale:0.5
+          url: 'pics/Placeholder_O.png',
         };
 
         const marker_O_icon_hover = {
-          path: MAP_PIN,
-          fillColor: '#FF0000',
-          fillOpacity: 1,
-          strokeColor: '#000000',
-          strokeWeight: 2,
-          scale:0.7
+          url: 'pics/Placeholder_O.png',
+          scaledSize: new google.maps.Size(50, 50)
         };
 
         // Display origin location marker & infowindow
@@ -803,10 +1015,17 @@ fetch('/data')
   
         markerArray.push(marker_O);
   
-        const infowindow_O = new google.maps.InfoWindow({
-            content: "Center",
-        });
+        const infowindow_O = new google.maps.InfoWindow();
   
+        infowindow_O.setContent(
+        `
+        <div id="message_div" style="margin:0; display:flex;flex-direction: column;">
+        <p style="margin:0; color: #140065;font-family: Poppins;font-size: 14px;font-style: normal;font-weight: 500;">My current location</p>
+        <p style="margin:0; margin-top: 4px;color: #1A73E8;font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${address}</p>
+        </div>
+        `);
+
+
         marker_O.addListener("mouseover", () => {
           infowindow_O.open(map, marker_O);
           marker_O.setIcon(marker_O_icon_hover);
@@ -818,14 +1037,38 @@ fetch('/data')
       }
   
       function clear() {
-        // document.getElementById("map").style.display='none';
-        document.getElementById("map-shield").style.display='block';
-        distanceFilterSelect.value = 50;
-        inputText.value="";
-        nameInput.vallue="";
-        inputTextAlert.innerHTML="";
-        nameInputAlert.innerHTML="";
+        zipcodeInput.value="";
+        cityInput.value="";
+        nameInput.value="";
+        distanceFilterSelect.value=50;
+        inputZipcodeErrorDiv.style.display="none";
+        inputCityErrorDiv.style.display="none";
+        inputNameErrorDiv.style.display="none";
+        submitErrorDiv.style.display = "none";
+        disclosureCheckDiv.classList.remove("error");
+        disclosureCheck.checked = false;
+        selectedOption = "zipcode";
+        zipcodeOptionButton.classList.add("active");
+        addressOptionButton.classList.remove("active");
+        cityOptionButton.classList.remove("active");
+
         clearmarkers();
+
+        // offLeftPanel();
+        // map.setOptions({center:center,zoom:4});
+        // document.getElementById("map-shield").style.display='block';
+        // controlPanel.classList.remove("error");
+        // mapErrorMessageBody1.innerHTML = "We were not able find a match";
+        // mapErrorDiv.style.display = "none";
+        // distanceSlider.value = 3;
+        // inputText.value="";
+        // nameInput.value="";
+        // inputText.classList.remove("error");
+        // nameInput.classList.remove("error");
+        // sumbitIcon.src = "pics/Search.png";
+        // inputPanel.classList.remove("error");
+        // clearmarkers();
+        // 
       };
   
       function clearmarkers() {
@@ -834,7 +1077,8 @@ fetch('/data')
           markerArray[i].setMap(null);
         }
         markerArray = [];
-      }
+      };
+
       function getAddress(latlng) {
         return new Promise((resolve, reject) => {
           const geocoder = new google.maps.Geocoder();
@@ -852,11 +1096,9 @@ fetch('/data')
       function geocodeAddress(address) {
         return new Promise((resolve, reject) => {
           const geocoder = new google.maps.Geocoder();
-          console.log('geocodeAddress:', address);
           geocoder.geocode({ address: address }, (results, status) => {
             if (status === "OK") {
               const geo_result = results;
-              console.log(geo_result);
               resolve(geo_result);
             } else {
               reject("Geocode was not successful for the following reason: " + status);
