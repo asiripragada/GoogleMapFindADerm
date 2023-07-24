@@ -8,7 +8,7 @@ fetch('/data')
     console.log(data);
 
     const dataFull = data.filter(row => row["COORDINATES"] !== 'nan');
-    console.log("dataArray.length",dataFull.length);
+    console.log("dataFull.length",dataFull.length);
 
     // JavaScript code to toggle left panel display
     const mapContainer = document.getElementById('map-container');
@@ -503,27 +503,30 @@ fetch('/data')
 
 
       submitButton.addEventListener("click", () => {
+
+        clearmarkers();
         
         if (selectedSpecialty=="derm") {
           dataArray = dataFull.filter(row => row["Spec Group"] == "DERM"); 
         } else {
           dataArray = dataFull;
-        }
+        };
+
         if(zipcodeOptionButton.classList.contains("active")) {
           if (zipcodeInput.value != "" && disclosureCheck.checked ) {
             zipcodeSearch();  
           } else {
             showError();
           };
-        } else if (addressOptionButton.classList.contains("active")){
-          if (disclosureCheck.checked ) {
-            currentAddressSearch();
+        } else if (cityOptionButton.classList.contains("active")){
+          if (cityInput.value != "" && disclosureCheck.checked ) {
+            citySearch();
           } else {
             showError();
           };
         } else {
-          if ((cityInput.value != "" || nameInput.value != "") && disclosureCheck.checked ) {
-            citySearch();  
+          if ( nameInput.value != "" && disclosureCheck.checked ) {
+            nameSearch();  
           } else {
             showError();
           };          
@@ -552,7 +555,7 @@ fetch('/data')
 
       function zipcodeSearch(){
 
-        clearmarkers();
+        
         
         
         const zipcode = extractZipCode(zipcodeInput.value);
@@ -560,190 +563,233 @@ fetch('/data')
         console.log("selectedDistance", selectedDistance);
 
         console.log(zipcode);
-        if (zipcode) {
-          geocodeAddress(zipcode)
+
+        geocodeAddress(zipcode)
+          .then((geo_result) => {
+
+            mapContainer.style.display='flex';
+
+            console.log('zipcode geocoding result',geo_result);
+            console.log('input zipcode', zipcode);
+            
+            let origin_latlng = geo_result[0].geometry.location;
+
+            displayOrigin(origin_latlng,"Zipcode: "+zipcode);
+            
+            const addressComponents = geo_result[0].address_components;
+            const zipcodeComponent = addressComponents.find(
+              (component) => component.types[0] === "postal_code"
+            );
+            const geoZipcode = zipcodeComponent ? zipcodeComponent.short_name : null;
+
+            console.log('geo zipcode:', geoZipcode)
+
+            if (geoZipcode) {
+              const booleanArray = 
+                dataArray.map((hcp_location) => {
+                    const hcpZipcode = hcp_location.PRIMARY_ZIP_CODE;
+                    try {
+                      return hcpZipcode == geoZipcode;
+                    } catch (error) {
+                      console.error(error);
+                      return false; // or handle the error in an appropriate way
+                    }
+                  })
+              console.log('booleanArray',booleanArray);
+              showHCP(zipcodeInput.value, booleanArray, selectedDistance);
+            } else {
+              mapErrorMessageBody1.innerHTML = "Unable to get zipcode from geocode result"
+              mapErrorDiv.style.display="flex";
+            };
+          })
+          .catch((error) => {
+          console.error(error);
+          });
+      };
+
+      // function currentAddressSearch(){
+      //   if (navigator.geolocation) {
+      //     navigator.geolocation.getCurrentPosition(
+      //       (position) => {
+      //         const currentLocation = {
+      //           lat: position.coords.latitude,
+      //           lng: position.coords.longitude,
+      //         };
+      //             getAddress(currentLocation)
+      //         .then((address) => {
+      //             inputText.value = address;
+      //             addressSearch();
+      //         })
+      //         .catch((error) => {
+      //             console.error(error);
+      //         });
+      //       },
+      //       (error) => {
+      //         console.error(error);
+      //       }
+      //     );
+      //   } else {
+      //     console.error("Geolocation is not supported by this browser.");
+      //   }
+      // };
+  
+      // function addressSearch(){
+      //   clearmarkers();
+    
+      //   const address = inputText.value;
+      //   const selectedDistance = distanceFilterSelect.value;
+    
+      //   if (address) { 
+      //   geocodeAddress(address)
+      //       .then(async (geo_result) => {
+      //         // document.getElementById("map").style.display='block';
+      //         mapContainer.style.display="flex";
+
+      //         let origin_latlng = geo_result[0].geometry.location;
+      
+      //         displayOrigin(origin_latlng, address);
+  
+      //         // Created a boolean array to filter HCPs based on initial address (if available)
+      //         const initialAddress = inputText.value;
+    
+      //         console.log('initial address:', initialAddress);
+    
+      //         if (initialAddress) {
+      //             const booleanArray = await Promise.all(
+      //             dataArray.map((hcp_location) => {
+      //                 const hcpZipcode = hcp_location.ZIP_CODE;
+      //                 try {
+      //                   const addressComponents = geo_result[0].address_components;
+      //                   const zipcodeComponent = addressComponents.find(
+      //                     (component) => component.types[0] === "postal_code"
+      //                   );
+      //                   const origin_zipcode = zipcodeComponent ? zipcodeComponent.short_name : null;
+    
+      //                   return hcpZipcode == origin_zipcode;
+      //                 } catch (error) {
+      //                   console.error(error);
+      //                   return false; // or handle the error in an appropriate way
+      //                 }
+      //             })
+      //             );
+      //             console.log('booleanArray',booleanArray);
+    
+      //             showHCP(booleanArray,selectedDistance);
+      //       };
+      //       })
+      //       .catch((error) => {
+      //       console.error(error);
+      //       });
+      //     };
+      // };
+
+      function citySearch() {
+
+        const [city, state] = extractCityState(cityInput.value);
+
+        console.log("input city:", city);
+        console.log("input state:", state);
+          
+        if (city != "all") {
+          geocodeAddress(city)
             .then((geo_result) => {
 
               mapContainer.style.display='flex';
 
-              console.log('zipcode geocoding result',geo_result);
-              console.log('input zipcode', zipcode);
-              
+              console.log('city geocoding result',geo_result);
+              console.log('input city', city);
+
               let origin_latlng = geo_result[0].geometry.location;
   
-              displayOrigin(origin_latlng,"Zipcode: "+zipcode);
-              
+              map.setOptions({center:origin_latlng,zoom:10});
+
               const addressComponents = geo_result[0].address_components;
-              const zipcodeComponent = addressComponents.find(
-                (component) => component.types[0] === "postal_code"
+              const stateComponent = addressComponents.find(
+                (component) => component.types[0] === "administrative_area_level_1"
               );
-              const geoZipcode = zipcodeComponent ? zipcodeComponent.short_name : null;
+              const geoState = stateComponent ? stateComponent.short_name : null;
   
-              console.log('geo zipcode:', geoZipcode)
-  
-              if (geoZipcode) {
+              if (geo_result) {
                 const booleanArray = 
                   dataArray.map((hcp_location) => {
-                      const hcpZipcode = hcp_location.PRIMARY_ZIP_CODE;
-                      try {
-                        return hcpZipcode == geoZipcode;
-                      } catch (error) {
-                        console.error(error);
-                        return false; // or handle the error in an appropriate way
-                      }
-                    })
+                    const hcpCity = hcp_location.PRIMARY_CITY;
+                    const hcpState = hcp_location.PRIMARY_STATE_CODE;
+                    try {
+                      return hcpCity == city && hcpState==geoState;
+                    } catch (error) {
+                      return false;
+                    };
+                  });
                 console.log('booleanArray',booleanArray);
-                showHCP(zipcodeInput.value, booleanArray, selectedDistance);
+                showHCP(cityInput.value, booleanArray,"Infinity");
               } else {
-                mapErrorMessageBody1.innerHTML = "Unable to get zipcode from geocode result"
+                mapErrorMessageBody1.innerHTML = "Unable to get city from geocode result"
                 mapErrorDiv.style.display="flex";
               };
-
             })
             .catch((error) => {
             console.error(error);
             });
         } else {
-          inputZipcodeErrorDiv.style.display = "flex";
-        }
-      };
+          geocodeAddress(state)
+          .then((geo_result) => {
+            mapContainer.style.display='flex';
 
-      function currentAddressSearch(){
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              const currentLocation = {
-                lat: position.coords.latitude,
-                lng: position.coords.longitude,
-              };
-                  getAddress(currentLocation)
-              .then((address) => {
-                  inputText.value = address;
-                  addressSearch();
-              })
-              .catch((error) => {
-                  console.error(error);
-              });
-            },
-            (error) => {
-              console.error(error);
-            }
-          );
-        } else {
-          console.error("Geolocation is not supported by this browser.");
-        }
-      };
-  
-      function addressSearch(){
-        clearmarkers();
-    
-        const address = inputText.value;
-        const selectedDistance = distanceFilterSelect.value;
-    
-        if (address) { 
-        geocodeAddress(address)
-            .then(async (geo_result) => {
-              // document.getElementById("map").style.display='block';
-              mapContainer.style.display="flex";
+            console.log('state geocoding result',geo_result);
+            console.log('input state', state);
 
-              let origin_latlng = geo_result[0].geometry.location;
-      
-              displayOrigin(origin_latlng, address);
+            let origin_latlng = geo_result[0].geometry.location;
   
-              // Created a boolean array to filter HCPs based on initial address (if available)
-              const initialAddress = inputText.value;
-    
-              console.log('initial address:', initialAddress);
-    
-              if (initialAddress) {
-                  const booleanArray = await Promise.all(
+            map.setOptions({center:origin_latlng,zoom:6});
+
+            const addressComponents = geo_result[0].address_components;
+            const stateComponent = addressComponents.find(
+              (component) => component.types[0] === "administrative_area_level_1"
+            );
+            const geoState = stateComponent ? stateComponent.short_name : null;
+
+            console.log("geoState", geoState);
+
+            if (geoState) {
+              const booleanArray =
                   dataArray.map((hcp_location) => {
-                      const hcpZipcode = hcp_location.ZIP_CODE;
-                      try {
-                        const addressComponents = geo_result[0].address_components;
-                        const zipcodeComponent = addressComponents.find(
-                          (component) => component.types[0] === "postal_code"
-                        );
-                        const origin_zipcode = zipcodeComponent ? zipcodeComponent.short_name : null;
-    
-                        return hcpZipcode == origin_zipcode;
-                      } catch (error) {
-                        console.error(error);
-                        return false; // or handle the error in an appropriate way
-                      }
+                    const hcpState = hcp_location.PRIMARY_STATE_CODE;
+                    try {
+                      return hcpState==geoState;
+                    } catch (error) {
+                      return false;
+                    }
                   })
-                  );
-                  console.log('booleanArray',booleanArray);
-    
-                  showHCP(booleanArray,selectedDistance);
+              console.log('booleanArray',booleanArray);
+              showHCP(cityInput.value, booleanArray,"Infinity");
+            } else {
+              mapErrorMessageBody1.innerHTML = "Unable to get state from geocode result"
+              mapErrorDiv.style.display="flex";
             };
-            })
-            .catch((error) => {
+          })
+          .catch((error) => {
             console.error(error);
-            });
-          };
+          });
+        };
       };
 
-      function citySearch() {
-        clearmarkers();
+      function nameSearch() {
+
         const name = nameInput.value.toUpperCase();
 
-        if (inputText.value != "") {
-          const city = extractCity(inputText.value);
-          const state = extractState(inputText.value);
-          console.log("input city:", city);
-          console.log("input state:", state);
-          
-          const selectedDistance = distanceFilterSelect.value;
+        mapContainer.style.display='flex';
 
-          if (city&&state) {
-            geocodeAddress(city)
-              .then(async (geo_result) => {
-                // document.getElementById("map").style.display='block';
-                document.getElementById("map-shield").style.display='none';
-
-                console.log('city geocoding result',geo_result);
-                console.log('input city', city);
-                let origin_latlng = geo_result[0].geometry.location;
-    
-                map.setOptions({center:origin_latlng,zoom:11});
-    
-                if (city&&state) {
-                  const booleanArray = await Promise.all(
-                    dataArray.map((hcp_location) => {
-                      const hcpCity = hcp_location.CITY_NAME;
-                      const hcpState = hcp_location.STATE_CODE;
-                      const hcpName = hcp_location.FULL_NAME;
-                      try {
-                        return hcpCity == city && hcpState==state && hcpName.includes(name);
-                      } catch (error) {
-                        return false;
-                      }
-                    })
-                    );
-                  console.log('booleanArray',booleanArray);
-                  showHCP(booleanArray,"Infinity");
-                };
-              })
-              .catch((error) => {
-              console.error(error);
-              });
+        const booleanArray =
+          dataArray.map((hcp_location) => {
+            const hcpName = hcp_location.FULL_NAME;
+            try {
+              return hcpName.includes(name);
+            } catch (error) {
+              return false;
             };
-        } else {
-          // document.getElementById("map").style.display='block';
-          document.getElementById("map-shield").style.display='none';
-          const booleanArray =
-              dataArray.map((hcp_location) => {
-                const hcpName = hcp_location.FULL_NAME;
-                try {
-                  return hcpName.includes(name);
-                } catch (error) {
-                  return false;
-                }
-              })
-          console.log('booleanArray',booleanArray);
-          showHCP(booleanArray,"Infinity");
-        }
+          });
+        console.log('booleanArray',booleanArray);
+        showHCP(nameInput.value, booleanArray,"Infinity");
       };
 
       function displayHCP(input, final_hcps,final_distances, sum) {
@@ -1115,11 +1161,11 @@ fetch('/data')
                 console.error(error);
             });
           } else {
-            displayHCP(input, filteredArray,'',sum);
+            displayHCP(input, filteredArray, '', sum);
           };
           
         } else {
-          mapErrorMessageBody1.innerHTML = "There's no HCP near your location";
+          mapErrorMessageBody1.innerHTML = "There's no HCP matches your input";
           mapErrorDiv.style.display = "flex";
         };                                
       };
@@ -1160,7 +1206,6 @@ fetch('/data')
         </div>
         `);
 
-
         marker_O.addListener("mouseover", () => {
           infowindow_O.open(map, marker_O);
           marker_O.setIcon(marker_O_icon_hover);
@@ -1169,7 +1214,23 @@ fetch('/data')
           infowindow_O.close(map, marker_O);
           marker_O.setIcon(marker_O_icon_normal);
         }); 
-      }
+
+      };
+
+      function setDefault() {
+        disclosureCheck.checked = false;
+        selectedOption = "zipcode";
+        zipcodeOptionButton.classList.add("active");
+        nameOptionButton.classList.remove("active");
+        cityOptionButton.classList.remove("active");
+        inputZipcodeDiv.style.display='flex';
+        inputCityDiv.style.display='none';
+        inputNameDiv.style.display='none';
+        distanceInputDiv.style.display='flex';
+        selectedSpecialty = "derm";
+        radioinput_all.checked = false;
+        radioinput_derm.checked = true;
+      };
   
       function clear() {
         mapContainer.style.display="none";
@@ -1177,23 +1238,18 @@ fetch('/data')
         cityInput.value="";
         nameInput.value="";
         distanceFilterSelect.value=50;
+        setDefault();
+        clearmarkers();
+      };
+  
+      function clearmarkers() {
         inputZipcodeErrorDiv.style.display="none";
         inputCityErrorDiv.style.display="none";
         inputNameErrorDiv.style.display="none";
         submitErrorDiv.style.display = "none";
         disclosureCheckDiv.classList.remove("error");
-        disclosureCheck.checked = false;
-        selectedOption = "zipcode";
-        zipcodeOptionButton.classList.add("active");
-        nameOptionButton.classList.remove("active");
-        cityOptionButton.classList.remove("active");
-        selectedSpecialty = "derm";
-        radioinput_all.checked = false;
-        radioinput_derm.checked = true;
-        clearmarkers();
-      };
-  
-      function clearmarkers() {
+        mapErrorMessageBody1.innerHTML = "We were not able find a match"
+        mapErrorDiv.style.display="none";
         offLeftPanel();
         for (var i = 0; i < markerArray.length; i++) {
           markerArray[i].setMap(null);
@@ -1245,25 +1301,22 @@ fetch('/data')
         }
       }
 
-      function extractCity(address) {
-        const city = address.split(",")[0].trim().toUpperCase();
-        if (city) {
-          return city;
-        } else {
-          // alert("Unable to get city name.")
-          return ''; // Return empty string if no zip code found
-        }
-      }
+      function extractCityState(address) {
 
-      function extractState(address) {
-        const state = address.split(',')[1].trim().toUpperCase();
-        if (state) {
-          return state;
+        const length = address.split(",").length;
+        if (length == 2) {
+          const state = address.split(",")[0].trim().toUpperCase();
+          return ["all", state]
+        } else if (length == 3) {
+          const city = address.split(",")[0].trim().toUpperCase();
+          const state = address.split(',')[1].trim().toUpperCase();
+          return [city, state]
         } else {
-          // alert("Unable to get city name.")
-          return ''; // Return empty string if no zip code found
+          console.log("Unable to get city or state name");
+          inputCityErrorDiv.style.display = "flex";
         }
-      }
+        
+      };
   
       function calculateDistance(originAddress, destinationLatLng) {
         return new Promise((resolve, reject) => {
