@@ -39,7 +39,7 @@ fetch('/data')
           center: center,
           streetViewControl: false,
           mapTypeControl:false,
-          fullscreenControl: false
+          fullscreenControl: true
       });
 
       // Hide the loading sign
@@ -70,14 +70,14 @@ fetch('/data')
 
       const cityOptionButton = document.createElement("input");
       cityOptionButton.type = "button";
-      cityOptionButton.value = "State & City";
+      cityOptionButton.value = "City";
       cityOptionButton.classList.add("search-option-button");
       cityOptionButton.name = "searchOption";
       cityOptionButton.id = "cityOption";
 
       const nameOptionButton = document.createElement("input");
       nameOptionButton.type = "button";
-      nameOptionButton.value = "HCP Name";
+      nameOptionButton.value = "Name";
       nameOptionButton.classList.add("search-option-button");
       nameOptionButton.name = "searchOption";
       nameOptionButton.id = "nameOption";
@@ -119,6 +119,27 @@ fetch('/data')
       zipcodeInput.placeholder = "Enter a zipcode";
       inputZipcodeDiv.appendChild(zipcodeInput);
 
+      // Add event listener for keypress validation
+      zipcodeInput.addEventListener("keypress", (event) => {
+        const key = event.key;
+
+        // Check if the key pressed is a digit
+        if (/\D/.test(key)) {
+          // Prevent input if the key is not a digit
+          event.preventDefault();
+        }
+
+        // Limit the input to 5 digits
+        if (zipcodeInput.value.length >= 5) {
+          event.preventDefault();
+        }
+      });
+
+
+
+
+
+
       const inputZipcodeErrorDiv = document.createElement("div");
       inputZipcodeErrorDiv.classList.add("input-text-error-div");
 
@@ -141,14 +162,14 @@ fetch('/data')
       inputCityTextDiv.classList.add("input-text-span-div");
 
       const inputCityText = document.createElement("span");
-      inputCityText.innerHTML = "Please enter State or City Name:";
+      inputCityText.innerHTML = "Please enter City Name:";
       inputCityTextDiv.appendChild(inputCityText);
       inputCityDiv.appendChild(inputCityTextDiv);
 
       const cityInput = document.createElement("input");
       cityInput.classList.add("input-text-input");
       cityInput.type = "text";
-      cityInput.placeholder = "Enter a state or city";
+      cityInput.placeholder = "Enter a city";
       inputCityDiv.appendChild(cityInput);
 
       const inputCityErrorDiv = document.createElement("div");
@@ -159,7 +180,7 @@ fetch('/data')
       inputCityErrorDiv.appendChild(inputCityErrorImg);
 
       const inputCityErrorText = document.createElement("span");
-      inputCityErrorText.innerHTML = "Please enter a valid State or City Name";
+      inputCityErrorText.innerHTML = "Please enter a valid City Name";
       inputCityErrorDiv.appendChild(inputCityErrorText);
       inputCityDiv.appendChild(inputCityErrorDiv);
 
@@ -173,7 +194,7 @@ fetch('/data')
       inputNameTextDiv.classList.add("input-text-span-div");
 
       const inputNameText = document.createElement("span");
-      inputNameText.innerHTML = "Please enter HCP Name:";
+      inputNameText.innerHTML = "Please enter Name:";
       inputNameTextDiv.appendChild(inputNameText);
       inputNameDiv.appendChild(inputNameTextDiv);
 
@@ -191,7 +212,7 @@ fetch('/data')
       inputNameErrorDiv.appendChild(inputNameErrorImg);
 
       const inputNameErrorText = document.createElement("span");
-      inputNameErrorText.innerHTML = "Invalid HCP Name";
+      inputNameErrorText.innerHTML = "Please enter a valid Name";
       inputNameErrorDiv.appendChild(inputNameErrorText);
       inputNameDiv.appendChild(inputNameErrorDiv);
 
@@ -248,23 +269,6 @@ fetch('/data')
       const specialtyInputOptions = document.createElement("div");
       specialtyInputOptions.classList.add("specialty-options");
 
-      const radioOption_all = document.createElement("label");
-      radioOption_all.classList.add("specialty-option-input");
-
-      const radioinput_all = document.createElement("input");
-      radioinput_all.classList.add("specialty-option-input");
-      radioinput_all.type = "checkbox";
-      radioinput_all.value = "all";
-      radioinput_all.checked = false;
-
-      const radioLabel_all = document.createElement("span");
-      radioLabel_all.classList.add("specialty-option-input");
-      radioLabel_all.textContent = "All Prescribers";
-      
-      radioOption_all.appendChild(radioinput_all);
-      radioOption_all.appendChild(radioLabel_all);      
-      specialtyInputOptions.appendChild(radioOption_all);
-
       const radioOption_derm = document.createElement("label");
       radioOption_derm.classList.add("specialty-option-input");
 
@@ -282,6 +286,22 @@ fetch('/data')
       radioOption_derm.appendChild(radioLabel_derm);      
       specialtyInputOptions.appendChild(radioOption_derm);
 
+      const radioOption_all = document.createElement("label");
+      radioOption_all.classList.add("specialty-option-input");
+
+      const radioinput_all = document.createElement("input");
+      radioinput_all.classList.add("specialty-option-input");
+      radioinput_all.type = "checkbox";
+      radioinput_all.value = "all";
+      radioinput_all.checked = false;
+
+      const radioLabel_all = document.createElement("span");
+      radioLabel_all.classList.add("specialty-option-input");
+      radioLabel_all.textContent = "All";
+      
+      radioOption_all.appendChild(radioinput_all);
+      radioOption_all.appendChild(radioLabel_all);      
+      specialtyInputOptions.appendChild(radioOption_all);
 
       specialtyInputDiv.appendChild(specialtyInputOptions);
       inputDiv.appendChild(specialtyInputDiv);
@@ -365,7 +385,7 @@ fetch('/data')
       const auto_city_options = {
         componentRestrictions: { country: "us" },
         strictBounds: true,
-        types:['locality',"administrative_area_level_1"]
+        types:['locality']
       };
 
       const autocomplete_zipcode = new google.maps.places.Autocomplete(zipcodeInput, auto_zipcode_options);
@@ -476,8 +496,10 @@ fetch('/data')
       radioOption_all.addEventListener("click", () => {
         if (radioinput_all.checked) {
           selectedSpecialty = "all";
-          radioinput_all.checked = true;
           radioinput_derm.checked = false;
+        } else {
+          selectedSpecialty = "derm";
+          radioinput_derm.checked = true;
         }
       });
 
@@ -485,7 +507,9 @@ fetch('/data')
         if (radioinput_derm.checked) {
           selectedSpecialty = "derm";
           radioinput_all.checked = false;
-          radioinput_derm.checked = true;
+        } else {
+          selectedSpecialty = "all";
+          radioinput_all.checked = true;
         }
       });
 
@@ -562,12 +586,15 @@ fetch('/data')
       function showError() {
         if (zipcodeInput.value == "") {
           inputZipcodeErrorDiv.style.display = "flex";
+          zipcodeInput.classList.add("error");
         };
         if (cityInput.value == "") {
           inputCityErrorDiv.style.display = "flex";
+          cityInput.classList.add("error");
         };
         if (nameInput.value == "") {
           inputNameErrorDiv.style.display = "flex";
+          nameInput.classList.add("error");
         };
         if (!disclosureCheck.checked) {
           disclosureCheckDiv.classList.add("error");
@@ -580,9 +607,6 @@ fetch('/data')
       });  
 
       function zipcodeSearch(){
-
-        
-        
         
         const zipcode = extractZipCode(zipcodeInput.value);
         const selectedDistance = distanceFilterSelect.value;
@@ -590,7 +614,7 @@ fetch('/data')
 
         console.log(zipcode);
 
-        geocodeAddress(zipcode)
+        geocodeAddress(zipcodeInput.value)
           .then((geo_result) => {
 
             mapContainer.style.display='flex';
@@ -600,6 +624,8 @@ fetch('/data')
             
             let origin_latlng = geo_result[0].geometry.location;
 
+            console.log("origin_latlng", origin_latlng.toString())
+
             displayOrigin(origin_latlng,"Zipcode: "+zipcode);
             
             const addressComponents = geo_result[0].address_components;
@@ -608,21 +634,27 @@ fetch('/data')
             );
             const geoZipcode = zipcodeComponent ? zipcodeComponent.short_name : null;
 
-            console.log('geo zipcode:', geoZipcode)
+            console.log('geo zipcode:', geoZipcode);
+
+            const center_geocode = origin_latlng.toString().match(/-?\d+(\.\d+)?/g);
+            const center_lat = parseFloat(center_geocode[0]);
+            const center_lng = parseFloat(center_geocode[1]);
 
             if (geoZipcode) {
-              const booleanArray = 
-                dataArray.map((hcp_location) => {
-                    const hcpZipcode = hcp_location.PRIMARY_ZIP_CODE;
-                    try {
-                      return hcpZipcode == geoZipcode;
-                    } catch (error) {
-                      console.error(error);
-                      return false; // or handle the error in an appropriate way
-                    }
-                  })
+              const disArray = [];
+              const booleanArray = dataArray.map((hcp_location) => {
+                const hcp_geocode = JSON.parse(hcp_location.COORDINATES);
+                const distance = mathDistance(hcp_geocode.lat, hcp_geocode.lng, center_lat, center_lng);
+                if (distance <= selectedDistance) {
+                  disArray.push(distance.toFixed(2));
+                } else {
+                  disArray.push(false);
+                }
+                return distance <= selectedDistance;
+              });
               console.log('booleanArray',booleanArray);
-              showHCP(zipcodeInput.value, booleanArray, selectedDistance);
+              console.log('disArray',disArray);
+              showHCP(zipcodeInput.value, booleanArray, disArray);
             } else {
               mapErrorMessageBody1.innerHTML = "Unable to get zipcode from geocode result"
               mapErrorDiv.style.display="flex";
@@ -818,7 +850,7 @@ fetch('/data')
         showHCP(nameInput.value, booleanArray,"Infinity");
       };
 
-      function displayHCP(input, final_hcps,final_distances, sum) {
+      function displayHCP(input, pairedArray, sum) {
 
         // console.log('final_hcps:',final_hcps);
         // console.log('final_distances:',final_distances);
@@ -840,16 +872,14 @@ fetch('/data')
         HCPContentElement.id = "leftPanelContent";
         HCPContentElement.classList.add("HCP-content");
 
-        for (let i = 0; i < final_hcps.length; i++){
+        for (let i = 0; i < pairedArray.length; i++){
 
-          let hcp = final_hcps[i]
+          let hcp = pairedArray[i].hcp;
           let dis = '';
           let number = i+1;
 
-          if (selectedOption != "zipcode") {
-            dis = '';
-          } else {
-            dis = final_distances[i]
+          if (selectedOption == "zipcode") {
+            dis = pairedArray[i].distance
           };
 
           // console.log('dis', dis);
@@ -1005,39 +1035,32 @@ fetch('/data')
           if (selectedOption == "zipcode") {
             infowindow_hcp.setContent(`
                 <p style="margin:0; color: #140065; font-family: Poppins; font-size: 16px; font-weight: 500;">${hcp_name}</p>
-                <p style="margin:0;  color: #D200E6;font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${hcp_specialty}</p>
-                <hr style="width: 90%; margin:0; margin-top: 5px; border-top: 0.7px solid #929292;"></hr>
-                <p style="margin:0; margin-top: 5px; color: #0374BB;font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${hcp_address}</p>
-                <p style="margin:0; color: #0374BB;font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${hcp_city + ", " + hcp.PRIMARY_STATE_CODE + " " + hcp.PRIMARY_ZIP_CODE}</p>
+                <div id="info_div_1" style="margin:0; margin-right:0px; display:flex;flex-direction: row;align-items: center;justify-content: space-between;">
+                  <p style="margin:0;  color: #D200E6;font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${hcp_specialty}</p>
+                  <a href="${hcp_call}" style="margin-left:22px">
+                    <img style="width: 30px;height: 30px;" src="pics/call.png"></img>
+                  </a>
+                </div>
+                <hr style="width: 100%; margin:0; margin-top: 5px; border-top: 0.7px solid #929292;"></hr>
+                <p style="margin:0; margin-top: 5px; color: #0374BB;font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${hcp_address + ", " + hcp_city}</p>
                 <div id="info_div" style="margin:0; margin-right:0px; display:flex;flex-direction: row;align-items: center;justify-content: space-between;">
                   <div id="distance" style="magin:0;display:flex;flex-direction: row;align-items: center;">
                     <img style="width: 15px;height: 15px;" src="pics/Distance.png"></img>
                     <span style="margin-left:10px;color: #929292; font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${dis + ' miles'}</span>
                   </div>
-                  <div id="url_links" style="magin:0;display:flex;flex-direction: row;align-items: center;">
-                    <a href="${hcp_call}" style="margin-left:22px">
-                      <img style="width: 30px;height: 30px;" src="pics/call.png"></img>
-                    </a>
-                    <a href="${googleMapsURL}" target="_blank">
-                      <img style="width: 30px;height: 30px;" src="pics/navigate.png"></img>
-                    </a>
-                  </div>
                 </div>
             `);
           } else {
             infowindow_hcp.setContent(`
-                <p style="margin:0; color: #140065; font-family: Poppins; font-size: 16px; font-weight: 500;">${hcp_name}</p>
+              <p style="margin:0; color: #140065; font-family: Poppins; font-size: 16px; font-weight: 500;">${hcp_name}</p>
+              <div id="info_div_1" style="margin:0; margin-right:0px; display:flex;flex-direction: row;align-items: center;justify-content: space-between;">
                 <p style="margin:0;  color: #D200E6;font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${hcp_specialty}</p>
-                <hr style="width: 90%; margin:0; margin-top: 5px; border-top: 0.7px solid #929292;"></hr>
-                <p style="margin:0; margin-top: 5px; color: #0374BB;font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${hcp_address}</p>
-                <p style="margin:0; color: #0374BB;font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${hcp_city + ", " + hcp.PRIMARY_STATE_CODE + " " + hcp.PRIMARY_ZIP_CODE}</p>
-                <div id="info_div" style="margin:0; margin-right:0px; display:flex;flex-direction: row;align-items: center;justify-content: right;">
-                  <div id="url_links" style="magin:0;display:flex;flex-direction: row;align-items: center;">
-                    <a href="${hcp_call}" style="margin-left:22px">
-                      <img style="width: 30px;height: 30px;" src="pics/call.png"></img>
-                    </a>
-                  </div>
-                </div>
+                <a href="${hcp_call}" style="margin-left:22px">
+                  <img style="width: 30px;height: 30px;" src="pics/call.png"></img>
+                </a>
+              </div>
+              <hr style="width: 100%; margin:0; margin-top: 5px; border-top: 0.7px solid #929292;"></hr>
+              <p style="margin:0; margin-top: 5px; color: #0374BB;font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${hcp_address + ", " + hcp_city}</p>
             `);
           };
 
@@ -1147,49 +1170,50 @@ fetch('/data')
         leftPanel.appendChild(HCPContentElement);
       };
   
-      function showHCP(input, booleanArray,selectedDistance) {
+      function showHCP(input, booleanArray, disArray) {
 
         const sum = booleanArray.reduce((accumulator, currentValue) => accumulator + Number(currentValue), 0);
     
         if (sum !== 0) {
           // Filter HCPs array
-          const filteredArray = dataArray.filter((_, index) => Boolean(booleanArray[index]));
-          
-          if (selectedDistance != "Infinity") {
-            // Display HCPs on map
-            HCPDistance(input, filteredArray)
-            .then((result) => {
-                
-              let distances = result.distance;
-              let hcps = result.hcp;
-              
+          const filteredArray = dataArray.filter((_, index) => Boolean(booleanArray[index])); 
+  
+          let pairedArray = [];
+          if (selectedOption == "zipcode") {
+            const filteredDisArray = disArray.filter((_, index) => Boolean(booleanArray[index]));
+            pairedArray = filteredArray.map((hcp, index) => ({
+              hcp: hcp,
+              distance: filteredDisArray[index]
+            }));
 
-              let booldistance = [];
-              distances.forEach((dis) => {
-                if (parseFloat(dis) <= parseFloat(selectedDistance)) {                  
-                  // console.log('distance comparison:',dis, typeof dis, selectedDistance, typeof selectedDistance);
-                  booldistance.push(true);
-                } else {
-                  booldistance.push(false);
-                }
-              });
-
-              // console.log(booldistance);
-
-              let final_distances = distances.filter((_, index) => Boolean(booldistance[index]));
-              let final_hcps = hcps.filter((_, index) => Boolean(booldistance[index]));
-              
-              // console.log(final_distances);
-
-              displayHCP(input, final_hcps,final_distances,sum);
-            })
-            .catch((error) => {
-                console.error(error);
+            pairedArray.sort((a, b) => {
+              // Compare based on "distance" first
+              if (a.distance !== b.distance) {
+                return a.distance - b.distance;
+              }
+            
+              // If "distance" is the same, compare based on "hcp.FIRST_NAME"
+              const firstNameA = a.hcp.FIRST_NAME.toUpperCase();
+              const firstNameB = b.hcp.FIRST_NAME.toUpperCase();
+              if (firstNameA < firstNameB) {
+                return -1;
+              }
+              if (firstNameA > firstNameB) {
+                return 1;
+              }
+              return 0;
             });
+
+            console.log(pairedArray);
+
           } else {
-            displayHCP(input, filteredArray, '', sum);
-          };
-          
+            pairedArray = filteredArray.map((hcp, index) => ({
+              hcp: hcp
+            }));
+          }
+
+          displayHCP(input, pairedArray, sum);    
+
         } else {
           mapErrorMessageBody1.innerHTML = "There's no HCP matches your input";
           mapErrorDiv.style.display = "flex";
@@ -1219,6 +1243,9 @@ fetch('/data')
           zoom:15,
           icon:marker_O_icon_normal
         });
+
+        const center_geocode = marker_O.getPosition();
+        console.log("center_geocode",center_geocode);
   
         markerArray.push(marker_O);
   
@@ -1246,13 +1273,13 @@ fetch('/data')
       function setDefault() {
         disclosureCheck.checked = false;
         selectedOption = "zipcode";
-        zipcodeOptionButton.classList.add("active");
-        nameOptionButton.classList.remove("active");
-        cityOptionButton.classList.remove("active");
-        inputZipcodeDiv.style.display='flex';
-        inputCityDiv.style.display='none';
-        inputNameDiv.style.display='none';
-        distanceInputDiv.style.display='flex';
+        // zipcodeOptionButton.classList.add("active");
+        // nameOptionButton.classList.remove("active");
+        // cityOptionButton.classList.remove("active");
+        // inputZipcodeDiv.style.display='flex';
+        // inputCityDiv.style.display='none';
+        // inputNameDiv.style.display='none';
+        // distanceInputDiv.style.display='flex';
         selectedSpecialty = "derm";
         radioinput_all.checked = false;
         radioinput_derm.checked = true;
@@ -1272,6 +1299,9 @@ fetch('/data')
         inputZipcodeErrorDiv.style.display="none";
         inputCityErrorDiv.style.display="none";
         inputNameErrorDiv.style.display="none";
+        zipcodeInput.classList.remove("error");
+        cityInput.classList.remove("error");
+        nameInput.classList.remove("error");
         submitErrorDiv.style.display = "none";
         disclosureCheckDiv.classList.remove("error");
         mapErrorMessageBody1.innerHTML = "We were not able find a match"
@@ -1309,10 +1339,12 @@ fetch('/data')
             } else {
               reject("Geocode was not successful for the following reason: " + status);
               inputZipcodeErrorDiv.style.display = "flex";
+              zipcodeInput.classList.add("error");
             }
           });
         });
       };
+
   
       // Function to extract zip code using regular expression
       function extractZipCode(address) {
@@ -1338,13 +1370,9 @@ fetch('/data')
           const state = address.split(',')[1].trim().toUpperCase();
           return [city, state]
         } else {
-          result = autocomplete_city.getPlace();
-          console.log("autocompletion result", result);
-          const city = address.split(",")[0].trim().toUpperCase();
-          const state = address.split(',')[1].trim().toUpperCase();
-          console.log("city & state if not select autocomplete", result, city, state);
           console.log("Unable to get city or state name");
           inputCityErrorDiv.style.display = "flex";
+          cityInput.classList.add("error");
         }
         
       };
@@ -1369,9 +1397,19 @@ fetch('/data')
                     }
                 });
         })
-      }
-  
-      
+      };
+
+      function mathDistance(lat1, lon1, lat2, lon2) {
+        const R = 3958.8; // Radius of the Earth in miles
+        const dLat = (lat2 - lat1) * (Math.PI / 180);
+        const dLon = (lon2 - lon1) * (Math.PI / 180);
+        const a =
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const distance = R * c;
+        return distance;
+      };
   
       function HCPDistance(input, locations) {
   
