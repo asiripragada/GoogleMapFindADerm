@@ -7,8 +7,8 @@ fetch('/data')
 
     console.log(data);
 
-    const dataArray = data.filter(row => row["COORDINATES"] !== 'nan');
-    console.log("dataArray.length",dataArray.length);
+    const dataFull = data.filter(row => row["COORDINATES"] !== 'nan');
+    console.log("dataFull.length",dataFull.length);
 
     // JavaScript code to toggle left panel display
     const mapContainer = document.getElementById('map-container');
@@ -42,8 +42,6 @@ fetch('/data')
           fullscreenControl: false
       });
 
-      // document.getElementById("map").style.display='none';
-
       // Hide the loading sign
       document.getElementById("loading-sign").style.display = "none";
 
@@ -70,23 +68,31 @@ fetch('/data')
       zipcodeOptionButton.name = "searchOption";
       zipcodeOptionButton.id = "zipcodeOption";
 
-      const addressOptionButton = document.createElement("input");
-      addressOptionButton.type = "button";
-      addressOptionButton.value = "Current Address";
-      addressOptionButton.classList.add("search-option-button");
-      addressOptionButton.name = "searchOption";
-      addressOptionButton.id = "addressOption";
-
       const cityOptionButton = document.createElement("input");
       cityOptionButton.type = "button";
-      cityOptionButton.value = "City/HCP Name";
+      cityOptionButton.value = "State & City";
       cityOptionButton.classList.add("search-option-button");
       cityOptionButton.name = "searchOption";
       cityOptionButton.id = "cityOption";
 
+      const nameOptionButton = document.createElement("input");
+      nameOptionButton.type = "button";
+      nameOptionButton.value = "HCP Name";
+      nameOptionButton.classList.add("search-option-button");
+      nameOptionButton.name = "searchOption";
+      nameOptionButton.id = "nameOption";
+
+      // const addressOptionButton = document.createElement("input");
+      // addressOptionButton.type = "button";
+      // addressOptionButton.value = "Current Address";
+      // addressOptionButton.classList.add("search-option-button");
+      // addressOptionButton.name = "searchOption";
+      // addressOptionButton.id = "addressOption";
+
       searchOptions.appendChild(zipcodeOptionButton);
-      searchOptions.appendChild(addressOptionButton);
       searchOptions.appendChild(cityOptionButton);
+      searchOptions.appendChild(nameOptionButton);
+      // searchOptions.appendChild(addressOptionButton);
 
       searchOptionDiv.appendChild(searchOptions);
       controlPanel.appendChild(searchOptionDiv);
@@ -121,7 +127,7 @@ fetch('/data')
       inputZipcodeErrorDiv.appendChild(inputZipcodeErrorImg);
 
       const inputZipcodeErrorText = document.createElement("span");
-      inputZipcodeErrorText.innerHTML = "Invalid Zip Code";
+      inputZipcodeErrorText.innerHTML = "Please enter a valid Zip Code";
       inputZipcodeErrorDiv.appendChild(inputZipcodeErrorText);
       inputZipcodeDiv.appendChild(inputZipcodeErrorDiv);
 
@@ -135,14 +141,14 @@ fetch('/data')
       inputCityTextDiv.classList.add("input-text-span-div");
 
       const inputCityText = document.createElement("span");
-      inputCityText.innerHTML = "Please enter City Name:";
+      inputCityText.innerHTML = "Please enter State or City Name:";
       inputCityTextDiv.appendChild(inputCityText);
       inputCityDiv.appendChild(inputCityTextDiv);
 
       const cityInput = document.createElement("input");
       cityInput.classList.add("input-text-input");
       cityInput.type = "text";
-      cityInput.placeholder = "Enter a city";
+      cityInput.placeholder = "Enter a state or city";
       inputCityDiv.appendChild(cityInput);
 
       const inputCityErrorDiv = document.createElement("div");
@@ -153,7 +159,7 @@ fetch('/data')
       inputCityErrorDiv.appendChild(inputCityErrorImg);
 
       const inputCityErrorText = document.createElement("span");
-      inputCityErrorText.innerHTML = "Invalid City Name";
+      inputCityErrorText.innerHTML = "Please enter a valid State or City Name";
       inputCityErrorDiv.appendChild(inputCityErrorText);
       inputCityDiv.appendChild(inputCityErrorDiv);
 
@@ -332,15 +338,6 @@ fetch('/data')
       submitButton.id = "submit-button";
       searchDiv.appendChild(submitButton);
 
-      const submitErrorDiv = document.createElement("div");
-      submitErrorDiv.id = "submit-error-div";
-
-      const submitErrorText = document.createElement("span");
-      submitErrorText.innerHTML = "Please fill in all the mandatory details";
-      submitErrorDiv.appendChild(submitErrorText);
-
-      searchDiv.appendChild(submitErrorDiv);
-
       const clearButton = document.createElement("input");
       clearButton.type = "button";
       clearButton.value = "Clear";
@@ -348,6 +345,15 @@ fetch('/data')
       searchDiv.appendChild(clearButton);
 
       controlPanel.appendChild(searchDiv);
+
+      const submitErrorDiv = document.createElement("div");
+      submitErrorDiv.id = "submit-error-div";
+
+      const submitErrorText = document.createElement("p");
+      submitErrorText.innerHTML = "Please fill in all the mandatory details";
+      submitErrorDiv.appendChild(submitErrorText);
+
+      controlPanel.appendChild(submitErrorDiv);
       
       // set up auto complete
       const auto_zipcode_options = {
@@ -372,6 +378,34 @@ fetch('/data')
       inputNameDiv.style.display='none';
       distanceInputDiv.style.display='flex';
 
+      zipcodeInput.addEventListener("keydown", (event) => {
+        console.log("event.key",event.key)
+        if (event.key === "Enter") {
+          console.log("clicked enter");
+          event.preventDefault(); // Prevent the default Enter key behavior
+          const place = autocomplete_zipcode.getPlace().predictions[0]; // Get the first prediction from the autocomplete list
+          console.log("autocomplete result", place);
+          if (place && place.formatted_address) {
+            zipcodeInput.value = place.formatted_address; // Set the input value to the first prediction
+          }
+        }
+      });      
+       
+      cityInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          console.log("clicked enter");
+
+          event.preventDefault(); // Prevent the default Enter key behavior
+          const place = autocomplete_city.getPlace(); // Get the first prediction from the autocomplete list
+          console.log("autocomplete result", place);
+
+          if (place && place.formatted_address) {
+            cityInput.value = place.formatted_address; // Set the input value to the first prediction
+          }
+        }
+      });      
+      
+
       zipcodeOptionButton.addEventListener("click", () => {
         if (!zipcodeOptionButton.classList.contains("active")) {
           clear();
@@ -381,25 +415,10 @@ fetch('/data')
           inputNameDiv.style.display='none';
           distanceInputDiv.style.display='flex';
           zipcodeOptionButton.classList.add("active");
-          addressOptionButton.classList.remove("active");
+          nameOptionButton.classList.remove("active");
           cityOptionButton.classList.remove("active");
           selectedOption = "zipcode";
-          autocomplete_zipcode.getPlace();
-          console.log("click on", selectedOption);
-        }
-      });
-
-      addressOptionButton.addEventListener("click", () => {
-        if (!addressOptionButton.classList.contains("active")) {
-          clear();
-          inputZipcodeDiv.style.display='none';
-          inputCityDiv.style.display='none';
-          inputNameDiv.style.display='none';
-          distanceInputDiv.style.display='flex';
-          addressOptionButton.classList.add("active");
-          zipcodeOptionButton.classList.remove("active");
-          cityOptionButton.classList.remove("active");
-          selectedOption = "address";
+          // autocomplete_zipcode.getPlace();
           console.log("click on", selectedOption);
         }
       });
@@ -409,16 +428,46 @@ fetch('/data')
           clear();
           inputZipcodeDiv.style.display='none';
           inputCityDiv.style.display='flex';
-          inputNameDiv.style.display='flex';
+          inputNameDiv.style.display='none';
           distanceInputDiv.style.display='none';
           cityOptionButton.classList.add("active");
-          addressOptionButton.classList.remove("active");
+          nameOptionButton.classList.remove("active");
           zipcodeOptionButton.classList.remove("active");
           selectedOption = "city";
-          autocomplete_city.getPlace();
+          // autocomplete_city.getPlace();
           console.log("click on", selectedOption);
         }
       });
+
+      nameOptionButton.addEventListener("click", () => {
+        if (!nameOptionButton.classList.contains("active")) {
+          clear();
+          inputZipcodeDiv.style.display='none';
+          inputCityDiv.style.display='none';
+          inputNameDiv.style.display='flex';
+          distanceInputDiv.style.display='none';
+          cityOptionButton.classList.remove("active");
+          nameOptionButton.classList.add("active");
+          zipcodeOptionButton.classList.remove("active");
+          selectedOption = "name";
+          console.log("click on", selectedOption);
+        }
+      });
+
+            // addressOptionButton.addEventListener("click", () => {
+      //   if (!addressOptionButton.classList.contains("active")) {
+      //     clear();
+      //     inputZipcodeDiv.style.display='none';
+      //     inputCityDiv.style.display='none';
+      //     inputNameDiv.style.display='none';
+      //     distanceInputDiv.style.display='flex';
+      //     addressOptionButton.classList.add("active");
+      //     zipcodeOptionButton.classList.remove("active");
+      //     cityOptionButton.classList.remove("active");
+      //     selectedOption = "address";
+      //     console.log("click on", selectedOption);
+      //   }
+      // });
 
       // set initial specialty
       let selectedSpecialty = "derm";
@@ -440,22 +489,70 @@ fetch('/data')
         }
       });
 
-      submitButton.addEventListener("click", () => {        
+      // set up error box
+      const mapErrorDiv = document.createElement("div");
+      mapErrorDiv.id = "map-error-div";
+
+      const mapErrorTab = document.createElement("div");
+      mapErrorTab.id = "map-error-tab";
+      mapErrorDiv.appendChild(mapErrorTab);
+
+      const mapErrorContent = document.createElement("div");
+      mapErrorContent.id = "map-error-content";
+
+      const mapErrorImgDiv = document.createElement("div");
+      mapErrorImgDiv.id = "map-error-img-div";
+      const mapErrorImg = document.createElement("img");
+      mapErrorImg.src = "pics/Warning.png";
+      mapErrorImgDiv.appendChild(mapErrorImg);
+      mapErrorContent.appendChild(mapErrorImgDiv);
+
+      const mapErrorMessage = document.createElement("div");
+      mapErrorMessage.id = "map-error-message";
+
+      const mapErrorMessageHeader = document.createElement("h2");
+      mapErrorMessageHeader.innerHTML = "We're sorry!";
+      mapErrorMessage.appendChild(mapErrorMessageHeader);
+
+      const mapErrorMessageBody1 = document.createElement("p");
+      mapErrorMessageBody1.innerHTML = "We were not able find a match";
+      mapErrorMessage.appendChild(mapErrorMessageBody1);
+
+      const mapErrorMessageBody2 = document.createElement("p");
+      mapErrorMessageBody2.innerHTML = "Please try again.";
+      mapErrorMessage.appendChild(mapErrorMessageBody2);
+
+      mapErrorContent.appendChild(mapErrorMessage);
+      mapErrorDiv.appendChild(mapErrorContent);
+
+      mapContainer.appendChild(mapErrorDiv);
+
+
+      submitButton.addEventListener("click", () => {
+
+        clearmarkers();
+        
+        if (selectedSpecialty=="derm") {
+          dataArray = dataFull.filter(row => row["Spec Group"] == "DERM"); 
+        } else {
+          dataArray = dataFull;
+        };
+
         if(zipcodeOptionButton.classList.contains("active")) {
           if (zipcodeInput.value != "" && disclosureCheck.checked ) {
             zipcodeSearch();  
           } else {
             showError();
           };
-        } else if (addressOptionButton.classList.contains("active")){
-          if (disclosureCheck.checked ) {
-            currentAddressSearch();
+        } else if (cityOptionButton.classList.contains("active")){
+          if (cityInput.value != "" && disclosureCheck.checked ) {
+            citySearch();
           } else {
             showError();
           };
         } else {
-          if ((cityInput.value != "" || nameInput.value != "") && disclosureCheck.checked ) {
-            citySearch();  
+          if ( nameInput.value != "" && disclosureCheck.checked ) {
+            nameSearch();  
           } else {
             showError();
           };          
@@ -480,205 +577,251 @@ fetch('/data')
                       
       clearButton.addEventListener("click", function() {
         clear();
-        map.setCenter(center);
-        inputText.value='';
       });  
 
       function zipcodeSearch(){
 
-        clearmarkers();
+        
         
         
         const zipcode = extractZipCode(zipcodeInput.value);
         const selectedDistance = distanceFilterSelect.value;
         console.log("selectedDistance", selectedDistance);
 
-        if (zipcode) {
-          geocodeAddress(zipcode)
-            .then(async (geo_result) => {
+        console.log(zipcode);
 
-              mapViewContainer.style.display='flex';
+        geocodeAddress(zipcode)
+          .then((geo_result) => {
 
-              console.log('zipcode geocoding result',geo_result);
-              console.log('input zipcode', zipcode);
-              
-              let origin_latlng = geo_result[0].geometry.location;
-  
-              displayOrigin(origin_latlng,"Zipcode: "+zipcode);
-              
-              const addressComponents = geo_result[0].address_components;
-              const zipcodeComponent = addressComponents.find(
-                (component) => component.types[0] === "postal_code"
-              );
-              const geoZipcode = zipcodeComponent ? zipcodeComponent.short_name : null;
-  
-              console.log('geo zipcode:', geoZipcode)
-  
-              if (geoZipcode) {
-                const booleanArray = await Promise.all(
-                  dataArray.map((hcp_location) => {
-                      const hcpZipcode = hcp_location.PRIMARY_ZIP_CODE;
-                      try {
-                        return hcpZipcode == geoZipcode;
-                      } catch (error) {
-                        console.error(error);
-                        return false; // or handle the error in an appropriate way
-                      }
+            mapContainer.style.display='flex';
+
+            console.log('zipcode geocoding result',geo_result);
+            console.log('input zipcode', zipcode);
+            
+            let origin_latlng = geo_result[0].geometry.location;
+
+            displayOrigin(origin_latlng,"Zipcode: "+zipcode);
+            
+            const addressComponents = geo_result[0].address_components;
+            const zipcodeComponent = addressComponents.find(
+              (component) => component.types[0] === "postal_code"
+            );
+            const geoZipcode = zipcodeComponent ? zipcodeComponent.short_name : null;
+
+            console.log('geo zipcode:', geoZipcode)
+
+            if (geoZipcode) {
+              const booleanArray = 
+                dataArray.map((hcp_location) => {
+                    const hcpZipcode = hcp_location.PRIMARY_ZIP_CODE;
+                    try {
+                      return hcpZipcode == geoZipcode;
+                    } catch (error) {
+                      console.error(error);
+                      return false; // or handle the error in an appropriate way
+                    }
                   })
-                  );
-                console.log('booleanArray',booleanArray);
-                showHCP(booleanArray,selectedDistance);
-              };
-            })
-            .catch((error) => {
-            console.error(error);
-            inputZipcodeErrorDiv.style.display = "flex";
-            });
-          };
-      };
-
-      function currentAddressSearch(){
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              const currentLocation = {
-                lat: position.coords.latitude,
-                lng: position.coords.longitude,
-              };
-                  getAddress(currentLocation)
-              .then((address) => {
-                  inputText.value = address;
-                  addressSearch();
-              })
-              .catch((error) => {
-                  console.error(error);
-              });
-            },
-            (error) => {
-              console.error(error);
-            }
-          );
-        } else {
-          console.error("Geolocation is not supported by this browser.");
-        }
-      };
-  
-      function addressSearch(){
-        clearmarkers();
-    
-        const address = inputText.value;
-        const selectedDistance = distanceFilterSelect.value;
-    
-        if (address) { 
-        geocodeAddress(address)
-            .then(async (geo_result) => {
-              // document.getElementById("map").style.display='block';
-              document.getElementById("map-shield").style.display='none';
-
-              let origin_latlng = geo_result[0].geometry.location;
-      
-              displayOrigin(origin_latlng, address);
-  
-              // Created a boolean array to filter HCPs based on initial address (if available)
-              const initialAddress = inputText.value;
-    
-              console.log('initial address:', initialAddress);
-    
-              if (initialAddress) {
-                  const booleanArray = await Promise.all(
-                  dataArray.map((hcp_location) => {
-                      const hcpZipcode = hcp_location.ZIP_CODE;
-                      try {
-                        const addressComponents = geo_result[0].address_components;
-                        const zipcodeComponent = addressComponents.find(
-                          (component) => component.types[0] === "postal_code"
-                        );
-                        const origin_zipcode = zipcodeComponent ? zipcodeComponent.short_name : null;
-    
-                        return hcpZipcode == origin_zipcode;
-                      } catch (error) {
-                        console.error(error);
-                        return false; // or handle the error in an appropriate way
-                      }
-                  })
-                  );
-                  console.log('booleanArray',booleanArray);
-    
-                  showHCP(booleanArray,selectedDistance);
+              console.log('booleanArray',booleanArray);
+              showHCP(zipcodeInput.value, booleanArray, selectedDistance);
+            } else {
+              mapErrorMessageBody1.innerHTML = "Unable to get zipcode from geocode result"
+              mapErrorDiv.style.display="flex";
             };
-            })
-            .catch((error) => {
-            console.error(error);
-            });
-          };
+          })
+          .catch((error) => {
+          console.error(error);
+          });
       };
+
+      // function currentAddressSearch(){
+      //   if (navigator.geolocation) {
+      //     navigator.geolocation.getCurrentPosition(
+      //       (position) => {
+      //         const currentLocation = {
+      //           lat: position.coords.latitude,
+      //           lng: position.coords.longitude,
+      //         };
+      //             getAddress(currentLocation)
+      //         .then((address) => {
+      //             inputText.value = address;
+      //             addressSearch();
+      //         })
+      //         .catch((error) => {
+      //             console.error(error);
+      //         });
+      //       },
+      //       (error) => {
+      //         console.error(error);
+      //       }
+      //     );
+      //   } else {
+      //     console.error("Geolocation is not supported by this browser.");
+      //   }
+      // };
+  
+      // function addressSearch(){
+      //   clearmarkers();
+    
+      //   const address = inputText.value;
+      //   const selectedDistance = distanceFilterSelect.value;
+    
+      //   if (address) { 
+      //   geocodeAddress(address)
+      //       .then(async (geo_result) => {
+      //         // document.getElementById("map").style.display='block';
+      //         mapContainer.style.display="flex";
+
+      //         let origin_latlng = geo_result[0].geometry.location;
+      
+      //         displayOrigin(origin_latlng, address);
+  
+      //         // Created a boolean array to filter HCPs based on initial address (if available)
+      //         const initialAddress = inputText.value;
+    
+      //         console.log('initial address:', initialAddress);
+    
+      //         if (initialAddress) {
+      //             const booleanArray = await Promise.all(
+      //             dataArray.map((hcp_location) => {
+      //                 const hcpZipcode = hcp_location.ZIP_CODE;
+      //                 try {
+      //                   const addressComponents = geo_result[0].address_components;
+      //                   const zipcodeComponent = addressComponents.find(
+      //                     (component) => component.types[0] === "postal_code"
+      //                   );
+      //                   const origin_zipcode = zipcodeComponent ? zipcodeComponent.short_name : null;
+    
+      //                   return hcpZipcode == origin_zipcode;
+      //                 } catch (error) {
+      //                   console.error(error);
+      //                   return false; // or handle the error in an appropriate way
+      //                 }
+      //             })
+      //             );
+      //             console.log('booleanArray',booleanArray);
+    
+      //             showHCP(booleanArray,selectedDistance);
+      //       };
+      //       })
+      //       .catch((error) => {
+      //       console.error(error);
+      //       });
+      //     };
+      // };
 
       function citySearch() {
-        clearmarkers();
-        const name = nameInput.value.toUpperCase();
 
-        if (inputText.value != "") {
-          const city = extractCity(inputText.value);
-          const state = extractState(inputText.value);
-          console.log("input city:", city);
-          console.log("input state:", state);
+        const [city, state] = extractCityState(cityInput.value);
+
+        console.log("input city:", city);
+        console.log("input state:", state);
           
-          const selectedDistance = distanceFilterSelect.value;
+        if (city != "all") {
+          geocodeAddress(city)
+            .then((geo_result) => {
 
-          if (city&&state) {
-            geocodeAddress(city)
-              .then(async (geo_result) => {
-                // document.getElementById("map").style.display='block';
-                document.getElementById("map-shield").style.display='none';
+              mapContainer.style.display='flex';
 
-                console.log('city geocoding result',geo_result);
-                console.log('input city', city);
-                let origin_latlng = geo_result[0].geometry.location;
-    
-                map.setOptions({center:origin_latlng,zoom:11});
-    
-                if (city&&state) {
-                  const booleanArray = await Promise.all(
-                    dataArray.map((hcp_location) => {
-                      const hcpCity = hcp_location.CITY_NAME;
-                      const hcpState = hcp_location.STATE_CODE;
-                      const hcpName = hcp_location.FULL_NAME;
-                      try {
-                        return hcpCity == city && hcpState==state && hcpName.includes(name);
-                      } catch (error) {
-                        return false;
-                      }
-                    })
-                    );
-                  console.log('booleanArray',booleanArray);
-                  showHCP(booleanArray,"Infinity");
-                };
-              })
-              .catch((error) => {
-              console.error(error);
-              });
-            };
+              console.log('city geocoding result',geo_result);
+              console.log('input city', city);
+
+              let origin_latlng = geo_result[0].geometry.location;
+  
+              map.setOptions({center:origin_latlng,zoom:10});
+
+              const addressComponents = geo_result[0].address_components;
+              const stateComponent = addressComponents.find(
+                (component) => component.types[0] === "administrative_area_level_1"
+              );
+              const geoState = stateComponent ? stateComponent.short_name : null;
+  
+              if (geo_result) {
+                const booleanArray = 
+                  dataArray.map((hcp_location) => {
+                    const hcpCity = hcp_location.PRIMARY_CITY;
+                    const hcpState = hcp_location.PRIMARY_STATE_CODE;
+                    try {
+                      return hcpCity == city && hcpState==geoState;
+                    } catch (error) {
+                      return false;
+                    };
+                  });
+                console.log('booleanArray',booleanArray);
+                showHCP(cityInput.value, booleanArray,"Infinity");
+              } else {
+                mapErrorMessageBody1.innerHTML = "Unable to get city from geocode result"
+                mapErrorDiv.style.display="flex";
+              };
+            })
+            .catch((error) => {
+            console.error(error);
+            });
         } else {
-          // document.getElementById("map").style.display='block';
-          document.getElementById("map-shield").style.display='none';
-          const booleanArray =
-              dataArray.map((hcp_location) => {
-                const hcpName = hcp_location.FULL_NAME;
-                try {
-                  return hcpName.includes(name);
-                } catch (error) {
-                  return false;
-                }
-              })
-          console.log('booleanArray',booleanArray);
-          showHCP(booleanArray,"Infinity");
-        }
+          geocodeAddress(state)
+          .then((geo_result) => {
+            mapContainer.style.display='flex';
+
+            console.log('state geocoding result',geo_result);
+            console.log('input state', state);
+
+            let origin_latlng = geo_result[0].geometry.location;
+  
+            map.setOptions({center:origin_latlng,zoom:6});
+
+            const addressComponents = geo_result[0].address_components;
+            const stateComponent = addressComponents.find(
+              (component) => component.types[0] === "administrative_area_level_1"
+            );
+            const geoState = stateComponent ? stateComponent.short_name : null;
+
+            console.log("geoState", geoState);
+
+            if (geoState) {
+              const booleanArray =
+                  dataArray.map((hcp_location) => {
+                    const hcpState = hcp_location.PRIMARY_STATE_CODE;
+                    try {
+                      return hcpState==geoState;
+                    } catch (error) {
+                      return false;
+                    }
+                  })
+              console.log('booleanArray',booleanArray);
+              showHCP(cityInput.value, booleanArray,"Infinity");
+            } else {
+              mapErrorMessageBody1.innerHTML = "Unable to get state from geocode result"
+              mapErrorDiv.style.display="flex";
+            };
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+        };
       };
 
-      function displayHCP(final_hcps,final_distances) {
+      function nameSearch() {
 
-        console.log('final_hcps:',final_hcps);
-        console.log('final_distances:',final_distances);
+        const name = nameInput.value.toUpperCase();
+
+        mapContainer.style.display='flex';
+
+        const booleanArray =
+          dataArray.map((hcp_location) => {
+            const hcpName = hcp_location.FULL_NAME;
+            try {
+              return hcpName.includes(name);
+            } catch (error) {
+              return false;
+            };
+          });
+        console.log('booleanArray',booleanArray);
+        showHCP(nameInput.value, booleanArray,"Infinity");
+      };
+
+      function displayHCP(input, final_hcps,final_distances, sum) {
+
+        // console.log('final_hcps:',final_hcps);
+        // console.log('final_distances:',final_distances);
 
         const shape = {
           coords: [1, 1, 1, 8, 6, 8, 6, 1],
@@ -689,7 +832,7 @@ fetch('/data')
         origin_center = map.getCenter();
         
         const HCPHeaderElement = document.createElement("div");
-        HCPHeaderElement.innerHTML = 'Search Results';
+        HCPHeaderElement.innerHTML = "Search Results (" + sum + ")" ;
         HCPHeaderElement.classList.add("HCP-header");
         leftPanel.appendChild(HCPHeaderElement);
 
@@ -703,170 +846,235 @@ fetch('/data')
           let dis = '';
           let number = i+1;
 
-          if (selectedOption == "city") {
+          if (selectedOption != "zipcode") {
             dis = '';
           } else {
             dis = final_distances[i]
           };
 
-          console.log('dis', dis);
+          // console.log('dis', dis);
 
           let pos = JSON.parse(hcp.COORDINATES)
 
           const marker_hcp_icon_normal = {
-            path: MAP_PIN,
-            fillColor: '#1a73e8',
-            fillOpacity: 1,
-            strokeColor: '#000000',
-            strokeWeight: 2,
-            scale: 0.5,
-            labelOrigin: new google.maps.Point(0, -30)
+            url: 'pics/Placeholder_hcp.png',
           };
 
           const marker_hcp_icon_hover = {
-            path: MAP_PIN,
-            fillColor: '#1a73e8',
-            fillOpacity: 1,
-            strokeColor: '#000000',
-            strokeWeight: 2,
-            scale: 0.7,
-            labelOrigin: new google.maps.Point(0, -30)
+            url: 'pics/Placeholder_hcp.png',
+            scaledSize: new google.maps.Size(50, 50)
           };
 
           let marker_hcp = new google.maps.Marker({
               position: pos,
               map: map,
               shape: shape,
-              icon:marker_hcp_icon_normal,
-              label:{
-                text: number+"", 
-                fontWeight: "bold",
-                fontSize:"16px",
-                color:"white"
-              }
+              icon:marker_hcp_icon_normal
           });
           markerArray.push(marker_hcp);
 
           let hcp_name = capitalizeFirstLetter(hcp.FIRST_NAME) + " " + capitalizeFirstLetter(hcp.LAST_NAME);
-          let hcp_address = capitalizeFirstLetter(hcp.ADDRESS_LINE_1) + " " + capitalizeFirstLetter(hcp.ADDRESS_LINE_2);
-          let hcp_city = capitalizeFirstLetter(hcp.CITY_NAME);
-          let hcp_email = "example@example.com";
-          // let hcp_phone = "+1234567890"; "tel:"+hcp_phone
+          let hcp_specialty = capitalizeFirstLetter(hcp.PRIMARY_SPECIALTY_LONG_NAME);
+          let hcp_address = capitalizeFirstLetter(hcp.PRIMARY_ADDRESS_LINE_1) + " " + capitalizeFirstLetter(hcp.PRIMARY_ADDRESS_LINE_2);
+          let hcp_city = capitalizeFirstLetter(hcp.PRIMARY_CITY);
+          let hcp_phone = formatPhoneNumber(hcp.PRIMARY_PHONE_NUMBER);
+          let hcp_call = "tel:" + hcp_phone;
+          // Create the Google Maps URL with the encoded addresses
+          let encodedOrigin = encodeURIComponent(input);
+          let encodedDestination = encodeURIComponent(hcp.FULL_ADDRESS);
+          let googleMapsURL = `https://www.google.com/maps/dir/${encodedOrigin}/${encodedDestination}`;
 
           let infowindow_hcp = new google.maps.InfoWindow();
-          
-          // Set the content of the InfoWindow
-          infowindow_hcp.setContent(
-            '<div style="max-width: 200px; margin: 5px;">' +
-              '<h4 style="margin: 0; color: #1a73e8; font-size: 14px; font-weight: bold;">'+ hcp_name + '</h4>' +
-              '<p style="margin: 0; margin-top: 5px; font-size: 12px; ">'+ hcp_address +'</p>' +
-              '<p style="margin: 0; margin-bottom: 5px; font-size: 12px;">'+ hcp_city + ',' + hcp.STATE_CODE + ' ' + hcp.ZIP_CODE +'</p>' +
-              // '<div style="margin: 5px 0;">'+ 
-              //   '<p style="margin:0; font-weight:bold;">'+ dis + ' miles' +'</p>'+
-              //   '</div>'+
-            '</div>'
-          );
-          
+
+          // set hcp card
           let HCPCardElement = document.createElement("div");
           HCPCardElement.classList.add("HCP-card-div");
 
-          let HCPNumberElement = document.createElement("div");
-          HCPNumberElement.classList.add("HCP-number-div");
-          HCPNumberElement.innerHTML = number;
+          HCPContentElement.appendChild(HCPCardElement);
 
-          HCPCardElement.appendChild(HCPNumberElement);
+          // set hcp number
+          let HCPNumberDiv = document.createElement("div");
+          HCPNumberDiv.classList.add("HCP-number-div");
 
-          let HCPDetailElement = document.createElement("div");
-          HCPDetailElement.classList.add("HCP-detail-div");
+          let HCPNumber = document.createElement("p");
+          HCPNumber.innerHTML = number;
 
+          HCPNumberDiv.appendChild(HCPNumber);
+          HCPCardElement.appendChild(HCPNumberDiv);
+
+          // set hcp details
+          let HCPDetailDiv = document.createElement("div");
+          HCPDetailDiv.classList.add("HCP-detail-div");
+
+          // set hcp name
           let HCPDetail_Name = document.createElement("h4");
           HCPDetail_Name.classList.add("HCP-detail-name");
-          HCPDetail_Name.innerHTML = 'Dr. ' + hcp_name;
+          HCPDetail_Name.innerHTML = hcp_name;
+          HCPDetailDiv.appendChild(HCPDetail_Name);
+
+          // set hcp specialty + distance
+          let HCPDetailDiv_1 = document.createElement("div");
+          HCPDetailDiv_1.classList.add("HCP-detail-div-sub");
           
+          // set hcp specialty 
+          let HCPDetail_Specialty = document.createElement("div");
+          HCPDetail_Specialty.classList.add("HCP-detail-specialty");
+          let HCPDetail_Specialty_text = document.createElement("p");
+          HCPDetail_Specialty_text.innerHTML = hcp_specialty;
+          HCPDetail_Specialty.appendChild(HCPDetail_Specialty_text);
+          HCPDetailDiv_1.appendChild(HCPDetail_Specialty);
+
+          // add distance icon
+          const HCPDetail_Route = document.createElement("div");
+          HCPDetail_Route.classList.add("HCP-detail-route");
+
+          const routeIcon = document.createElement("img");
+          routeIcon.classList.add("HCP-detail-route");
+          const HCPDetail_Route_dis = document.createElement("span");
+          HCPDetail_Route_dis.classList.add("HCP-detail-route");
+
+          if (selectedOption == "zipcode") {
+
+            // add distance icon            
+            routeIcon.src = "pics/Distance.png"; // Replace with the path to your direction icon image
+            routeIcon.alt = "Distance: ";
+            HCPDetail_Route.appendChild(routeIcon);
+
+            // add distance 
+            HCPDetail_Route_dis.innerHTML = dis + ' miles';
+            HCPDetail_Route.appendChild(HCPDetail_Route_dis);
+
+            HCPDetailDiv_1.appendChild(HCPDetail_Route);
+          };
+          HCPDetailDiv.appendChild(HCPDetailDiv_1);
+
+          // set divider
+          let HCPDetail_line = document.createElement("hr");
+          HCPDetail_line.classList.add("HCP-detail-line");
+          HCPDetailDiv.appendChild(HCPDetail_line);
+
+          // bottom div 
+          let HCPDetailDiv_2 = document.createElement("div");
+          HCPDetailDiv_2.classList.add("HCP-detail-div-sub");
+
+          // set hcp address
           let HCPDetail_Address = document.createElement("div");
-          HCPDetail_Address.classList.add("HCP-detail");
+          HCPDetail_Address.classList.add("HCP-detail-address");
           let HCPDetail_Address_street = document.createElement("p");
           HCPDetail_Address_street.innerHTML = hcp_address;
-          let HCPDetail_Address_city = document.createElement("p");
-          HCPDetail_Address_city.innerHTML = hcp_city + ', ' + hcp.STATE_CODE + ' ' + hcp.ZIP_CODE;
           HCPDetail_Address.appendChild(HCPDetail_Address_street);
+          let HCPDetail_Address_city = document.createElement("p");
+          HCPDetail_Address_city.innerHTML = hcp_city + ", " + hcp.PRIMARY_STATE_CODE + " " + hcp.PRIMARY_ZIP_CODE;
           HCPDetail_Address.appendChild(HCPDetail_Address_city);
+
+          HCPDetailDiv_2.appendChild(HCPDetail_Address);
+
+          // phone div
+          const HCPDetail_phone = document.createElement("div");
+          HCPDetail_phone.classList.add("HCP-detail-phone");
+
+          // add phone icon
+          const phoneIcon = document.createElement("img");
+          phoneIcon.classList.add("HCP-detail-phone");
           
-          HCPDetailElement.appendChild(HCPDetail_Name);
-          HCPDetailElement.appendChild(HCPDetail_Address);
+          phoneIcon.src = "pics/Phone call.png"; // Replace with the path to your direction icon image
+          phoneIcon.alt = "Phone: ";
+          HCPDetail_phone.appendChild(phoneIcon);
 
-          let HCPContactElement = document.createElement("div");
-          HCPContactElement.classList.add("HCP-contact-div");
+          // add phone number
+          const HCPDetail_phone_number = document.createElement("span");
+          HCPDetail_phone_number.classList.add("HCP-detail-phone");
+          HCPDetail_phone_number.innerHTML = hcp_phone;
 
-          const HCPDetail_Email = document.createElement("a");
-          HCPDetail_Email.classList.add("HCP-detail-icons");
-          HCPDetail_Email.href = "mailto:" + hcp_email;
+          HCPDetail_phone.appendChild(HCPDetail_phone_number);
 
-          const emailIcon = document.createElement("img");
-          
-          emailIcon.src = "pics/call.png"; // Replace with the path to your direction icon image
-          emailIcon.alt = "Send Email";
-          HCPDetail_Email.appendChild(emailIcon);
+          HCPDetailDiv_2.appendChild(HCPDetail_phone);
 
-          HCPContactElement.appendChild(HCPDetail_Email);
+          HCPDetailDiv.appendChild(HCPDetailDiv_2);
+          HCPCardElement.appendChild(HCPDetailDiv);
 
-
-          if (selectedOption != "city") {
-            let HCPDetail_line = document.createElement("hr");
-            HCPDetail_line.classList.add("HCP-detail-line");
-            HCPDetailElement.appendChild(HCPDetail_line);
-
-            let HCPDetail_Route = document.createElement("div");
-            HCPDetail_Route.classList.add("HCP-detail-route");
-            let HCPDetail_Distance = document.createElement("span");
-            HCPDetail_Distance.classList.add("HCP-detail-dis");
-            HCPDetail_Distance.innerHTML = dis + ' miles&nbsp;&nbsp;&nbsp;';
-            HCPDetail_Route.appendChild(HCPDetail_Distance);
-
-            HCPDetailElement.appendChild(HCPDetail_Route);
-
-            // if (selectedOption == 'address') {
-            if (selectedOption != 'city') {
-              // Encode the addresses for URL compatibility
-              let encodedOrigin = encodeURIComponent(inputText.value);
-              let encodedDestination = encodeURIComponent(hcp.FULL_ADDRESS);
-              // Create the Google Maps URL with the encoded addresses
-              let googleMapsURL = `https://www.google.com/maps/dir/${encodedOrigin}/${encodedDestination}`;
-  
-              const HCPDetail_Direction = document.createElement("a");
-              HCPDetail_Direction.classList.add("HCP-detail-icons");
-              HCPDetail_Direction.href = googleMapsURL;
-              HCPDetail_Direction.target = "_blank"; // Open in a new tab
-  
-              const directionIcon = document.createElement("img");
-              directionIcon.src = "pics/navigate.png"; 
-              directionIcon.alt = "Get Directions";
-              // directionIcon.height = 40;
-              // directionIcon.width = 40;
-              HCPDetail_Direction.appendChild(directionIcon);
-              
-              HCPContactElement.appendChild(HCPDetail_Direction);
-
-              HCPCardElement.appendChild(HCPContactElement);
-            };
-          };
-
-          HCPCardElement.appendChild(HCPDetailElement);
+          const cardHeight = window.getComputedStyle(HCPCardElement).height;
 
           let HCPCardtab = document.createElement("div");
           HCPCardtab.classList.add("HCP-card-tab");
+          HCPCardtab.style.height = cardHeight;
+
           HCPCardElement.appendChild(HCPCardtab);
 
-          HCPContentElement.appendChild(HCPCardElement);
+
+          if (selectedOption == "zipcode") {
+            infowindow_hcp.setContent(`
+                <p style="margin:0; color: #140065; font-family: Poppins; font-size: 16px; font-weight: 500;">${hcp_name}</p>
+                <p style="margin:0;  color: #D200E6;font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${hcp_specialty}</p>
+                <hr style="width: 90%; margin:0; margin-top: 5px; border-top: 0.7px solid #929292;"></hr>
+                <p style="margin:0; margin-top: 5px; color: #0374BB;font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${hcp_address}</p>
+                <p style="margin:0; color: #0374BB;font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${hcp_city + ", " + hcp.PRIMARY_STATE_CODE + " " + hcp.PRIMARY_ZIP_CODE}</p>
+                <div id="info_div" style="margin:0; margin-right:0px; display:flex;flex-direction: row;align-items: center;justify-content: space-between;">
+                  <div id="distance" style="magin:0;display:flex;flex-direction: row;align-items: center;">
+                    <img style="width: 15px;height: 15px;" src="pics/Distance.png"></img>
+                    <span style="margin-left:10px;color: #929292; font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${dis + ' miles'}</span>
+                  </div>
+                  <div id="url_links" style="magin:0;display:flex;flex-direction: row;align-items: center;">
+                    <a href="${hcp_call}" style="margin-left:22px">
+                      <img style="width: 30px;height: 30px;" src="pics/call.png"></img>
+                    </a>
+                    <a href="${googleMapsURL}" target="_blank">
+                      <img style="width: 30px;height: 30px;" src="pics/navigate.png"></img>
+                    </a>
+                  </div>
+                </div>
+            `);
+          } else {
+            infowindow_hcp.setContent(`
+                <p style="margin:0; color: #140065; font-family: Poppins; font-size: 16px; font-weight: 500;">${hcp_name}</p>
+                <p style="margin:0;  color: #D200E6;font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${hcp_specialty}</p>
+                <hr style="width: 90%; margin:0; margin-top: 5px; border-top: 0.7px solid #929292;"></hr>
+                <p style="margin:0; margin-top: 5px; color: #0374BB;font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${hcp_address}</p>
+                <p style="margin:0; color: #0374BB;font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${hcp_city + ", " + hcp.PRIMARY_STATE_CODE + " " + hcp.PRIMARY_ZIP_CODE}</p>
+                <div id="info_div" style="margin:0; margin-right:0px; display:flex;flex-direction: row;align-items: center;justify-content: right;">
+                  <div id="url_links" style="magin:0;display:flex;flex-direction: row;align-items: center;">
+                    <a href="${hcp_call}" style="margin-left:22px">
+                      <img style="width: 30px;height: 30px;" src="pics/call.png"></img>
+                    </a>
+                  </div>
+                </div>
+            `);
+          };
 
           let clicked = false;
           let elementTop = HCPCardElement.offsetTop;
+
+          function activeHCP(){
+            HCPCardElement.classList.add("active");
+            HCPCardtab.classList.add("active");
+            HCPDetail_Name.classList.add("active");
+            HCPDetail_Specialty_text.classList.add("active");
+            HCPDetail_phone_number.classList.add("active");
+            HCPDetail_Address_street.classList.add("active");  
+            HCPDetail_Address_city.classList.add("active");            
+            if(selectedOption != "city") {
+              HCPDetail_Route_dis.classList.add("active");
+            };
+          };
+
+          function disactiveHCP(){
+            HCPCardElement.classList.remove("active");
+            HCPCardtab.classList.remove("active");
+            HCPDetail_Name.classList.remove("active");
+            HCPDetail_Specialty_text.classList.remove("active");
+            HCPDetail_phone_number.classList.remove("active");
+            HCPDetail_Address_street.classList.remove("active");  
+            HCPDetail_Address_city.classList.remove("active");            
+            if(selectedOption != "city") {
+              HCPDetail_Route_dis.classList.remove("active");
+            };
+          };
 
           marker_hcp.addListener("mouseover", () => {
             if (!clicked) {
               infowindow_hcp.open(map, marker_hcp);
               marker_hcp.setIcon(marker_hcp_icon_hover);
-              HCPCardElement.classList.add("active");
+              activeHCP();
               HCPContentElement.scrollTop = elementTop-50;
             }
           });
@@ -875,7 +1083,7 @@ fetch('/data')
             if (!clicked) {
               infowindow_hcp.close();
               marker_hcp.setIcon(marker_hcp_icon_normal);
-              HCPCardElement.classList.remove("active");
+              disactiveHCP();
             }
           });
           
@@ -884,14 +1092,14 @@ fetch('/data')
               clicked = false;
               infowindow_hcp.close();
               marker_hcp.setIcon(marker_hcp_icon_normal);
-              HCPCardElement.classList.remove("active");
+              disactiveHCP();
               map.setOptions({ center: origin_center, zoom: 13 });
               HCPContentElement.scrollTop = elementTop-50;
             } else {
               clicked = true;
               infowindow_hcp.open(map, marker_hcp);
               marker_hcp.setIcon(marker_hcp_icon_hover);
-              HCPCardElement.classList.add("active");
+              activeHCP();
               map.setOptions({ center: marker_hcp.getPosition(), zoom: 15 });
             }
           });
@@ -899,7 +1107,7 @@ fetch('/data')
           infowindow_hcp.addListener("closeclick", () => {
             clicked = false;
             marker_hcp.setIcon(marker_hcp_icon_normal);
-            HCPCardElement.classList.remove("active");
+            disactiveHCP();
             map.setOptions({ center: origin_center, zoom: 13 });
           });
 
@@ -907,7 +1115,7 @@ fetch('/data')
             if (!clicked) {
               infowindow_hcp.open(map, marker_hcp);
               marker_hcp.setIcon(marker_hcp_icon_hover);
-              HCPCardElement.classList.add("active");
+              activeHCP();
             }
           });
           
@@ -915,7 +1123,7 @@ fetch('/data')
             if (!clicked) {
               infowindow_hcp.close();
               marker_hcp.setIcon(marker_hcp_icon_normal);
-              HCPCardElement.classList.remove("active");
+              disactiveHCP();
             }
           });
           
@@ -924,13 +1132,13 @@ fetch('/data')
               clicked = false;
               infowindow_hcp.close();
               marker_hcp.setIcon(marker_hcp_icon_normal);
-              HCPCardElement.classList.remove("active");
+              disactiveHCP();
               map.setOptions({ center: origin_center, zoom: 13 });
             } else {
               clicked = true;
               infowindow_hcp.open(map, marker_hcp);
               marker_hcp.setIcon(marker_hcp_icon_hover);
-              HCPCardElement.classList.add("active");
+              activeHCP();
               map.setOptions({ center: marker_hcp.getPosition(), zoom: 15 });
             }
           });
@@ -939,7 +1147,7 @@ fetch('/data')
         leftPanel.appendChild(HCPContentElement);
       };
   
-      function showHCP(booleanArray,selectedDistance) {
+      function showHCP(input, booleanArray,selectedDistance) {
 
         const sum = booleanArray.reduce((accumulator, currentValue) => accumulator + Number(currentValue), 0);
     
@@ -949,7 +1157,7 @@ fetch('/data')
           
           if (selectedDistance != "Infinity") {
             // Display HCPs on map
-            HCPDistance(filteredArray, inputText)
+            HCPDistance(input, filteredArray)
             .then((result) => {
                 
               let distances = result.distance;
@@ -973,19 +1181,18 @@ fetch('/data')
               
               // console.log(final_distances);
 
-              displayHCP(final_hcps,final_distances);
+              displayHCP(input, final_hcps,final_distances,sum);
             })
             .catch((error) => {
                 console.error(error);
             });
           } else {
-            displayHCP(filteredArray,'');
+            displayHCP(input, filteredArray, '', sum);
           };
           
         } else {
-          setTimeout(function() {
-            alert("There's no HCP near your entered information");
-          }, 500); 
+          mapErrorMessageBody1.innerHTML = "There's no HCP matches your input";
+          mapErrorDiv.style.display = "flex";
         };                                
       };
 
@@ -1025,7 +1232,6 @@ fetch('/data')
         </div>
         `);
 
-
         marker_O.addListener("mouseover", () => {
           infowindow_O.open(map, marker_O);
           marker_O.setIcon(marker_O_icon_hover);
@@ -1034,49 +1240,48 @@ fetch('/data')
           infowindow_O.close(map, marker_O);
           marker_O.setIcon(marker_O_icon_normal);
         }); 
-      }
+
+      };
+
+      function setDefault() {
+        disclosureCheck.checked = false;
+        selectedOption = "zipcode";
+        zipcodeOptionButton.classList.add("active");
+        nameOptionButton.classList.remove("active");
+        cityOptionButton.classList.remove("active");
+        inputZipcodeDiv.style.display='flex';
+        inputCityDiv.style.display='none';
+        inputNameDiv.style.display='none';
+        distanceInputDiv.style.display='flex';
+        selectedSpecialty = "derm";
+        radioinput_all.checked = false;
+        radioinput_derm.checked = true;
+      };
   
       function clear() {
+        mapContainer.style.display="none";
         zipcodeInput.value="";
         cityInput.value="";
         nameInput.value="";
         distanceFilterSelect.value=50;
+        setDefault();
+        clearmarkers();
+      };
+  
+      function clearmarkers() {
         inputZipcodeErrorDiv.style.display="none";
         inputCityErrorDiv.style.display="none";
         inputNameErrorDiv.style.display="none";
         submitErrorDiv.style.display = "none";
         disclosureCheckDiv.classList.remove("error");
-        disclosureCheck.checked = false;
-        selectedOption = "zipcode";
-        zipcodeOptionButton.classList.add("active");
-        addressOptionButton.classList.remove("active");
-        cityOptionButton.classList.remove("active");
-
-        clearmarkers();
-
-        // offLeftPanel();
-        // map.setOptions({center:center,zoom:4});
-        // document.getElementById("map-shield").style.display='block';
-        // controlPanel.classList.remove("error");
-        // mapErrorMessageBody1.innerHTML = "We were not able find a match";
-        // mapErrorDiv.style.display = "none";
-        // distanceSlider.value = 3;
-        // inputText.value="";
-        // nameInput.value="";
-        // inputText.classList.remove("error");
-        // nameInput.classList.remove("error");
-        // sumbitIcon.src = "pics/Search.png";
-        // inputPanel.classList.remove("error");
-        // clearmarkers();
-        // 
-      };
-  
-      function clearmarkers() {
+        mapErrorMessageBody1.innerHTML = "We were not able find a match"
+        mapErrorDiv.style.display="none";
         offLeftPanel();
         for (var i = 0; i < markerArray.length; i++) {
           markerArray[i].setMap(null);
         }
         markerArray = [];
+        map.setOptions({center:center,zoom:4});
       };
 
       function getAddress(latlng) {
@@ -1097,11 +1302,13 @@ fetch('/data')
         return new Promise((resolve, reject) => {
           const geocoder = new google.maps.Geocoder();
           geocoder.geocode({ address: address }, (results, status) => {
+            console.log("geocode status", status)
             if (status === "OK") {
               const geo_result = results;
               resolve(geo_result);
             } else {
               reject("Geocode was not successful for the following reason: " + status);
+              inputZipcodeErrorDiv.style.display = "flex";
             }
           });
         });
@@ -1120,25 +1327,27 @@ fetch('/data')
         }
       }
 
-      function extractCity(address) {
-        const city = address.split(",")[0].trim().toUpperCase();
-        if (city) {
-          return city;
-        } else {
-          // alert("Unable to get city name.")
-          return ''; // Return empty string if no zip code found
-        }
-      }
+      function extractCityState(address) {
 
-      function extractState(address) {
-        const state = address.split(',')[1].trim().toUpperCase();
-        if (state) {
-          return state;
+        const length = address.split(",").length;
+        if (length == 2) {
+          const state = address.split(",")[0].trim().toUpperCase();
+          return ["all", state]
+        } else if (length == 3) {
+          const city = address.split(",")[0].trim().toUpperCase();
+          const state = address.split(',')[1].trim().toUpperCase();
+          return [city, state]
         } else {
-          // alert("Unable to get city name.")
-          return ''; // Return empty string if no zip code found
+          result = autocomplete_city.getPlace();
+          console.log("autocompletion result", result);
+          const city = address.split(",")[0].trim().toUpperCase();
+          const state = address.split(',')[1].trim().toUpperCase();
+          console.log("city & state if not select autocomplete", result, city, state);
+          console.log("Unable to get city or state name");
+          inputCityErrorDiv.style.display = "flex";
         }
-      }
+        
+      };
   
       function calculateDistance(originAddress, destinationLatLng) {
         return new Promise((resolve, reject) => {
@@ -1164,14 +1373,14 @@ fetch('/data')
   
       
   
-      function HCPDistance(locations, inputText) {
+      function HCPDistance(input, locations) {
   
-        const originAddress = inputText.value;
+        const originAddress = input;
   
         const promises = [];
-        markerDistance = [];
-        markerLatLng = [];
-        markerHCP = []
+        let markerDistance = [];
+        let markerLatLng = [];
+        let markerHCP = []
   
         for (let i = 0; i < locations.length; i++) {
           const location = locations[i];
@@ -1187,9 +1396,8 @@ fetch('/data')
                 markerHCP.push(location);
             })
             .catch((error) => {
-                console.error(error);
+                console.error("calculate distance error:", error);
             });
-  
             promises.push(distancePromise);
           };    
   
@@ -1199,13 +1407,37 @@ fetch('/data')
               return {hcp:markerHCP, distance: markerDistance, latlng: markerLatLng};
               })
               .catch((error) => {
-              console.error(error);
+              console.error("failed to return distance result",error);
               });
       };
   
-      function capitalizeFirstLetter(str) {
-        return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+      function capitalizeFirstLetter(address) {
+        // Split the address into words
+        const words = address.split(' ');
+
+        // Convert the first letter of each word to uppercase and the rest to lowercase
+        const formattedWords = words.map((word) => {
+          const lowercaseWord = word.toLowerCase();
+          return lowercaseWord.charAt(0).toUpperCase() + lowercaseWord.slice(1);
+        });
+
+        // Join the formatted words back into an address string
+        const formattedAddress = formattedWords.join(' ');
+
+        return formattedAddress;
       };
+
+      function formatPhoneNumber(number) {
+        // Remove all non-digit characters from the number
+        const cleanedNumber = number.replace(/\D/g, '');
+        
+        // Format the number as "(xxx) xxx-xxxx"
+        const areaCode = cleanedNumber.slice(0, 3);
+        const firstPart = cleanedNumber.slice(3, 6);
+        const secondPart = cleanedNumber.slice(6);
+        
+        return `(${areaCode}) ${firstPart}-${secondPart}`;
+      }
 
     };
 
