@@ -39,7 +39,7 @@ fetch('/data')
           center: center,
           streetViewControl: false,
           mapTypeControl:false,
-          fullscreenControl: true
+          fullscreenControl: false
       });
 
       // Hide the loading sign
@@ -137,9 +137,6 @@ fetch('/data')
 
 
 
-
-
-
       const inputZipcodeErrorDiv = document.createElement("div");
       inputZipcodeErrorDiv.classList.add("input-text-error-div");
 
@@ -212,7 +209,7 @@ fetch('/data')
       inputNameErrorDiv.appendChild(inputNameErrorImg);
 
       const inputNameErrorText = document.createElement("span");
-      inputNameErrorText.innerHTML = "Please enter a name";
+      inputNameErrorText.innerHTML = "Please enter minimum 3 characters";
       inputNameErrorDiv.appendChild(inputNameErrorText);
       inputNameDiv.appendChild(inputNameErrorDiv);
 
@@ -255,22 +252,6 @@ fetch('/data')
       inputDiv.appendChild(distanceInputDiv);
 
       let zoomLevel = 14;
-
-      // // Event listener to handle distance selection
-      // distanceFilterSelect.addEventListener("change", () => {
-        
-      //   if (distanceFilterSelect.value == 10) {
-      //     zoomLevel = 10;
-      //   } else if (distanceFilterSelect.value == 20) {
-      //     zoomLevel = 9;
-      //   } else if (distanceFilterSelect.value == 50) {
-      //     zoomLevel = 8;
-      //   } else if (distanceFilterSelect.value == 100) {
-      //     zoomLevel = 7;
-      //   } else {
-      //    zoomLevel = 11;
-      //   }
-      // });
 
 
       // Specialty Options
@@ -417,32 +398,9 @@ fetch('/data')
       inputNameDiv.style.display='none';
       distanceInputDiv.style.display='flex';
 
-      zipcodeInput.addEventListener("keydown", (event) => {
-        console.log("event.key",event.key)
-        if (event.key === "Enter") {
-          console.log("clicked enter");
-          event.preventDefault(); // Prevent the default Enter key behavior
-          const place = autocomplete_zipcode.getPlace().predictions[0]; // Get the first prediction from the autocomplete list
-          console.log("autocomplete result", place);
-          if (place && place.formatted_address) {
-            zipcodeInput.value = place.formatted_address; // Set the input value to the first prediction
-          }
-        }
-      });      
-       
-      cityInput.addEventListener("keydown", (event) => {
-        if (event.key === "Enter") {
-          console.log("clicked enter");
-
-          event.preventDefault(); // Prevent the default Enter key behavior
-          const place = autocomplete_city.getPlace(); // Get the first prediction from the autocomplete list
-          console.log("autocomplete result", place);
-
-          if (place && place.formatted_address) {
-            cityInput.value = place.formatted_address; // Set the input value to the first prediction
-          }
-        }
-      });      
+      autocomplete_zipcode.addListener("place_changed", () => {
+        zipcodeInput.value = extractZipCode(zipcodeInput.value);
+      });
       
 
       zipcodeOptionButton.addEventListener("click", () => {
@@ -458,7 +416,7 @@ fetch('/data')
           cityOptionButton.classList.remove("active");
           selectedOption = "zipcode";
           zoomLevel = 8;
-          // autocomplete_zipcode.getPlace();
+          autocomplete_zipcode.getPlace();
           console.log("click on", selectedOption);
         }
       });
@@ -475,7 +433,7 @@ fetch('/data')
           zipcodeOptionButton.classList.remove("active");
           selectedOption = "city";
           zoomLevel = 12;
-          // autocomplete_city.getPlace();
+          autocomplete_city.getPlace();
           console.log("click on", selectedOption);
         }
       });
@@ -582,7 +540,7 @@ fetch('/data')
             showError();
           };
         } else {
-          if ( nameInput.value != "" && disclosureCheck.checked ) {
+          if ( nameInput.value.trim().length>=3 && disclosureCheck.checked ) {
             nameSearch();  
           } else {
             showError();
@@ -599,7 +557,7 @@ fetch('/data')
           inputCityErrorDiv.style.display = "flex";
           cityInput.classList.add("error");
         };
-        if (nameInput.value == "") {
+        if (nameInput.value.trim().length < 3) {
           inputNameErrorDiv.style.display = "flex";
           nameInput.classList.add("error");
         };
@@ -624,7 +582,7 @@ fetch('/data')
         geocodeAddress(zipcodeInput.value)
           .then((geo_result) => {
 
-            zipcodeInput.readOnly =  true;
+            // zipcodeInput.readOnly =  true;
             mapContainer.style.display='flex';
 
             console.log('zipcode geocoding result',geo_result);
@@ -716,7 +674,7 @@ fetch('/data')
                   };
                 });
               console.log('booleanArray',booleanArray);
-              showHCP(cityInput.value, booleanArray,"Infinity");
+              showHCP("", booleanArray,"Infinity");
             } else {
               mapErrorMessageBody1.innerHTML = "Unable to get city from geocode result"
               mapErrorDiv.style.display="flex";
@@ -729,10 +687,9 @@ fetch('/data')
 
       function nameSearch() {
 
-        const name = nameInput.value.toUpperCase();
+        const name = nameInput.value.trim().toUpperCase();
 
         mapContainer.style.display='flex';
-        // nameInput.readOnly =  true;
 
         const booleanArray =
           dataArray.map((hcp_location) => {
@@ -744,7 +701,7 @@ fetch('/data')
             };
           });
         console.log('booleanArray',booleanArray);
-        showHCP(nameInput.value, booleanArray,"Infinity");
+        showHCP("", booleanArray,"Infinity");
       };
 
       
@@ -832,6 +789,8 @@ fetch('/data')
             }
             map.setOptions({ center: origin_center, zoom: zoomLevel });
           };
+
+          let currentZIndex = 1;
 
           for (let i = startIndex; i < endIndex; i++) {
   
@@ -940,14 +899,16 @@ fetch('/data')
               // add distance icon            
               routeIcon.src = "pics/Distance.png"; // Replace with the path to your direction icon image
               routeIcon.alt = "Distance: ";
-              HCPDetail_Route.appendChild(routeIcon);
+              
   
               // add distance 
               HCPDetail_Route_dis.innerHTML = dis + ' miles';
+              HCPDetail_Route.appendChild(routeIcon);
               HCPDetail_Route.appendChild(HCPDetail_Route_dis);
-  
-              HCPDetailDiv_1.appendChild(HCPDetail_Route);
             };
+            
+  
+            HCPDetailDiv_1.appendChild(HCPDetail_Route);
             HCPDetailDiv.appendChild(HCPDetailDiv_1);
   
             // set divider
@@ -995,11 +956,11 @@ fetch('/data')
             HCPDetailDiv.appendChild(HCPDetailDiv_2);
             HCPCardElement.appendChild(HCPDetailDiv);
   
-            const cardHeight = window.getComputedStyle(HCPCardElement).height;
+            const cardHeight = window.getComputedStyle(HCPDetailDiv).height;
   
             let HCPCardtab = document.createElement("div");
             HCPCardtab.classList.add("HCP-card-tab");
-            HCPCardtab.style.height = cardHeight;
+            HCPCardtab.style.height = cardHeight+10;
   
             HCPCardElement.appendChild(HCPCardtab);
   
@@ -1042,6 +1003,8 @@ fetch('/data')
             function activeHCP(marker_hcp, infowindow_hcp, HCPCardElement) {
               marker_hcp.setIcon(marker_hcp_icon_hover);
               addClassToAllChildren(HCPCardElement,"active");
+              infowindow_hcp.setZIndex(currentZIndex);
+              currentZIndex++;
               infowindow_hcp.open(map, marker_hcp);
             }
             
@@ -1322,7 +1285,7 @@ fetch('/data')
         selectedSpecialty = "derm";
         radioinput_all.checked = false;
         radioinput_derm.checked = true;
-        zipcodeInput.readOnly =  false;
+        // zipcodeInput.readOnly =  false;
         // cityInput.readOnly =  false;
         // nameInput.readOnly =  false;
       };

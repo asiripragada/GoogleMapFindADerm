@@ -148,7 +148,7 @@ fetch('/data')
       inputZipcodeErrorDiv.appendChild(inputZipcodeErrorImg);
 
       const inputZipcodeErrorText = document.createElement("span");
-      inputZipcodeErrorText.innerHTML = "Please enter a valid Zip Code";
+      inputZipcodeErrorText.innerHTML = "Please enter a valid zip code";
       inputZipcodeErrorDiv.appendChild(inputZipcodeErrorText);
       inputZipcodeDiv.appendChild(inputZipcodeErrorDiv);
 
@@ -180,7 +180,7 @@ fetch('/data')
       inputCityErrorDiv.appendChild(inputCityErrorImg);
 
       const inputCityErrorText = document.createElement("span");
-      inputCityErrorText.innerHTML = "Please enter a valid City Name";
+      inputCityErrorText.innerHTML = "Please enter a valid city name";
       inputCityErrorDiv.appendChild(inputCityErrorText);
       inputCityDiv.appendChild(inputCityErrorDiv);
 
@@ -212,7 +212,7 @@ fetch('/data')
       inputNameErrorDiv.appendChild(inputNameErrorImg);
 
       const inputNameErrorText = document.createElement("span");
-      inputNameErrorText.innerHTML = "Please enter a valid Name";
+      inputNameErrorText.innerHTML = "Please enter a name";
       inputNameErrorDiv.appendChild(inputNameErrorText);
       inputNameDiv.appendChild(inputNameErrorDiv);
 
@@ -253,6 +253,25 @@ fetch('/data')
       distanceInputDiv.appendChild(distanceFilterSelect);
 
       inputDiv.appendChild(distanceInputDiv);
+
+      let zoomLevel = 14;
+
+      // // Event listener to handle distance selection
+      // distanceFilterSelect.addEventListener("change", () => {
+        
+      //   if (distanceFilterSelect.value == 10) {
+      //     zoomLevel = 10;
+      //   } else if (distanceFilterSelect.value == 20) {
+      //     zoomLevel = 9;
+      //   } else if (distanceFilterSelect.value == 50) {
+      //     zoomLevel = 8;
+      //   } else if (distanceFilterSelect.value == 100) {
+      //     zoomLevel = 7;
+      //   } else {
+      //    zoomLevel = 11;
+      //   }
+      // });
+
 
       // Specialty Options
       const specialtyInputDiv = document.createElement("div");
@@ -438,6 +457,7 @@ fetch('/data')
           nameOptionButton.classList.remove("active");
           cityOptionButton.classList.remove("active");
           selectedOption = "zipcode";
+          zoomLevel = 8;
           // autocomplete_zipcode.getPlace();
           console.log("click on", selectedOption);
         }
@@ -454,6 +474,7 @@ fetch('/data')
           nameOptionButton.classList.remove("active");
           zipcodeOptionButton.classList.remove("active");
           selectedOption = "city";
+          zoomLevel = 12;
           // autocomplete_city.getPlace();
           console.log("click on", selectedOption);
         }
@@ -470,24 +491,10 @@ fetch('/data')
           nameOptionButton.classList.add("active");
           zipcodeOptionButton.classList.remove("active");
           selectedOption = "name";
+          zoomLevel = 4;
           console.log("click on", selectedOption);
         }
       });
-
-            // addressOptionButton.addEventListener("click", () => {
-      //   if (!addressOptionButton.classList.contains("active")) {
-      //     clear();
-      //     inputZipcodeDiv.style.display='none';
-      //     inputCityDiv.style.display='none';
-      //     inputNameDiv.style.display='none';
-      //     distanceInputDiv.style.display='flex';
-      //     addressOptionButton.classList.add("active");
-      //     zipcodeOptionButton.classList.remove("active");
-      //     cityOptionButton.classList.remove("active");
-      //     selectedOption = "address";
-      //     console.log("click on", selectedOption);
-      //   }
-      // });
 
       // set initial specialty
       let selectedSpecialty = "derm";
@@ -617,6 +624,7 @@ fetch('/data')
         geocodeAddress(zipcodeInput.value)
           .then((geo_result) => {
 
+            zipcodeInput.readOnly =  true;
             mapContainer.style.display='flex';
 
             console.log('zipcode geocoding result',geo_result);
@@ -665,82 +673,6 @@ fetch('/data')
           });
       };
 
-      // function currentAddressSearch(){
-      //   if (navigator.geolocation) {
-      //     navigator.geolocation.getCurrentPosition(
-      //       (position) => {
-      //         const currentLocation = {
-      //           lat: position.coords.latitude,
-      //           lng: position.coords.longitude,
-      //         };
-      //             getAddress(currentLocation)
-      //         .then((address) => {
-      //             inputText.value = address;
-      //             addressSearch();
-      //         })
-      //         .catch((error) => {
-      //             console.error(error);
-      //         });
-      //       },
-      //       (error) => {
-      //         console.error(error);
-      //       }
-      //     );
-      //   } else {
-      //     console.error("Geolocation is not supported by this browser.");
-      //   }
-      // };
-  
-      // function addressSearch(){
-      //   clearmarkers();
-    
-      //   const address = inputText.value;
-      //   const selectedDistance = distanceFilterSelect.value;
-    
-      //   if (address) { 
-      //   geocodeAddress(address)
-      //       .then(async (geo_result) => {
-      //         // document.getElementById("map").style.display='block';
-      //         mapContainer.style.display="flex";
-
-      //         let origin_latlng = geo_result[0].geometry.location;
-      
-      //         displayOrigin(origin_latlng, address);
-  
-      //         // Created a boolean array to filter HCPs based on initial address (if available)
-      //         const initialAddress = inputText.value;
-    
-      //         console.log('initial address:', initialAddress);
-    
-      //         if (initialAddress) {
-      //             const booleanArray = await Promise.all(
-      //             dataArray.map((hcp_location) => {
-      //                 const hcpZipcode = hcp_location.ZIP_CODE;
-      //                 try {
-      //                   const addressComponents = geo_result[0].address_components;
-      //                   const zipcodeComponent = addressComponents.find(
-      //                     (component) => component.types[0] === "postal_code"
-      //                   );
-      //                   const origin_zipcode = zipcodeComponent ? zipcodeComponent.short_name : null;
-    
-      //                   return hcpZipcode == origin_zipcode;
-      //                 } catch (error) {
-      //                   console.error(error);
-      //                   return false; // or handle the error in an appropriate way
-      //                 }
-      //             })
-      //             );
-      //             console.log('booleanArray',booleanArray);
-    
-      //             showHCP(booleanArray,selectedDistance);
-      //       };
-      //       })
-      //       .catch((error) => {
-      //       console.error(error);
-      //       });
-      //     };
-      // };
-
       function citySearch() {
 
         const [city, state] = extractCityState(cityInput.value);
@@ -748,57 +680,18 @@ fetch('/data')
         console.log("input city:", city);
         console.log("input state:", state);
           
-        if (city != "all") {
-          geocodeAddress(city)
-            .then((geo_result) => {
-
-              mapContainer.style.display='flex';
-
-              console.log('city geocoding result',geo_result);
-              console.log('input city', city);
-
-              let origin_latlng = geo_result[0].geometry.location;
-  
-              map.setOptions({center:origin_latlng,zoom:10});
-
-              const addressComponents = geo_result[0].address_components;
-              const stateComponent = addressComponents.find(
-                (component) => component.types[0] === "administrative_area_level_1"
-              );
-              const geoState = stateComponent ? stateComponent.short_name : null;
-  
-              if (geo_result) {
-                const booleanArray = 
-                  dataArray.map((hcp_location) => {
-                    const hcpCity = hcp_location.PRIMARY_CITY;
-                    const hcpState = hcp_location.PRIMARY_STATE_CODE;
-                    try {
-                      return hcpCity == city && hcpState==geoState;
-                    } catch (error) {
-                      return false;
-                    };
-                  });
-                console.log('booleanArray',booleanArray);
-                showHCP(cityInput.value, booleanArray,"Infinity");
-              } else {
-                mapErrorMessageBody1.innerHTML = "Unable to get city from geocode result"
-                mapErrorDiv.style.display="flex";
-              };
-            })
-            .catch((error) => {
-            console.error(error);
-            });
-        } else {
-          geocodeAddress(state)
+        geocodeAddress(cityInput.value)
           .then((geo_result) => {
+
+            // cityInput.readOnly =  true;
             mapContainer.style.display='flex';
 
-            console.log('state geocoding result',geo_result);
-            console.log('input state', state);
+            console.log('city geocoding result',geo_result);
+            console.log('input city', city);
 
             let origin_latlng = geo_result[0].geometry.location;
-  
-            map.setOptions({center:origin_latlng,zoom:6});
+
+            map.setOptions({center:origin_latlng,zoom:zoomLevel});
 
             const addressComponents = geo_result[0].address_components;
             const stateComponent = addressComponents.find(
@@ -806,29 +699,32 @@ fetch('/data')
             );
             const geoState = stateComponent ? stateComponent.short_name : null;
 
-            console.log("geoState", geoState);
+            const cityComponent = addressComponents.find(
+              (component) => component.types[0] === "locality"
+            );
+            const geoCity = cityComponent ? cityComponent.short_name : null;
 
-            if (geoState) {
-              const booleanArray =
-                  dataArray.map((hcp_location) => {
-                    const hcpState = hcp_location.PRIMARY_STATE_CODE;
-                    try {
-                      return hcpState==geoState;
-                    } catch (error) {
-                      return false;
-                    }
-                  })
+            if (geo_result) {
+              const booleanArray = 
+                dataArray.map((hcp_location) => {
+                  const hcpCity = hcp_location.PRIMARY_CITY;
+                  const hcpState = hcp_location.PRIMARY_STATE_CODE;
+                  try {
+                    return hcpCity == geoCity.toUpperCase() && hcpState==geoState.toUpperCase();
+                  } catch (error) {
+                    return false;
+                  };
+                });
               console.log('booleanArray',booleanArray);
               showHCP(cityInput.value, booleanArray,"Infinity");
             } else {
-              mapErrorMessageBody1.innerHTML = "Unable to get state from geocode result"
+              mapErrorMessageBody1.innerHTML = "Unable to get city from geocode result"
               mapErrorDiv.style.display="flex";
             };
           })
           .catch((error) => {
-            console.error(error);
+          console.error(error);
           });
-        };
       };
 
       function nameSearch() {
@@ -836,6 +732,7 @@ fetch('/data')
         const name = nameInput.value.toUpperCase();
 
         mapContainer.style.display='flex';
+        // nameInput.readOnly =  true;
 
         const booleanArray =
           dataArray.map((hcp_location) => {
@@ -850,15 +747,17 @@ fetch('/data')
         showHCP(nameInput.value, booleanArray,"Infinity");
       };
 
+      
       function displayHCP(input, pairedArray, sum) {
 
-        // console.log('final_hcps:',final_hcps);
-        // console.log('final_distances:',final_distances);
+        // Define the number of items per page
+        const itemsPerPage = 50;
 
-        const shape = {
-          coords: [1, 1, 1, 8, 6, 8, 6, 1],
-          type: "poly",
-        };
+        // Calculate the total number of pages needed
+        const totalPages = Math.ceil(pairedArray.length / itemsPerPage);
+
+        // Set the initial page to 1
+        let currentPage = 1;
 
         onLeftPanel();
         origin_center = map.getCenter();
@@ -868,172 +767,263 @@ fetch('/data')
         HCPHeaderElement.classList.add("HCP-header");
         leftPanel.appendChild(HCPHeaderElement);
 
+        // Create a container for the pagination buttons
+        const paginationContainer = document.createElement('div');
+        paginationContainer.classList.add('pagination-container');
+        leftPanel.appendChild(paginationContainer);
+
         const HCPContentElement = document.createElement("div");
         HCPContentElement.id = "leftPanelContent";
         HCPContentElement.classList.add("HCP-content");
 
-        for (let i = 0; i < pairedArray.length; i++){
+        let hcpMakerArray = [];
+        let activeMarker = null;
+        let activeInfowindow = null;
+        let activeHCPCardElement = null;
+        let activehcp_clicked = null;
 
-          let hcp = pairedArray[i].hcp;
-          let dis = '';
-          let number = i+1;
+        leftPanel.appendChild(HCPContentElement);
+      
+        // Display the initial page
+        displayPage(currentPage);
+
+
+        // Update the page numbers initially
+        updatePageNumbers();
+
+        function displayPage(pageNumber) {
+
+
+          // Clear the HCPContentElement before displaying new cards
+          HCPContentElement.innerHTML = '';
+
+          for (var i = 0; i < hcpMakerArray.length; i++) {
+            hcpMakerArray[i].setMap(null);
+          };
+
+          hcpMakerArray = [];
+
+          const shape = {
+            coords: [1, 1, 1, 8, 6, 8, 6, 1],
+            type: "poly",
+          };
+  
+          // Calculate the start and end index for the current page
+          const startIndex = (pageNumber - 1) * itemsPerPage;
+          const endIndex = Math.min(startIndex + itemsPerPage, pairedArray.length);
 
           if (selectedOption == "zipcode") {
-            dis = pairedArray[i].distance
+            let dis_page = pairedArray[endIndex-1].distance;
+
+            if (dis_page < 1.5) {
+              zoomLevel = 14;
+            } else if (dis_page < 3) {
+              zoomLevel = 13;
+            } else if (dis_page < 5) {
+              zoomLevel = 12;
+            } else if (dis_page < 10) {
+              zoomLevel = 11;
+            } else if (dis_page < 20) {
+              zoomLevel = 10;
+            } else if (dis_page < 50) {
+              zoomLevel = 9;
+            } else {
+              zoomLevel = 8;
+            }
+            map.setOptions({ center: origin_center, zoom: zoomLevel });
           };
 
-          // console.log('dis', dis);
+          for (let i = startIndex; i < endIndex; i++) {
+  
+            let hcp = pairedArray[i].hcp;
+            let dis = '';
+            let number = i+1;
+  
+            if (selectedOption == "zipcode") {
+              dis = pairedArray[i].distance
+            };
+  
+            // console.log('dis', dis);
+  
+            let pos = JSON.parse(hcp.COORDINATES)
+  
+            const marker_hcp_icon_normal = {
+              url: 'pics/Placeholder_hcp.png',
+            };
+  
+            const marker_hcp_icon_hover = {
+              url: 'pics/Placeholder_hcp.png',
+              scaledSize: new google.maps.Size(50, 50)
+            };
+  
+            let marker_hcp = new google.maps.Marker({
+                position: pos,
+                map: map,
+                shape: shape,
+                icon:marker_hcp_icon_normal
+            });
+            markerArray.push(marker_hcp);
+            hcpMakerArray.push(marker_hcp);
+  
+            let hcp_name = capitalizeFirstLetter(hcp.FIRST_NAME) + " " + capitalizeFirstLetter(hcp.LAST_NAME);
+            let hcp_specialty = capitalizeFirstLetter(hcp.PRIMARY_SPECIALTY_LONG_NAME);
+            let hcp_address = capitalizeFirstLetter(hcp.PRIMARY_ADDRESS_LINE_1) + " " + capitalizeFirstLetter(hcp.PRIMARY_ADDRESS_LINE_2);
+            let hcp_city = capitalizeFirstLetter(hcp.PRIMARY_CITY);
+            let hcp_phone = formatPhoneNumber(hcp.PRIMARY_PHONE_NUMBER);
+            let hcp_call = "tel:" + hcp_phone;
+            // Create the Google Maps URL with the encoded addresses
+            let encodedOrigin = encodeURIComponent(input);
+            let encodedDestination = encodeURIComponent(hcp.FULL_ADDRESS);
+            let googleMapsURL = `https://www.google.com/maps/dir/${encodedOrigin}/${encodedDestination}`;
+  
+            let infowindow_hcp = new google.maps.InfoWindow();
+  
+            // set hcp card
+            let HCPCardElement = document.createElement("div");
+            HCPCardElement.classList.add("HCP-card-div");
+  
+            HCPContentElement.appendChild(HCPCardElement);
+  
+            // set hcp number
+            let HCPNumberDiv = document.createElement("div");
+            HCPNumberDiv.classList.add("HCP-number-div");
+  
+            let HCPNumber = document.createElement("p");
+            HCPNumber.innerHTML = number;
+  
+            HCPNumberDiv.appendChild(HCPNumber);
+            HCPCardElement.appendChild(HCPNumberDiv);
 
-          let pos = JSON.parse(hcp.COORDINATES)
+            let numberWidth = 18;
 
-          const marker_hcp_icon_normal = {
-            url: 'pics/Placeholder_hcp.png',
-          };
+            if (i >= 100) {
+              numberWidth = HCPNumber.offsetWidth + 4;
+            };
 
-          const marker_hcp_icon_hover = {
-            url: 'pics/Placeholder_hcp.png',
-            scaledSize: new google.maps.Size(50, 50)
-          };
-
-          let marker_hcp = new google.maps.Marker({
-              position: pos,
-              map: map,
-              shape: shape,
-              icon:marker_hcp_icon_normal
-          });
-          markerArray.push(marker_hcp);
-
-          let hcp_name = capitalizeFirstLetter(hcp.FIRST_NAME) + " " + capitalizeFirstLetter(hcp.LAST_NAME);
-          let hcp_specialty = capitalizeFirstLetter(hcp.PRIMARY_SPECIALTY_LONG_NAME);
-          let hcp_address = capitalizeFirstLetter(hcp.PRIMARY_ADDRESS_LINE_1) + " " + capitalizeFirstLetter(hcp.PRIMARY_ADDRESS_LINE_2);
-          let hcp_city = capitalizeFirstLetter(hcp.PRIMARY_CITY);
-          let hcp_phone = formatPhoneNumber(hcp.PRIMARY_PHONE_NUMBER);
-          let hcp_call = "tel:" + hcp_phone;
-          // Create the Google Maps URL with the encoded addresses
-          let encodedOrigin = encodeURIComponent(input);
-          let encodedDestination = encodeURIComponent(hcp.FULL_ADDRESS);
-          let googleMapsURL = `https://www.google.com/maps/dir/${encodedOrigin}/${encodedDestination}`;
-
-          let infowindow_hcp = new google.maps.InfoWindow();
-
-          // set hcp card
-          let HCPCardElement = document.createElement("div");
-          HCPCardElement.classList.add("HCP-card-div");
-
-          HCPContentElement.appendChild(HCPCardElement);
-
-          // set hcp number
-          let HCPNumberDiv = document.createElement("div");
-          HCPNumberDiv.classList.add("HCP-number-div");
-
-          let HCPNumber = document.createElement("p");
-          HCPNumber.innerHTML = number;
-
-          HCPNumberDiv.appendChild(HCPNumber);
-          HCPCardElement.appendChild(HCPNumberDiv);
-
-          // set hcp details
-          let HCPDetailDiv = document.createElement("div");
-          HCPDetailDiv.classList.add("HCP-detail-div");
-
-          // set hcp name
-          let HCPDetail_Name = document.createElement("h4");
-          HCPDetail_Name.classList.add("HCP-detail-name");
-          HCPDetail_Name.innerHTML = hcp_name;
-          HCPDetailDiv.appendChild(HCPDetail_Name);
-
-          // set hcp specialty + distance
-          let HCPDetailDiv_1 = document.createElement("div");
-          HCPDetailDiv_1.classList.add("HCP-detail-div-sub");
-          
-          // set hcp specialty 
-          let HCPDetail_Specialty = document.createElement("div");
-          HCPDetail_Specialty.classList.add("HCP-detail-specialty");
-          let HCPDetail_Specialty_text = document.createElement("p");
-          HCPDetail_Specialty_text.innerHTML = hcp_specialty;
-          HCPDetail_Specialty.appendChild(HCPDetail_Specialty_text);
-          HCPDetailDiv_1.appendChild(HCPDetail_Specialty);
-
-          // add distance icon
-          const HCPDetail_Route = document.createElement("div");
-          HCPDetail_Route.classList.add("HCP-detail-route");
-
-          const routeIcon = document.createElement("img");
-          routeIcon.classList.add("HCP-detail-route");
-          const HCPDetail_Route_dis = document.createElement("span");
-          HCPDetail_Route_dis.classList.add("HCP-detail-route");
-
-          if (selectedOption == "zipcode") {
-
-            // add distance icon            
-            routeIcon.src = "pics/Distance.png"; // Replace with the path to your direction icon image
-            routeIcon.alt = "Distance: ";
-            HCPDetail_Route.appendChild(routeIcon);
-
-            // add distance 
-            HCPDetail_Route_dis.innerHTML = dis + ' miles';
-            HCPDetail_Route.appendChild(HCPDetail_Route_dis);
-
-            HCPDetailDiv_1.appendChild(HCPDetail_Route);
-          };
-          HCPDetailDiv.appendChild(HCPDetailDiv_1);
-
-          // set divider
-          let HCPDetail_line = document.createElement("hr");
-          HCPDetail_line.classList.add("HCP-detail-line");
-          HCPDetailDiv.appendChild(HCPDetail_line);
-
-          // bottom div 
-          let HCPDetailDiv_2 = document.createElement("div");
-          HCPDetailDiv_2.classList.add("HCP-detail-div-sub");
-
-          // set hcp address
-          let HCPDetail_Address = document.createElement("div");
-          HCPDetail_Address.classList.add("HCP-detail-address");
-          let HCPDetail_Address_street = document.createElement("p");
-          HCPDetail_Address_street.innerHTML = hcp_address;
-          HCPDetail_Address.appendChild(HCPDetail_Address_street);
-          let HCPDetail_Address_city = document.createElement("p");
-          HCPDetail_Address_city.innerHTML = hcp_city + ", " + hcp.PRIMARY_STATE_CODE + " " + hcp.PRIMARY_ZIP_CODE;
-          HCPDetail_Address.appendChild(HCPDetail_Address_city);
-
-          HCPDetailDiv_2.appendChild(HCPDetail_Address);
-
-          // phone div
-          const HCPDetail_phone = document.createElement("div");
-          HCPDetail_phone.classList.add("HCP-detail-phone");
-
-          // add phone icon
-          const phoneIcon = document.createElement("img");
-          phoneIcon.classList.add("HCP-detail-phone");
-          
-          phoneIcon.src = "pics/Phone call.png"; // Replace with the path to your direction icon image
-          phoneIcon.alt = "Phone: ";
-          HCPDetail_phone.appendChild(phoneIcon);
-
-          // add phone number
-          const HCPDetail_phone_number = document.createElement("span");
-          HCPDetail_phone_number.classList.add("HCP-detail-phone");
-          HCPDetail_phone_number.innerHTML = hcp_phone;
-
-          HCPDetail_phone.appendChild(HCPDetail_phone_number);
-
-          HCPDetailDiv_2.appendChild(HCPDetail_phone);
-
-          HCPDetailDiv.appendChild(HCPDetailDiv_2);
-          HCPCardElement.appendChild(HCPDetailDiv);
-
-          const cardHeight = window.getComputedStyle(HCPCardElement).height;
-
-          let HCPCardtab = document.createElement("div");
-          HCPCardtab.classList.add("HCP-card-tab");
-          HCPCardtab.style.height = cardHeight;
-
-          HCPCardElement.appendChild(HCPCardtab);
-
-
-          if (selectedOption == "zipcode") {
-            infowindow_hcp.setContent(`
+            // Set the width and height of the div based on the text width
+            HCPNumberDiv.style.width = numberWidth + "px";
+            HCPNumberDiv.style.height = numberWidth + "px";
+  
+            // set hcp details
+            let HCPDetailDiv = document.createElement("div");
+            HCPDetailDiv.classList.add("HCP-detail-div");
+  
+            // set hcp name
+            let HCPDetail_Name = document.createElement("h4");
+            HCPDetail_Name.classList.add("HCP-detail-name");
+            HCPDetail_Name.innerHTML = hcp_name;
+            HCPDetailDiv.appendChild(HCPDetail_Name);
+  
+            // set hcp specialty + distance
+            let HCPDetailDiv_1 = document.createElement("div");
+            HCPDetailDiv_1.classList.add("HCP-detail-div-sub");
+            
+            // set hcp specialty 
+            let HCPDetail_Specialty = document.createElement("div");
+            HCPDetail_Specialty.classList.add("HCP-detail-specialty");
+            let HCPDetail_Specialty_text = document.createElement("p");
+            HCPDetail_Specialty_text.innerHTML = hcp_specialty;
+            HCPDetail_Specialty.appendChild(HCPDetail_Specialty_text);
+            HCPDetailDiv_1.appendChild(HCPDetail_Specialty);
+  
+            // add distance icon
+            const HCPDetail_Route = document.createElement("div");
+            HCPDetail_Route.classList.add("HCP-detail-route");
+  
+            const routeIcon = document.createElement("img");
+            routeIcon.classList.add("HCP-detail-route");
+            const HCPDetail_Route_dis = document.createElement("span");
+            HCPDetail_Route_dis.classList.add("HCP-detail-route");
+  
+            if (selectedOption == "zipcode") {
+  
+              // add distance icon            
+              routeIcon.src = "pics/Distance.png"; // Replace with the path to your direction icon image
+              routeIcon.alt = "Distance: ";
+              HCPDetail_Route.appendChild(routeIcon);
+  
+              // add distance 
+              HCPDetail_Route_dis.innerHTML = dis + ' miles';
+              HCPDetail_Route.appendChild(HCPDetail_Route_dis);
+  
+              HCPDetailDiv_1.appendChild(HCPDetail_Route);
+            };
+            HCPDetailDiv.appendChild(HCPDetailDiv_1);
+  
+            // set divider
+            let HCPDetail_line = document.createElement("hr");
+            HCPDetail_line.classList.add("HCP-detail-line");
+            HCPDetailDiv.appendChild(HCPDetail_line);
+  
+            // bottom div 
+            let HCPDetailDiv_2 = document.createElement("div");
+            HCPDetailDiv_2.classList.add("HCP-detail-div-sub");
+  
+            // set hcp address
+            let HCPDetail_Address = document.createElement("div");
+            HCPDetail_Address.classList.add("HCP-detail-address");
+            let HCPDetail_Address_street = document.createElement("p");
+            HCPDetail_Address_street.innerHTML = hcp_address;
+            HCPDetail_Address.appendChild(HCPDetail_Address_street);
+            let HCPDetail_Address_city = document.createElement("p");
+            HCPDetail_Address_city.innerHTML = hcp_city + ", " + hcp.PRIMARY_STATE_CODE + " " + hcp.PRIMARY_ZIP_CODE;
+            HCPDetail_Address.appendChild(HCPDetail_Address_city);
+  
+            HCPDetailDiv_2.appendChild(HCPDetail_Address);
+  
+            // phone div
+            const HCPDetail_phone = document.createElement("div");
+            HCPDetail_phone.classList.add("HCP-detail-phone");
+  
+            // add phone icon
+            const phoneIcon = document.createElement("img");
+            phoneIcon.classList.add("HCP-detail-phone");
+            
+            phoneIcon.src = "pics/Phone call.png"; // Replace with the path to your direction icon image
+            phoneIcon.alt = "Phone: ";
+            HCPDetail_phone.appendChild(phoneIcon);
+  
+            // add phone number
+            const HCPDetail_phone_number = document.createElement("span");
+            HCPDetail_phone_number.classList.add("HCP-detail-phone");
+            HCPDetail_phone_number.innerHTML = hcp_phone;
+  
+            HCPDetail_phone.appendChild(HCPDetail_phone_number);
+  
+            HCPDetailDiv_2.appendChild(HCPDetail_phone);
+  
+            HCPDetailDiv.appendChild(HCPDetailDiv_2);
+            HCPCardElement.appendChild(HCPDetailDiv);
+  
+            const cardHeight = window.getComputedStyle(HCPCardElement).height;
+  
+            let HCPCardtab = document.createElement("div");
+            HCPCardtab.classList.add("HCP-card-tab");
+            HCPCardtab.style.height = cardHeight;
+  
+            HCPCardElement.appendChild(HCPCardtab);
+  
+  
+            if (selectedOption == "zipcode") {
+              infowindow_hcp.setContent(`
+                  <p style="margin:0; color: #140065; font-family: Poppins; font-size: 16px; font-weight: 500;">${hcp_name}</p>
+                  <div id="info_div_1" style="margin:0; margin-right:0px; display:flex;flex-direction: row;align-items: center;justify-content: space-between;">
+                    <p style="margin:0;  color: #D200E6;font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${hcp_specialty}</p>
+                    <a href="${hcp_call}" style="margin-left:22px">
+                      <img style="width: 30px;height: 30px;" src="pics/call.png"></img>
+                    </a>
+                  </div>
+                  <hr style="width: 95%; margin:0; margin-top: 5px; border-top: 0.7px solid #929292;"></hr>
+                  <p style="margin:0; margin-top: 5px; max-width:300px; color: #0374BB;font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${hcp_address + ", " + hcp_city}</p>
+                  <div id="info_div" style="margin:0; margin-right:0px; display:flex;flex-direction: row;align-items: center;justify-content: space-between;">
+                    <div id="distance" style="magin:0;display:flex;flex-direction: row;align-items: center;">
+                      <img style="width: 15px;height: 15px;" src="pics/Distance.png"></img>
+                      <span style="margin-left:10px;color: #929292; font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${dis + ' miles'}</span>
+                    </div>
+                  </div>
+              `);
+            } else {
+              infowindow_hcp.setContent(`
                 <p style="margin:0; color: #140065; font-family: Poppins; font-size: 16px; font-weight: 500;">${hcp_name}</p>
                 <div id="info_div_1" style="margin:0; margin-right:0px; display:flex;flex-direction: row;align-items: center;justify-content: space-between;">
                   <p style="margin:0;  color: #D200E6;font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${hcp_specialty}</p>
@@ -1041,135 +1031,184 @@ fetch('/data')
                     <img style="width: 30px;height: 30px;" src="pics/call.png"></img>
                   </a>
                 </div>
-                <hr style="width: 100%; margin:0; margin-top: 5px; border-top: 0.7px solid #929292;"></hr>
-                <p style="margin:0; margin-top: 5px; color: #0374BB;font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${hcp_address + ", " + hcp_city}</p>
-                <div id="info_div" style="margin:0; margin-right:0px; display:flex;flex-direction: row;align-items: center;justify-content: space-between;">
-                  <div id="distance" style="magin:0;display:flex;flex-direction: row;align-items: center;">
-                    <img style="width: 15px;height: 15px;" src="pics/Distance.png"></img>
-                    <span style="margin-left:10px;color: #929292; font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${dis + ' miles'}</span>
-                  </div>
-                </div>
-            `);
-          } else {
-            infowindow_hcp.setContent(`
-              <p style="margin:0; color: #140065; font-family: Poppins; font-size: 16px; font-weight: 500;">${hcp_name}</p>
-              <div id="info_div_1" style="margin:0; margin-right:0px; display:flex;flex-direction: row;align-items: center;justify-content: space-between;">
-                <p style="margin:0;  color: #D200E6;font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${hcp_specialty}</p>
-                <a href="${hcp_call}" style="margin-left:22px">
-                  <img style="width: 30px;height: 30px;" src="pics/call.png"></img>
-                </a>
-              </div>
-              <hr style="width: 100%; margin:0; margin-top: 5px; border-top: 0.7px solid #929292;"></hr>
-              <p style="margin:0; margin-top: 5px; color: #0374BB;font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${hcp_address + ", " + hcp_city}</p>
-            `);
-          };
-
-          let clicked = false;
-          let elementTop = HCPCardElement.offsetTop;
-
-          function activeHCP(){
-            HCPCardElement.classList.add("active");
-            HCPCardtab.classList.add("active");
-            HCPDetail_Name.classList.add("active");
-            HCPDetail_Specialty_text.classList.add("active");
-            HCPDetail_phone_number.classList.add("active");
-            HCPDetail_Address_street.classList.add("active");  
-            HCPDetail_Address_city.classList.add("active");            
-            if(selectedOption != "city") {
-              HCPDetail_Route_dis.classList.add("active");
+                <hr style="width: 95%; margin:0; margin-top: 5px; border-top: 0.7px solid #929292;"></hr>
+                <p style="margin:0; margin-top: 5px; max-width:300px;color: #0374BB;font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${hcp_address + ", " + hcp_city}</p>
+              `);
             };
-          };
 
-          function disactiveHCP(){
-            HCPCardElement.classList.remove("active");
-            HCPCardtab.classList.remove("active");
-            HCPDetail_Name.classList.remove("active");
-            HCPDetail_Specialty_text.classList.remove("active");
-            HCPDetail_phone_number.classList.remove("active");
-            HCPDetail_Address_street.classList.remove("active");  
-            HCPDetail_Address_city.classList.remove("active");            
-            if(selectedOption != "city") {
-              HCPDetail_Route_dis.classList.remove("active");
-            };
-          };
-
-          marker_hcp.addListener("mouseover", () => {
-            if (!clicked) {
-              infowindow_hcp.open(map, marker_hcp);
-              marker_hcp.setIcon(marker_hcp_icon_hover);
-              activeHCP();
-              HCPContentElement.scrollTop = elementTop-50;
-            }
-          });
-          
-          marker_hcp.addListener("mouseout", () => {
-            if (!clicked) {
-              infowindow_hcp.close();
-              marker_hcp.setIcon(marker_hcp_icon_normal);
-              disactiveHCP();
-            }
-          });
-          
-          marker_hcp.addListener("click", () => {
-            if (clicked) {
-              clicked = false;
-              infowindow_hcp.close();
-              marker_hcp.setIcon(marker_hcp_icon_normal);
-              disactiveHCP();
-              map.setOptions({ center: origin_center, zoom: 13 });
-              HCPContentElement.scrollTop = elementTop-50;
-            } else {
-              clicked = true;
-              infowindow_hcp.open(map, marker_hcp);
-              marker_hcp.setIcon(marker_hcp_icon_hover);
-              activeHCP();
-              map.setOptions({ center: marker_hcp.getPosition(), zoom: 15 });
-            }
-          });
-
-          infowindow_hcp.addListener("closeclick", () => {
-            clicked = false;
-            marker_hcp.setIcon(marker_hcp_icon_normal);
-            disactiveHCP();
-            map.setOptions({ center: origin_center, zoom: 13 });
-          });
-
-          HCPCardElement.addEventListener("mouseover", () => {
-            if (!clicked) {
-              infowindow_hcp.open(map, marker_hcp);
-              marker_hcp.setIcon(marker_hcp_icon_hover);
-              activeHCP();
-            }
-          });
-          
-          HCPCardElement.addEventListener("mouseout", () => {
-            if (!clicked) {
-              infowindow_hcp.close();
-              marker_hcp.setIcon(marker_hcp_icon_normal);
-              disactiveHCP();
-            }
-          });
-          
-          HCPCardElement.addEventListener("click", () => {
-            if (clicked) {
-              clicked = false;
-              infowindow_hcp.close();
-              marker_hcp.setIcon(marker_hcp_icon_normal);
-              disactiveHCP();
-              map.setOptions({ center: origin_center, zoom: 13 });
-            } else {
-              clicked = true;
-              infowindow_hcp.open(map, marker_hcp);
-              marker_hcp.setIcon(marker_hcp_icon_hover);
-              activeHCP();
-              map.setOptions({ center: marker_hcp.getPosition(), zoom: 15 });
-            }
-          });
-          
-        };
-        leftPanel.appendChild(HCPContentElement);
-      };
+            let hcp_clicked = false;
+            let elementTop = HCPCardElement.offsetTop;
   
+            function activeHCP(marker_hcp, infowindow_hcp, HCPCardElement) {
+              marker_hcp.setIcon(marker_hcp_icon_hover);
+              addClassToAllChildren(HCPCardElement,"active");
+              infowindow_hcp.open(map, marker_hcp);
+            }
+            
+            function deactiveHCP(marker_hcp, infowindow_hcp, HCPCardElement) {
+              marker_hcp.setIcon(marker_hcp_icon_normal);
+              removeClassToAllChildren(HCPCardElement,"active");
+              infowindow_hcp.close();
+            }
+  
+            marker_hcp.addListener("mouseover", () => {
+              if (!hcp_clicked || marker_hcp !== activeMarker) {
+                activeHCP(marker_hcp, infowindow_hcp, HCPCardElement);
+                HCPContentElement.scrollTop = elementTop - 50;
+              }
+            });
+            
+            marker_hcp.addListener("mouseout", () => {
+              if (!hcp_clicked || marker_hcp !== activeMarker) {
+                deactiveHCP(marker_hcp, infowindow_hcp, HCPCardElement);
+              }
+            });
+
+
+            marker_hcp.addListener("click", () => {
+              if (activeMarker && activeMarker !== marker_hcp) {
+                // Deactivate the previously clicked marker and infowindow
+                deactiveHCP(activeMarker, activeInfowindow, activeHCPCardElement);
+                activehcp_clicked = false;
+              }
+          
+              if (activeMarker === marker_hcp) {
+                // Clicked on the already active marker, so deactivate it
+                hcp_clicked = false;
+                activeMarker = null;
+                activeInfowindow = null;
+                activeHCPCardElement = null;
+                marker_hcp.setIcon(marker_hcp_icon_normal);
+                deactiveHCP(marker_hcp, infowindow_hcp, HCPCardElement);
+                map.setOptions({ center: origin_center, zoom: zoomLevel });
+                HCPContentElement.scrollTop = elementTop - 50;
+              } else {
+                // Clicked on a new marker, activate it
+                hcp_clicked = true;
+                activeMarker = marker_hcp;
+                activeInfowindow = infowindow_hcp;
+                activeHCPCardElement = HCPCardElement;
+                infowindow_hcp.open(map, marker_hcp);
+                marker_hcp.setIcon(marker_hcp_icon_hover);
+                activeHCP(marker_hcp, infowindow_hcp, HCPCardElement);
+                map.setOptions({ center: marker_hcp.getPosition(), zoom: 15 });
+              }
+            });
+  
+            infowindow_hcp.addListener("closeclick", () => {
+              hcp_clicked = false;
+              marker_hcp.setIcon(marker_hcp_icon_normal);
+              deactiveHCP(marker_hcp, infowindow_hcp, HCPCardElement);
+              map.setOptions({ center: origin_center, zoom: zoomLevel });
+            });
+  
+            HCPCardElement.addEventListener("mouseover", () => {
+              if (!hcp_clicked || marker_hcp !== activeMarker) {
+                activeHCP(marker_hcp, infowindow_hcp, HCPCardElement);
+              }
+            });
+            
+            HCPCardElement.addEventListener("mouseout", () => {
+              if (!hcp_clicked || marker_hcp !== activeMarker) {
+                deactiveHCP(marker_hcp, infowindow_hcp, HCPCardElement);
+              }
+            });
+            
+
+            HCPCardElement.addEventListener("click", () => {
+              if (activeMarker && activeMarker !== marker_hcp) {
+                // Deactivate the previously clicked marker and infowindow
+                deactiveHCP(activeMarker, activeInfowindow, activeHCPCardElement);
+                activehcp_clicked = false;
+              }
+          
+              if (activeMarker === marker_hcp) {
+                // Clicked on the already active marker, so deactivate it
+                hcp_clicked = false;
+                activeMarker = null;
+                activeInfowindow = null;
+                activeHCPCardElement = null;
+                activehcp_clicked = null;
+                marker_hcp.setIcon(marker_hcp_icon_normal);
+                deactiveHCP(marker_hcp, infowindow_hcp, HCPCardElement);
+                map.setOptions({ center: origin_center, zoom: zoomLevel });
+                HCPContentElement.scrollTop = elementTop - 50;
+              } else {
+                // Clicked on a new marker, activate it
+                hcp_clicked = true;
+                activeMarker = marker_hcp;
+                activeInfowindow = infowindow_hcp;
+                activeHCPCardElement = HCPCardElement;
+                activehcp_clicked = hcp_clicked;
+                infowindow_hcp.open(map, marker_hcp);
+                marker_hcp.setIcon(marker_hcp_icon_hover);
+                activeHCP(marker_hcp, infowindow_hcp, HCPCardElement);
+                map.setOptions({ center: marker_hcp.getPosition(), zoom: 15 });
+              }
+            });
+            
+          };
+        };
+          
+        // Function to handle page number click
+        function showPage(pageNumber) {
+          if (pageNumber >= 1 && pageNumber <= totalPages) {
+            currentPage = pageNumber;
+            displayPage(currentPage);
+            updatePageNumbers();
+          }
+        };
+  
+        function updatePageNumbers() {
+          // Clear existing page number buttons
+          paginationContainer.innerHTML = '';
+        
+          // Calculate the range of page numbers to display
+          let startPage, endPage;
+          if (totalPages <= 5) {
+            startPage = 1;
+            endPage = totalPages;
+          } else {
+            if (currentPage <= 3) {
+              startPage = 1;
+              endPage = 5;
+            } else if (currentPage + 1 >= totalPages) {
+              startPage = totalPages - 4;
+              endPage = totalPages;
+            } else {
+              startPage = currentPage - 2;
+              endPage = currentPage + 2;
+            }
+          }
+        
+          // Create page number buttons
+          if (currentPage > 1) {
+            const prevPageButton = document.createElement('button');
+            prevPageButton.textContent = '<';
+            prevPageButton.addEventListener('click', () => showPage(currentPage - 1));
+            paginationContainer.appendChild(prevPageButton);
+          }
+        
+          for (let i = startPage; i <= endPage; i++) {
+            const pageNumberButton = document.createElement('button');
+            pageNumberButton.textContent = i;
+            pageNumberButton.addEventListener('click', () => showPage(i));
+            if (i === currentPage) {
+              pageNumberButton.classList.add('active');
+            }
+            paginationContainer.appendChild(pageNumberButton);
+          }
+        
+          if (currentPage < totalPages) {
+            const nextPageButton = document.createElement('button');
+            nextPageButton.textContent = '>';
+            nextPageButton.addEventListener('click', () => showPage(currentPage + 1));
+            paginationContainer.appendChild(nextPageButton);
+          }
+        }
+        
+      };  
+
       function showHCP(input, booleanArray, disArray) {
 
         const sum = booleanArray.reduce((accumulator, currentValue) => accumulator + Number(currentValue), 0);
@@ -1224,8 +1263,8 @@ fetch('/data')
   
   
       function displayOrigin(origin_latlng, address){
-  
-        map.setOptions({center:origin_latlng,zoom:13});
+
+        map.setOptions({center:origin_latlng,zoom:zoomLevel});
 
         const marker_O_icon_normal = {
           url: 'pics/Placeholder_O.png',
@@ -1272,7 +1311,7 @@ fetch('/data')
 
       function setDefault() {
         disclosureCheck.checked = false;
-        selectedOption = "zipcode";
+        // selectedOption = "zipcode";
         // zipcodeOptionButton.classList.add("active");
         // nameOptionButton.classList.remove("active");
         // cityOptionButton.classList.remove("active");
@@ -1283,6 +1322,9 @@ fetch('/data')
         selectedSpecialty = "derm";
         radioinput_all.checked = false;
         radioinput_derm.checked = true;
+        zipcodeInput.readOnly =  false;
+        // cityInput.readOnly =  false;
+        // nameInput.readOnly =  false;
       };
   
       function clear() {
@@ -1365,14 +1407,13 @@ fetch('/data')
         if (length == 2) {
           const state = address.split(",")[0].trim().toUpperCase();
           return ["all", state]
-        } else if (length == 3) {
-          const city = address.split(",")[0].trim().toUpperCase();
-          const state = address.split(',')[1].trim().toUpperCase();
-          return [city, state]
+        // } else if (length == 3) {
+        //   const city = address.split(",")[0].trim().toUpperCase();
+        //   const state = address.split(',')[1].trim().toUpperCase();
+        //   return [city, state]
         } else {
-          console.log("Unable to get city or state name");
-          inputCityErrorDiv.style.display = "flex";
-          cityInput.classList.add("error");
+          const city = address;
+          return [city, "none"];
         }
         
       };
@@ -1477,6 +1518,31 @@ fetch('/data')
         return `(${areaCode}) ${firstPart}-${secondPart}`;
       }
 
+      function addClassToAllChildren(element, className) {
+        // Add the class to the current element
+        element.classList.add(className);
+      
+        // Get the child elements
+        const children = element.children;
+      
+        // Recursively add the class to each child element
+        for (let i = 0; i < children.length; i++) {
+          addClassToAllChildren(children[i], className);
+        }
+      }
+
+      function removeClassToAllChildren(element, className) {
+        // Add the class to the current element
+        element.classList.remove(className);
+      
+        // Get the child elements
+        const children = element.children;
+      
+        // Recursively add the class to each child element
+        for (let i = 0; i < children.length; i++) {
+          removeClassToAllChildren(children[i], className);
+        }
+      }
     };
 
 
