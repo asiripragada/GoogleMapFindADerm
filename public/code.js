@@ -148,7 +148,7 @@ fetch('/data')
       inputZipcodeErrorDiv.appendChild(inputZipcodeErrorImg);
 
       const inputZipcodeErrorText = document.createElement("span");
-      inputZipcodeErrorText.innerHTML = "Please enter a valid Zip Code";
+      inputZipcodeErrorText.innerHTML = "Please enter a valid zip code";
       inputZipcodeErrorDiv.appendChild(inputZipcodeErrorText);
       inputZipcodeDiv.appendChild(inputZipcodeErrorDiv);
 
@@ -180,7 +180,7 @@ fetch('/data')
       inputCityErrorDiv.appendChild(inputCityErrorImg);
 
       const inputCityErrorText = document.createElement("span");
-      inputCityErrorText.innerHTML = "Please enter a valid City Name";
+      inputCityErrorText.innerHTML = "Please enter a valid city name";
       inputCityErrorDiv.appendChild(inputCityErrorText);
       inputCityDiv.appendChild(inputCityErrorDiv);
 
@@ -212,7 +212,7 @@ fetch('/data')
       inputNameErrorDiv.appendChild(inputNameErrorImg);
 
       const inputNameErrorText = document.createElement("span");
-      inputNameErrorText.innerHTML = "Please enter a valid Name";
+      inputNameErrorText.innerHTML = "Please enter a name";
       inputNameErrorDiv.appendChild(inputNameErrorText);
       inputNameDiv.appendChild(inputNameErrorDiv);
 
@@ -254,23 +254,23 @@ fetch('/data')
 
       inputDiv.appendChild(distanceInputDiv);
 
-      let zoomLevel = 8;
+      let zoomLevel = 14;
 
-      // Event listener to handle distance selection
-      distanceFilterSelect.addEventListener("change", () => {
+      // // Event listener to handle distance selection
+      // distanceFilterSelect.addEventListener("change", () => {
         
-        if (distanceFilterSelect.value == 10) {
-          zoomLevel = 10;
-        } else if (distanceFilterSelect.value == 20) {
-          zoomLevel = 9;
-        } else if (distanceFilterSelect.value == 50) {
-          zoomLevel = 8;
-        } else if (distanceFilterSelect.value == 100) {
-          zoomLevel = 7;
-        } else {
-         zoomLevel = 11;
-        }
-      });
+      //   if (distanceFilterSelect.value == 10) {
+      //     zoomLevel = 10;
+      //   } else if (distanceFilterSelect.value == 20) {
+      //     zoomLevel = 9;
+      //   } else if (distanceFilterSelect.value == 50) {
+      //     zoomLevel = 8;
+      //   } else if (distanceFilterSelect.value == 100) {
+      //     zoomLevel = 7;
+      //   } else {
+      //    zoomLevel = 11;
+      //   }
+      // });
 
 
       // Specialty Options
@@ -474,7 +474,7 @@ fetch('/data')
           nameOptionButton.classList.remove("active");
           zipcodeOptionButton.classList.remove("active");
           selectedOption = "city";
-          zoomLevel = 10;
+          zoomLevel = 12;
           // autocomplete_city.getPlace();
           console.log("click on", selectedOption);
         }
@@ -624,6 +624,7 @@ fetch('/data')
         geocodeAddress(zipcodeInput.value)
           .then((geo_result) => {
 
+            zipcodeInput.readOnly =  true;
             mapContainer.style.display='flex';
 
             console.log('zipcode geocoding result',geo_result);
@@ -682,6 +683,7 @@ fetch('/data')
         geocodeAddress(cityInput.value)
           .then((geo_result) => {
 
+            // cityInput.readOnly =  true;
             mapContainer.style.display='flex';
 
             console.log('city geocoding result',geo_result);
@@ -730,6 +732,7 @@ fetch('/data')
         const name = nameInput.value.toUpperCase();
 
         mapContainer.style.display='flex';
+        // nameInput.readOnly =  true;
 
         const booleanArray =
           dataArray.map((hcp_location) => {
@@ -808,7 +811,28 @@ fetch('/data')
           // Calculate the start and end index for the current page
           const startIndex = (pageNumber - 1) * itemsPerPage;
           const endIndex = Math.min(startIndex + itemsPerPage, pairedArray.length);
-  
+
+          if (selectedOption == "zipcode") {
+            let dis_page = pairedArray[endIndex-1].distance;
+
+            if (dis_page < 1.5) {
+              zoomLevel = 14;
+            } else if (dis_page < 3) {
+              zoomLevel = 13;
+            } else if (dis_page < 5) {
+              zoomLevel = 12;
+            } else if (dis_page < 10) {
+              zoomLevel = 11;
+            } else if (dis_page < 20) {
+              zoomLevel = 10;
+            } else if (dis_page < 50) {
+              zoomLevel = 9;
+            } else {
+              zoomLevel = 8;
+            }
+            map.setOptions({ center: origin_center, zoom: zoomLevel });
+          };
+
           for (let i = startIndex; i < endIndex; i++) {
   
             let hcp = pairedArray[i].hcp;
@@ -869,6 +893,16 @@ fetch('/data')
   
             HCPNumberDiv.appendChild(HCPNumber);
             HCPCardElement.appendChild(HCPNumberDiv);
+
+            let numberWidth = 18;
+
+            if (i >= 100) {
+              numberWidth = HCPNumber.offsetWidth + 4;
+            };
+
+            // Set the width and height of the div based on the text width
+            HCPNumberDiv.style.width = numberWidth + "px";
+            HCPNumberDiv.style.height = numberWidth + "px";
   
             // set hcp details
             let HCPDetailDiv = document.createElement("div");
@@ -979,8 +1013,8 @@ fetch('/data')
                       <img style="width: 30px;height: 30px;" src="pics/call.png"></img>
                     </a>
                   </div>
-                  <hr style="width: 100%; margin:0; margin-top: 5px; border-top: 0.7px solid #929292;"></hr>
-                  <p style="margin:0; margin-top: 5px; color: #0374BB;font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${hcp_address + ", " + hcp_city}</p>
+                  <hr style="width: 95%; margin:0; margin-top: 5px; border-top: 0.7px solid #929292;"></hr>
+                  <p style="margin:0; margin-top: 5px; max-width:300px; color: #0374BB;font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${hcp_address + ", " + hcp_city}</p>
                   <div id="info_div" style="margin:0; margin-right:0px; display:flex;flex-direction: row;align-items: center;justify-content: space-between;">
                     <div id="distance" style="magin:0;display:flex;flex-direction: row;align-items: center;">
                       <img style="width: 15px;height: 15px;" src="pics/Distance.png"></img>
@@ -997,8 +1031,8 @@ fetch('/data')
                     <img style="width: 30px;height: 30px;" src="pics/call.png"></img>
                   </a>
                 </div>
-                <hr style="width: 100%; margin:0; margin-top: 5px; border-top: 0.7px solid #929292;"></hr>
-                <p style="margin:0; margin-top: 5px; color: #0374BB;font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${hcp_address + ", " + hcp_city}</p>
+                <hr style="width: 95%; margin:0; margin-top: 5px; border-top: 0.7px solid #929292;"></hr>
+                <p style="margin:0; margin-top: 5px; max-width:300px;color: #0374BB;font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${hcp_address + ", " + hcp_city}</p>
               `);
             };
 
@@ -1277,7 +1311,7 @@ fetch('/data')
 
       function setDefault() {
         disclosureCheck.checked = false;
-        selectedOption = "zipcode";
+        // selectedOption = "zipcode";
         // zipcodeOptionButton.classList.add("active");
         // nameOptionButton.classList.remove("active");
         // cityOptionButton.classList.remove("active");
@@ -1288,6 +1322,9 @@ fetch('/data')
         selectedSpecialty = "derm";
         radioinput_all.checked = false;
         radioinput_derm.checked = true;
+        zipcodeInput.readOnly =  false;
+        // cityInput.readOnly =  false;
+        // nameInput.readOnly =  false;
       };
   
       function clear() {
@@ -1377,9 +1414,6 @@ fetch('/data')
         } else {
           const city = address;
           return [city, "none"];
-          console.log("Unable to get city or state name");
-          inputCityErrorDiv.style.display = "flex";
-          cityInput.classList.add("error");
         }
         
       };

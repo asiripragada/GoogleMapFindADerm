@@ -9,8 +9,7 @@
 #container {
   position: relative;
   margin: 30px auto;
-  height: 100%;
-  width: 80%;
+  width: 65%;
   border: 1px solid rgba(146, 146, 146, 0.40);
   border-radius: 10px 10px 0 0;
   display: flex;
@@ -364,6 +363,7 @@
   font-weight: 600;
 }
 #submit-button:hover {
+  background: linear-gradient(90deg, #fe6f01 0%, #882060 100%);
   box-shadow: 0px 0px 4px 0px #FE9101;
 }
 #submit-error-div {
@@ -409,7 +409,7 @@
 #map-container {
   position: relative;
   width: 100%;
-  height:1000px;
+  height:700px;
   flex: 1;
   display: none;
   z-index: 1;
@@ -417,7 +417,7 @@
 #map-view-container {
   position: relative;
   width: 100%;
-  height:376px;
+  height:700px;
   flex: 1;
   display: flex;
   z-index: 1;
@@ -465,6 +465,10 @@
   font-weight: 500;
   line-height: normal;
 }
+.pagination-container button.active{
+  color: #D200E6;
+  font-weight: 600;
+}
 .HCP-content{
   background-color: #fff;
   overflow-y: auto;
@@ -474,6 +478,7 @@
   margin:0 18px 10px 18px;
   background-color: #fff;
   min-width: 350px;
+  max-width:45%;
   min-height: 80px;
   border:1px solid rgba(0, 0, 0, 0.2);
   border-radius: 8px;
@@ -501,17 +506,22 @@
   background-color:  #140065;
   margin-top: 18px;
   margin-left:9px;
-  width:18px;
-  height:18px;
+  width:auto;
+  height:auto;
   border:0;
   border-radius: 50%;
   order:2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
 }
 /* .HCP-number-div.active {
   background-color:  #FFF;
 } */
 .HCP-number-div p {
-  margin: -2px 0 0 -1px;
+  /* margin: -2px 0 0 -1px; */
+  margin:0;
   text-align: center;
   color: #FFF;
   font-family: Poppins;
@@ -525,6 +535,7 @@
 } */
 .HCP-detail-div {
   margin-top:15px;
+  margin-right:5px;
   background-color: transparent;
   min-width:300px;
   height:100%;
@@ -548,7 +559,7 @@
   margin:0;
   margin-left: 9px;
   display:flex;
-  flex-direction: row;
+  flex-direction: row-reverse;
   align-items: top;
   justify-content: space-between;
 }
@@ -558,6 +569,7 @@
   background-color: transparent;
   align-items: center;
   text-align: center;
+  order:2;
 }
 .HCP-detail-specialty p{
   margin:0;
@@ -578,6 +590,7 @@
   background-color: transparent;
   align-items: center;
   text-align: center;
+  order:1;
 }
 .HCP-detail-route img{
   margin:0px;
@@ -608,6 +621,7 @@
   margin-top: 5px;
   margin-bottom: 15px;
   background-color: transparent;
+  order:2;
 }
 .HCP-detail-address p{
   margin:0;
@@ -627,24 +641,29 @@
   margin-top: 5px;
   height:18px;
   background-color: transparent;
+  display:flex;
+  flex-direction: row-reverse;
   align-items: center;
-  text-align: center;
+  order:1;
 }
 .HCP-detail-phone img{
   margin:0px;
   margin-left:5px;
   width: 15px;
   height: 15px;
+  order:2;
 }
 .HCP-detail-phone span {
   margin:0px;
   margin-left:5px;
-  min-width:60px;
+  min-width:95px;
+  height:18px;
   color: #0374BB;
   font-family: Poppins;
   font-size: 12px;
   font-style: normal;
   font-weight: 400;
+  order:1;
 }
 .HCP-detail-phone span.active {
   color: #393C39;
