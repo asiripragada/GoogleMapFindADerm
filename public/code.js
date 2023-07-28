@@ -1345,6 +1345,8 @@ fetch('/data')
               reject("Geocode was not successful for the following reason: " + status);
               inputZipcodeErrorDiv.style.display = "flex";
               zipcodeInput.classList.add("error");
+              inputCityErrorDiv.style.display = "flex";
+              cityInput.classList.add("error");
             }
           });
         });
