@@ -406,6 +406,7 @@ fetch('/data')
           clear();
           zipcodeInput.value="";
           inputZipcodeDiv.style.display='flex';
+          inputZipcodeText.innerHTML = "Please enter Zip Code:";
           inputCityDiv.style.display='none';
           inputNameDiv.style.display='none';
           distanceInputDiv.style.display='flex';
@@ -440,6 +441,7 @@ fetch('/data')
         if (!nameOptionButton.classList.contains("active")) {
           clear();
           inputZipcodeDiv.style.display='flex';
+          inputZipcodeText.innerHTML = "Please enter Zip Code (optional):";
           inputCityDiv.style.display='none';
           inputNameDiv.style.display='flex';
           distanceInputDiv.style.display='none';
