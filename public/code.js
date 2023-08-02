@@ -101,6 +101,38 @@ fetch('/data')
       const inputDiv = document.createElement("div");
       inputDiv.id = "input-div";
 
+      // Name Div 
+      const inputNameDiv = document.createElement("div");
+      inputNameDiv.classList.add("input-text-div");
+
+      const inputNameTextDiv = document.createElement("div");
+      inputNameTextDiv.classList.add("input-text-span-div");
+
+      const inputNameText = document.createElement("span");
+      inputNameText.innerHTML = "Please enter Name:";
+      inputNameTextDiv.appendChild(inputNameText);
+      inputNameDiv.appendChild(inputNameTextDiv);
+
+      const nameInput = document.createElement("input");
+      nameInput.classList.add("input-text-input");
+      nameInput.type = "text";
+      nameInput.placeholder = "Enter a name";
+      inputNameDiv.appendChild(nameInput);
+
+      const inputNameErrorDiv = document.createElement("div");
+      inputNameErrorDiv.classList.add("input-text-error-div");
+
+      const inputNameErrorImg = document.createElement("img");
+      inputNameErrorImg.src = "pics/Danger.png";
+      inputNameErrorDiv.appendChild(inputNameErrorImg);
+
+      const inputNameErrorText = document.createElement("span");
+      inputNameErrorText.innerHTML = "Please enter minimum 3 characters";
+      inputNameErrorDiv.appendChild(inputNameErrorText);
+      inputNameDiv.appendChild(inputNameErrorDiv);
+
+      inputDiv.appendChild(inputNameDiv);
+
       // Zipcode Div 
       const inputZipcodeDiv = document.createElement("div");
       inputZipcodeDiv.classList.add("input-text-div");
@@ -134,8 +166,6 @@ fetch('/data')
           event.preventDefault();
         }
       });
-
-
 
       const inputZipcodeErrorDiv = document.createElement("div");
       inputZipcodeErrorDiv.classList.add("input-text-error-div");
@@ -182,38 +212,6 @@ fetch('/data')
       inputCityDiv.appendChild(inputCityErrorDiv);
 
       inputDiv.appendChild(inputCityDiv);
-
-      // Name Div 
-      const inputNameDiv = document.createElement("div");
-      inputNameDiv.classList.add("input-text-div");
-
-      const inputNameTextDiv = document.createElement("div");
-      inputNameTextDiv.classList.add("input-text-span-div");
-
-      const inputNameText = document.createElement("span");
-      inputNameText.innerHTML = "Please enter Name:";
-      inputNameTextDiv.appendChild(inputNameText);
-      inputNameDiv.appendChild(inputNameTextDiv);
-
-      const nameInput = document.createElement("input");
-      nameInput.classList.add("input-text-input");
-      nameInput.type = "text";
-      nameInput.placeholder = "Enter a name";
-      inputNameDiv.appendChild(nameInput);
-
-      const inputNameErrorDiv = document.createElement("div");
-      inputNameErrorDiv.classList.add("input-text-error-div");
-
-      const inputNameErrorImg = document.createElement("img");
-      inputNameErrorImg.src = "pics/Danger.png";
-      inputNameErrorDiv.appendChild(inputNameErrorImg);
-
-      const inputNameErrorText = document.createElement("span");
-      inputNameErrorText.innerHTML = "Please enter minimum 3 characters";
-      inputNameErrorDiv.appendChild(inputNameErrorText);
-      inputNameDiv.appendChild(inputNameErrorDiv);
-
-      inputDiv.appendChild(inputNameDiv);
 
       // Distance Div
       const distanceInputDiv = document.createElement("div");
@@ -441,7 +439,7 @@ fetch('/data')
       nameOptionButton.addEventListener("click", () => {
         if (!nameOptionButton.classList.contains("active")) {
           clear();
-          inputZipcodeDiv.style.display='none';
+          inputZipcodeDiv.style.display='flex';
           inputCityDiv.style.display='none';
           inputNameDiv.style.display='flex';
           distanceInputDiv.style.display='none';
@@ -541,7 +539,7 @@ fetch('/data')
           };
         } else {
           if ( nameInput.value.trim().length>=3 && disclosureCheck.checked ) {
-            nameSearch();  
+              nameSearch();  
           } else {
             showError();
           };          
@@ -674,7 +672,7 @@ fetch('/data')
                   };
                 });
               console.log('booleanArray',booleanArray);
-              showHCP("", booleanArray,"Infinity");
+              showHCP("", booleanArray,"");
             } else {
               mapErrorMessageBody1.innerHTML = "Unable to get city from geocode result"
               mapErrorDiv.style.display="flex";
@@ -688,20 +686,68 @@ fetch('/data')
       function nameSearch() {
 
         const name = nameInput.value.trim().toUpperCase();
+        const zipcode = extractZipCode(zipcodeInput.value);
 
-        mapContainer.style.display='flex';
+        let booleanArray = [];
+        if (zipcode){
+          geocodeAddress(zipcodeInput.value)
+            .then((geo_result) => {
+              mapContainer.style.display='flex';
+              let origin_latlng = geo_result[0].geometry.location;
 
-        const booleanArray =
-          dataArray.map((hcp_location) => {
-            const hcpName = hcp_location.FULL_NAME;
-            try {
-              return hcpName.includes(name);
-            } catch (error) {
-              return false;
-            };
-          });
-        console.log('booleanArray',booleanArray);
-        showHCP("", booleanArray,"Infinity");
+              zoomLevel = 11;
+              map.setOptions({center:origin_latlng,zoom:zoomLevel});
+
+              const addressComponents = geo_result[0].address_components;
+              const zipcodeComponent = addressComponents.find(
+                (component) => component.types[0] === "postal_code"
+              );
+              const geoZipcode = zipcodeComponent ? zipcodeComponent.short_name : null;
+
+              console.log('geo zipcode:', geoZipcode);
+
+              const center_geocode = origin_latlng.toString().match(/-?\d+(\.\d+)?/g);
+              const center_lat = parseFloat(center_geocode[0]);
+              const center_lng = parseFloat(center_geocode[1]);
+
+              if (geoZipcode) {
+                const disArray = [];
+                const booleanArray = 
+                  dataArray.map((hcp_location) => {
+                      const hcpName = hcp_location.FULL_NAME;
+                      const hcpZipcode = hcp_location.PRIMARY_ZIP_CODE;
+                      const hcp_geocode = JSON.parse(hcp_location.COORDINATES);
+                      const distance = mathDistance(hcp_geocode.lat, hcp_geocode.lng, center_lat, center_lng);
+                      if (hcpZipcode == geoZipcode && hcpName.includes(name)) {
+                        disArray.push(distance.toFixed(2));
+                      } else {
+                        disArray.push(false);
+                      };
+                      return (hcpZipcode == geoZipcode && hcpName.includes(name))
+                    })
+                  console.log('booleanArray',booleanArray);
+                  showHCP("", booleanArray,disArray);
+                } else {
+                  mapErrorMessageBody1.innerHTML = "Unable to get city from geocode result"
+                  mapErrorDiv.style.display="flex";
+                };
+            }).catch((error) => {
+              console.log(error);
+            });
+        }else {
+          zoomLevel=4;
+          mapContainer.style.display='flex';
+          booleanArray =
+            dataArray.map((hcp_location) => {
+              const hcpName = hcp_location.FULL_NAME;
+              try {
+                return hcpName.includes(name);
+              } catch (error) {
+                return false;
+              };
+            });
+          showHCP("", booleanArray,"");
+        }
       };
 
       
@@ -769,7 +815,7 @@ fetch('/data')
           const startIndex = (pageNumber - 1) * itemsPerPage;
           const endIndex = Math.min(startIndex + itemsPerPage, pairedArray.length);
 
-          if (selectedOption == "zipcode") {
+          if (pairedArray[0].distance) {
             let dis_page = pairedArray[endIndex-1].distance;
 
             if (dis_page < 1.5) {
@@ -798,7 +844,7 @@ fetch('/data')
             let dis = '';
             let number = i+1;
   
-            if (selectedOption == "zipcode") {
+            if (pairedArray[0].distance) {
               dis = pairedArray[i].distance
             };
   
@@ -894,7 +940,7 @@ fetch('/data')
             const HCPDetail_Route_dis = document.createElement("span");
             HCPDetail_Route_dis.classList.add("HCP-detail-route");
   
-            if (selectedOption == "zipcode") {
+            if (pairedArray[0].distance) {
   
               // add distance icon            
               routeIcon.src = "pics/Distance.png"; // Replace with the path to your direction icon image
@@ -965,7 +1011,7 @@ fetch('/data')
             HCPCardElement.appendChild(HCPCardtab);
   
   
-            if (selectedOption == "zipcode") {
+            if (pairedArray[0].distance) {
               infowindow_hcp.setContent(`
                   <p style="margin:0; color: #140065; font-family: Poppins; font-size: 16px; font-weight: 500;">${hcp_name}</p>
                   <div id="info_div_1" style="margin:0; margin-right:0px; display:flex;flex-direction: row;align-items: center;justify-content: space-between;">
@@ -1181,7 +1227,7 @@ fetch('/data')
           const filteredArray = dataArray.filter((_, index) => Boolean(booleanArray[index])); 
   
           let pairedArray = [];
-          if (selectedOption == "zipcode") {
+          if (disArray.length >0) {
             const filteredDisArray = disArray.filter((_, index) => Boolean(booleanArray[index]));
             pairedArray = filteredArray.map((hcp, index) => ({
               hcp: hcp,
@@ -1206,14 +1252,35 @@ fetch('/data')
               return 0;
             });
 
-            console.log(pairedArray);
-
           } else {
             pairedArray = filteredArray.map((hcp, index) => ({
               hcp: hcp
             }));
-          }
 
+            pairedArray.sort((a, b) => {
+              // If "distance" is the same, compare based on "hcp.FIRST_NAME"
+              const stateA = a.hcp.PRIMARY_STATE_CODE.toUpperCase();
+              const stateB = b.hcp.PRIMARY_STATE_CODE.toUpperCase();
+              if (stateA < stateB) {
+                return -1;
+              }
+              if (stateA > stateB) {
+                return 1;
+              }
+              // If "distance" is the same, compare based on "hcp.FIRST_NAME"
+              const firstNameA = a.hcp.FIRST_NAME.toUpperCase();
+              const firstNameB = b.hcp.FIRST_NAME.toUpperCase();
+              if (firstNameA < firstNameB) {
+                return -1;
+              }
+              if (firstNameA > firstNameB) {
+                return 1;
+              }
+              return 0;
+            });
+
+          }
+          console.log("pairedArray",pairedArray);
           displayHCP(input, pairedArray, sum);    
 
         } else {
