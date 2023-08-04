@@ -15,8 +15,6 @@ fetch('/data')
     const mapViewContainer = document.getElementById('map-view-container');
     const leftPanel = document.getElementById('left-panel');
 
-
-
     function onLeftPanel() {
       mapViewContainer.classList.remove("left-panel-hidden");
       leftPanel.style.display = "flex";
@@ -49,107 +47,28 @@ fetch('/data')
       const controlPanel = document.getElementById("control-panel");
 
       // Search Options Div (zipcode, city&hcp, current location)
-      const searchOptionDiv = document.createElement("div");
-      searchOptionDiv.id = "search-option-div";
 
-      const searchOptionText = document.createElement("span");
-      searchOptionText.innerHTML = "Search by:";
-      searchOptionDiv.appendChild(searchOptionText);
+      const zipcodeOptionButton = document.getElementById("zipcodeOption");
 
-      const searchOptions = document.createElement("div");
-      searchOptions.id = "search-options";
-      searchOptions.classList.add("btn-group", "btn-group-toggle");
-      searchOptions.setAttribute("data-toggle", "buttons");
+      const cityOptionButton = document.getElementById("cityOption");
 
-      const zipcodeOptionButton = document.createElement("input");
-      zipcodeOptionButton.type = "button";
-      zipcodeOptionButton.value = "Zipcode";
-      zipcodeOptionButton.classList.add("search-option-button","active");
-      zipcodeOptionButton.name = "searchOption";
-      zipcodeOptionButton.id = "zipcodeOption";
-
-      const cityOptionButton = document.createElement("input");
-      cityOptionButton.type = "button";
-      cityOptionButton.value = "City";
-      cityOptionButton.classList.add("search-option-button");
-      cityOptionButton.name = "searchOption";
-      cityOptionButton.id = "cityOption";
-
-      const nameOptionButton = document.createElement("input");
-      nameOptionButton.type = "button";
-      nameOptionButton.value = "Name";
-      nameOptionButton.classList.add("search-option-button");
-      nameOptionButton.name = "searchOption";
-      nameOptionButton.id = "nameOption";
-
-      // const addressOptionButton = document.createElement("input");
-      // addressOptionButton.type = "button";
-      // addressOptionButton.value = "Current Address";
-      // addressOptionButton.classList.add("search-option-button");
-      // addressOptionButton.name = "searchOption";
-      // addressOptionButton.id = "addressOption";
-
-      searchOptions.appendChild(zipcodeOptionButton);
-      searchOptions.appendChild(cityOptionButton);
-      searchOptions.appendChild(nameOptionButton);
-      // searchOptions.appendChild(addressOptionButton);
-
-      searchOptionDiv.appendChild(searchOptions);
-      controlPanel.appendChild(searchOptionDiv);
+      const nameOptionButton = document.getElementById("nameOption");
 
       // Inputs Div (zipcode/city, name, distance)
-      const inputDiv = document.createElement("div");
-      inputDiv.id = "input-div";
 
       // Name Div 
-      const inputNameDiv = document.createElement("div");
-      inputNameDiv.classList.add("input-text-div");
+      const inputNameDiv = document.getElementById("input-text-name-div");
 
-      const inputNameTextDiv = document.createElement("div");
-      inputNameTextDiv.classList.add("input-text-span-div");
+      const nameInput = document.getElementById("name-input");
 
-      const inputNameText = document.createElement("span");
-      inputNameText.innerHTML = "Please enter Name:";
-      inputNameTextDiv.appendChild(inputNameText);
-      inputNameDiv.appendChild(inputNameTextDiv);
-
-      const nameInput = document.createElement("input");
-      nameInput.classList.add("input-text-input");
-      nameInput.type = "text";
-      nameInput.placeholder = "Enter a name";
-      inputNameDiv.appendChild(nameInput);
-
-      const inputNameErrorDiv = document.createElement("div");
-      inputNameErrorDiv.classList.add("input-text-error-div");
-
-      const inputNameErrorImg = document.createElement("img");
-      inputNameErrorImg.src = "pics/Danger.png";
-      inputNameErrorDiv.appendChild(inputNameErrorImg);
-
-      const inputNameErrorText = document.createElement("span");
-      inputNameErrorText.innerHTML = "Please enter minimum 3 characters";
-      inputNameErrorDiv.appendChild(inputNameErrorText);
-      inputNameDiv.appendChild(inputNameErrorDiv);
-
-      inputDiv.appendChild(inputNameDiv);
+      const inputNameErrorDiv = document.getElementById("name-error-div");
 
       // Zipcode Div 
-      const inputZipcodeDiv = document.createElement("div");
-      inputZipcodeDiv.classList.add("input-text-div");
+      const inputZipcodeDiv = document.getElementById("input-text-zipcode-div");
 
-      const inputZipcodeTextDiv = document.createElement("div");
-      inputZipcodeTextDiv.classList.add("input-text-span-div");
+      const inputZipcodeText = document.getElementById("input-text-zipcode-span")
 
-      const inputZipcodeText = document.createElement("span");
-      inputZipcodeText.innerHTML = "Please enter Zip Code:";
-      inputZipcodeTextDiv.appendChild(inputZipcodeText);
-      inputZipcodeDiv.appendChild(inputZipcodeTextDiv);
-
-      const zipcodeInput = document.createElement("input");
-      zipcodeInput.classList.add("input-text-input");
-      zipcodeInput.type = "text";
-      zipcodeInput.placeholder = "Enter a zipcode";
-      inputZipcodeDiv.appendChild(zipcodeInput);
+      const zipcodeInput = document.getElementById("zipcode-input");
 
       // Add event listener for keypress validation
       zipcodeInput.addEventListener("keypress", (event) => {
@@ -167,211 +86,56 @@ fetch('/data')
         }
       });
 
-      const inputZipcodeErrorDiv = document.createElement("div");
-      inputZipcodeErrorDiv.classList.add("input-text-error-div");
-
-      const inputZipcodeErrorImg = document.createElement("img");
-      inputZipcodeErrorImg.src = "pics/Danger.png";
-      inputZipcodeErrorDiv.appendChild(inputZipcodeErrorImg);
-
-      const inputZipcodeErrorText = document.createElement("span");
-      inputZipcodeErrorText.innerHTML = "Please enter a valid zip code";
-      inputZipcodeErrorDiv.appendChild(inputZipcodeErrorText);
-      inputZipcodeDiv.appendChild(inputZipcodeErrorDiv);
-
-      inputDiv.appendChild(inputZipcodeDiv);
+      const inputZipcodeErrorDiv = document.getElementById("zipcode-error-div");
 
       // City Div 
-      const inputCityDiv = document.createElement("div");
-      inputCityDiv.classList.add("input-text-div");
+      const inputCityDiv = document.getElementById("input-text-city-div");
 
-      const inputCityTextDiv = document.createElement("div");
-      inputCityTextDiv.classList.add("input-text-span-div");
+      const cityInput = document.getElementById("city-input");
 
-      const inputCityText = document.createElement("span");
-      inputCityText.innerHTML = "Please enter City Name:";
-      inputCityTextDiv.appendChild(inputCityText);
-      inputCityDiv.appendChild(inputCityTextDiv);
-
-      const cityInput = document.createElement("input");
-      cityInput.classList.add("input-text-input");
-      cityInput.type = "text";
-      cityInput.placeholder = "Enter a city";
-      inputCityDiv.appendChild(cityInput);
-
-      const inputCityErrorDiv = document.createElement("div");
-      inputCityErrorDiv.classList.add("input-text-error-div");
-
-      const inputCityErrorImg = document.createElement("img");
-      inputCityErrorImg.src = "pics/Danger.png";
-      inputCityErrorDiv.appendChild(inputCityErrorImg);
-
-      const inputCityErrorText = document.createElement("span");
-      inputCityErrorText.innerHTML = "Please enter a valid city name";
-      inputCityErrorDiv.appendChild(inputCityErrorText);
-      inputCityDiv.appendChild(inputCityErrorDiv);
-
-      inputDiv.appendChild(inputCityDiv);
+      const inputCityErrorDiv = document.getElementById("city-error-div");
 
       // Distance Div
-      const distanceInputDiv = document.createElement("div");
-      distanceInputDiv.id = "distance-input-div";
+      const distanceInputDiv = document.getElementById("distance-input-div");
 
-      const distanceInputTextDiv = document.createElement("div");
-      distanceInputTextDiv.id = "distance-input-span-div";
-
-      const distanceInputText = document.createElement("span");
-      distanceInputText.innerHTML = "Please define the radius:";
-      distanceInputTextDiv.appendChild(distanceInputText);
-      distanceInputDiv.appendChild(distanceInputTextDiv);
-
-      const distanceFilterSelect = document.createElement("select");
-      distanceFilterSelect.id = "distance-filter-select";
-
-      const distanceOptions = [
-          { label: "5 miles", value: 5 },
-          { label: "10 miles", value: 10 },
-          { label: "20 miles", value: 20 },
-          { label: "50 miles", value: 50 },
-          { label: "100 miles", value: 100 }
-      ];
-
-      distanceOptions.forEach((option) => {
-          const optionElement = document.createElement("option");
-          optionElement.value = option.value;
-          optionElement.textContent = option.label;
-          distanceFilterSelect.appendChild(optionElement);
-      });
+      const distanceFilterSelect = document.getElementById("distance-filter-select");
 
       distanceFilterSelect.value = 50;
 
-      distanceInputDiv.appendChild(distanceFilterSelect);
-
-      inputDiv.appendChild(distanceInputDiv);
-
       let zoomLevel = 14;
 
-
       // Specialty Options
-      const specialtyInputDiv = document.createElement("div");
-      specialtyInputDiv.id = "specialty-input-div";
 
-      const specialtyInputTextDiv = document.createElement("div");
-      specialtyInputTextDiv.id = "specialty-input-span-div";
+      const radioOption_derm = document.getElementById("derm-label");
 
-      const specialtyInputText = document.createElement("span");
-      specialtyInputText.innerHTML = "Please choose area of specialty:";
-      specialtyInputTextDiv.appendChild(specialtyInputText);
-      specialtyInputDiv.appendChild(specialtyInputTextDiv);
-
-      const specialtyInputOptions = document.createElement("div");
-      specialtyInputOptions.classList.add("specialty-options");
-
-      const radioOption_derm = document.createElement("label");
-      radioOption_derm.classList.add("specialty-option-input");
-
-      const radioinput_derm = document.createElement("input");
-      radioinput_derm.classList.add("specialty-option-input");
-      radioinput_derm.type = "checkbox";
-      radioinput_derm.value = "derm";
+      const radioinput_derm = document.getElementById("derm-input-check");
       radioinput_derm.checked = true;
 
-      const radioLabel_derm = document.createElement("span");
-      radioLabel_derm.classList.add("specialty-option-input");
-      radioLabel_derm.textContent = "Dermatologist";
-      
-      radioOption_derm.appendChild(radioinput_derm);
-      radioOption_derm.appendChild(radioLabel_derm);      
-      specialtyInputOptions.appendChild(radioOption_derm);
+      const radioOption_all = document.getElementById("all-label");
 
-      const radioOption_all = document.createElement("label");
-      radioOption_all.classList.add("specialty-option-input");
-
-      const radioinput_all = document.createElement("input");
-      radioinput_all.classList.add("specialty-option-input");
-      radioinput_all.type = "checkbox";
-      radioinput_all.value = "all";
+      const radioinput_all = document.getElementById("all-input-check");
       radioinput_all.checked = false;
 
-      const radioLabel_all = document.createElement("span");
-      radioLabel_all.classList.add("specialty-option-input");
-      radioLabel_all.textContent = "All";
-      
-      radioOption_all.appendChild(radioinput_all);
-      radioOption_all.appendChild(radioLabel_all);      
-      specialtyInputOptions.appendChild(radioOption_all);
-
-      specialtyInputDiv.appendChild(specialtyInputOptions);
-      inputDiv.appendChild(specialtyInputDiv);
-
-      controlPanel.appendChild(inputDiv);
-
       // Disclosure Div (zipcode/city, name, distance)
-      const disclosureDiv = document.createElement("div");
-      disclosureDiv.id = "disclosure-div";
 
-      const disclosureCheckDiv = document.createElement("div");
-      disclosureCheckDiv.id = "disclosure-check-div";
 
-      const disclosureCheck = document.createElement("input");
-      disclosureCheck.type = "checkbox";
+      const disclosureCheckDiv = document.getElementById("disclosure-check-div");
+
+      const disclosureCheck = document.getElementById("disclosure-input");
       disclosureCheck.checked = false;
 
       disclosureCheck.addEventListener("click", () => {
         disclosureCheckDiv.classList.remove("error");
       });
 
-      disclosureCheckDiv.appendChild(disclosureCheck);
-      disclosureDiv.appendChild(disclosureCheckDiv);
-
-      const disclosureTextDiv = document.createElement("div");
-      disclosureTextDiv.id = "disclosure-text-div";
-
-      const disclosureTextHeader = document.createElement("h");
-      disclosureTextHeader.id = "disclosure-text";
-      disclosureTextHeader.innerHTML = "By checking this box you acknowledge that you have read and agree with the statement below."
-
-      const disclosureTextMessage = document.createElement("p");
-      disclosureTextMessage.id = "disclosure-text";
-      disclosureTextMessage.innerHTML = `Dermavant Sciences, Inc. offers this service to assist patients in locating local specialists experienced in VTAMA. 
-        Inclusion in this directory does not imply endorsement or recommendation by Dermavant Sciences, Inc., nor does it guarantee that specialists listed will 
-        determine VTAMA to be the appropriate treatment for you. Selecting a physician is your sole responsibility, and it is a crucial decision that requires 
-        careful consideration. This specialist locator is just one of several sources of information available to you. Dermavant Sciences, Inc. manufactures 
-        and markets VTAMA.`
-
-      disclosureTextDiv.appendChild(disclosureTextHeader);
-      disclosureTextDiv.appendChild(disclosureTextMessage);
-      disclosureDiv.appendChild(disclosureTextDiv);
-
-      controlPanel.appendChild(disclosureDiv);
-
       // Search & Clear Div
-      const searchDiv = document.createElement("div");
-      searchDiv.id = "search-clear-div";
 
       // Search button
-      const submitButton = document.createElement("input");
-      submitButton.type = "button";
-      submitButton.value = "Search";
-      submitButton.id = "submit-button";
-      searchDiv.appendChild(submitButton);
+      const submitButton = document.getElementById("submit-button");
 
-      const clearButton = document.createElement("input");
-      clearButton.type = "button";
-      clearButton.value = "Clear";
-      clearButton.id = "clear-button";
-      searchDiv.appendChild(clearButton);
+      const clearButton = document.getElementById("clear-button");
 
-      controlPanel.appendChild(searchDiv);
-
-      const submitErrorDiv = document.createElement("div");
-      submitErrorDiv.id = "submit-error-div";
-
-      const submitErrorText = document.createElement("p");
-      submitErrorText.innerHTML = "Please fill in all the mandatory details";
-      submitErrorDiv.appendChild(submitErrorText);
-
-      controlPanel.appendChild(submitErrorDiv);
+      const submitErrorDiv = document.getElementById("submit-error-div");
       
       // set up auto complete
       const auto_zipcode_options = {

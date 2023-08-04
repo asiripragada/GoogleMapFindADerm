@@ -5,6 +5,7 @@
     <title>Find A Derm</title> 
     <link rel="stylesheet" href="style.css"/>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:400,500,600&display=swap">
+    <meta name="viewport" content="width=device-width">
 
   </head>
   <body>
@@ -19,15 +20,102 @@
           <span id="main-title-1">Start your search for a &nbsp</span>
           <span id="main-title-2">Dermatologist</span>
         </div>
-        <div id="control-panel"></div>
+        <div id="control-panel">
+          <div id="search-option-div">
+            <span>Search by:</span>
+            <div id="search-options" class="btn-group btn-group-toggle" data-toggle="buttons">
+              <input type="button" value="Zipcode" class="search-option-button active" name="searchOption" id="zipcodeOption">
+              <input type="button" value="City" class="search-option-button" name="searchOption" id="cityOption">
+              <input type="button" value="Name" class="search-option-button" name="searchOption" id="nameOption">
+            </div>
+          </div>
+          <div id="input-div">
+            <div class="input-text-div" id="input-text-name-div" style="display: none;">
+              <div class="input-text-span-div">
+                <span>Please enter Name:</span>
+              </div>
+              <input class="input-text-input" id="name-input" type="text" placeholder="Enter a name">
+              <div class="input-text-error-div" id="name-error-div">
+                <img src="pics/Danger.png">
+                <span>Please enter minimum 3 characters</span>
+              </div>
+            </div>
+            <div class="input-text-div" id="input-text-zipcode-div" style="display: flex;">
+              <div class="input-text-span-div">
+                <span id="input-text-zipcode-span">Please enter Zip Code:</span>
+              </div>
+              <input class="input-text-input pac-target-input"  id="zipcode-input" type="text" placeholder="Enter a zipcode" autocomplete="off">
+              <div class="input-text-error-div" id="zipcode-error-div">
+                <img src="pics/Danger.png">
+                <span>Please enter a valid zip code</span>
+              </div>
+            </div>
+            <div class="input-text-div" id="input-text-city-div" style="display: none;">
+              <div class="input-text-span-div">
+                <span>Please enter City Name:</span>
+              </div>
+              <input class="input-text-input pac-target-input"  id="city-input" type="text" placeholder="Enter a city" autocomplete="off">
+              <div class="input-text-error-div" id="city-error-div">
+                <img src="pics/Danger.png">
+                <span>Please enter a valid city name</span>
+              </div>
+            </div>
+            <div id="distance-input-div" style="display: flex;">
+              <div id="distance-input-span-div">
+                <span>Please define the radius:</span>
+              </div>
+              <select id="distance-filter-select">
+                <option value="5">5 miles</option>
+                <option value="10">10 miles</option>
+                <option value="20">20 miles</option>
+                <option value="50">50 miles</option>
+                <option value="100">100 miles</option>
+              </select>
+            </div>
+            <div id="specialty-input-div">
+              <div id="specialty-input-span-div">
+                <span>Please choose area of specialty:</span>
+              </div>
+              <div class="specialty-options">
+                <label class="specialty-option-input" id="derm-label">
+                  <input class="specialty-option-input" id="derm-input-check" type="checkbox" value="derm">
+                  <span class="specialty-option-input">Dermatologist</span>
+                </label>
+                <label class="specialty-option-input" id="all-label">
+                  <input class="specialty-option-input" id="all-input-check" type="checkbox" value="all">
+                  <span class="specialty-option-input">All</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div id="disclosure-div">
+            <div id="disclosure-check-div">
+              <input type="checkbox" id="disclosure-input">
+            </div>
+            <div id="disclosure-text-div">
+                <h id="disclosure-text">By checking this box you acknowledge that you have read and agree with the statement below.</h>
+                <p id="disclosure-text">Dermavant Sciences, Inc. offers this service to assist patients in locating local specialists experienced in VTAMA. 
+                  Inclusion in this directory does not imply endorsement or recommendation by Dermavant Sciences, Inc., nor does it guarantee that specialists listed will 
+                  determine VTAMA to be the appropriate treatment for you. Selecting a physician is your sole responsibility, and it is a crucial decision that requires 
+                  careful consideration. This specialist locator is just one of several sources of information available to you. Dermavant Sciences, Inc. manufactures 
+                  and markets VTAMA.</p>
+            </div>
+          </div>
+          <div id="search-clear-div">
+            <input type="button" value="Search" id="submit-button">
+            <input type="button" value="Clear" id="clear-button">
+          </div>
+          <div id="submit-error-div">
+            <p>Please fill in all the mandatory details</p>
+          </div>
+        </div>
         <div id="map-container">
           <div id="map-view-container">
             <div id="left-panel"></div>
             <div id="map"></div>
           </div>
         </div>
-      </div>
-      
+      </div> 
     </div>
     <script src="code.js"></script>
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBnORU4D_5ea-mZttvUO1fjY0_BXa6PkB8&libraries=places" type="text/javascript"></script>
