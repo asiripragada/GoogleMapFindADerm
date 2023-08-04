@@ -16,7 +16,8 @@
 }
 #container-title {
   margin:0;
-  height: 66px;
+  min-height: 66px;
+  height:auto;
   width:100%;
   border-radius: 10px 10px 0px 0px;
   border:1px solid #140065;
@@ -51,19 +52,21 @@
   z-index: 1;
 }
 #search-option-div {
-  width: 100%;
-  height: 75px;
+  padding:0 3%;
+  width: 94%;
+  min-height: 75px;
+  height:auto;
   border:0px;
   border-bottom: 1px solid rgba(146, 146, 146, 0.40);
   display: flex;
   flex-direction: row;
   align-items: center;
-  text-align: center;
+  text-align: left;
 }
 #search-option-div span{
-  margin-left:36px;
-  margin-right:10px;
-  min-width:100px;
+  margin:0;
+  width:80px;
+  max-width:20%;
   color: #140065;
   font-family: Poppins;
   font-size: 14px;
@@ -71,16 +74,18 @@
   font-weight: 500;
 }
 #search-options {
-  margin-left: 5px;
+  margin: 0;
+  margin-left:2%;
+  margin-right:5%;
   flex:1;
   display: flex;
   justify-content: left;
 }
 .search-option-button {
-  margin:auto 10px;
-  width: 160px;
-  max-width:25%;
-  height: 44px;
+  margin: auto 2%;
+  width: 27%;
+  height:auto;
+  min-height: 44px;
   border-radius: 10px;
   border: 1px solid #8A7FB6;
   background: #FFF;
@@ -105,24 +110,24 @@
   background: rgba(232, 120, 93, 0.15);
 }
 #input-div {
-  width: 100%;
+  width: 94%;
   border:0px;
   border-bottom: 1px solid rgba(146, 146, 146, 0.40);
-  padding: 5px 0;
+  padding: 5px 3%;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 .input-text-div {
-  margin:10px auto;
+  margin:10px 0;
   width: 100%;
   border: 0px;
   display: flex;
   flex-direction: row;
 }
 .input-text-span-div {
-  margin-left:36px;
-  width: 230px;
+  width: 30%;
+  max-width:180px;
   display:flex;
   align-items: center;
 }
@@ -135,8 +140,9 @@
   font-weight: 400;
 }
 .input-text-div input{
-  margin: auto 10px;
+  margin: auto 3%;
   width: 250px;
+  max-width:60%;
   height: 44px;
   border-radius: 5px;
   border: 1px solid rgba(22, 0, 110, 0.50);
@@ -154,7 +160,8 @@
   color: rgba(146, 146, 146, 0.40);
 }
 .input-text-error-div {
-  margin: auto 10px;
+  margin: auto 2%;
+  flex:1;
   display: none;
   flex-direction: row;
   align-items: center;
@@ -174,15 +181,16 @@
   text-align: left;
 }
 #distance-input-div {
-  margin:10px auto;
+  margin:10px 0;
   width: 100%;
   border: 0px;
+  padding: 0 3%;
   display: flex;
   flex-direction: row;
 }
 #distance-input-span-div {
-  margin-left:36px;
-  width: 230px;
+  width: 30%;
+  max-width:180px;
   display:flex;
   align-items: center;
 }
@@ -195,8 +203,9 @@
   font-weight: 400;
 }
 #distance-filter-select {
-  margin: auto 10px;
+  margin: auto 3%;
   width: 167px;
+  max-width:40%;
   height: 44px;
   border-radius: 5px;
   border: 1px solid rgba(22, 0, 110, 0.50);
@@ -223,9 +232,8 @@
   flex-direction: row;
 }
 #specialty-input-span-div {
-  margin-left:36px;
-  margin-right:20px;
-  width: 230px;
+  width: 40%;
+  max-width:230px;
   display:flex;
   align-items: center;
 }
@@ -238,12 +246,14 @@
   font-weight: 400;
 }
 .specialty-options{
+  flex:1;
   display: flex;
   flex-direction: row;
 }
 .specialty-option-input{
-  margin:0;
-  width:180px;
+  margin: auto 3%;
+  width: auto;
+  max-width:150px;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -252,7 +262,7 @@
   margin:0;
   appearance: none;
   background-color: #fff;
-  width: 20px;
+  width: 20px !important;
   height: 20px;
   border: 1px solid #16006E;
   border-radius: 5px;
@@ -278,7 +288,7 @@
 }
 .specialty-option-input span{
   margin-left:10px;
-  width:150px;
+  flex:1;
   color: #393C39;
   font-family: Poppins;
   font-size: 14px;
@@ -288,7 +298,7 @@
 #disclosure-div {
   width: calc(100%-72px);
   border:0px;
-  padding: 10px 36px;
+  padding: 10px 4%;
   display: flex;
   flex-direction: row;
 }
@@ -355,7 +365,7 @@
   align-items: center;
 }
 #submit-button {
-  margin-left:36px;
+  margin-left:4%;
   width: 132px;
   height: 42px;
   border:1px transparent;
@@ -381,7 +391,7 @@
 #submit-error-div p{
   margin:0;
   margin-top:10px;
-  margin-left: 36px;
+  margin-left:2%;
   color: #FD003A;
   font-family: Poppins;
   font-size: 12px;
@@ -682,10 +692,11 @@
   width: 100%;
   z-index:3;
   background-color: #fff;
+  border:1px solid #fff;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  display: block;
+  display: none;
 }
 #loading-sign img {
   width: 200px; 
@@ -753,6 +764,16 @@
 }
 
 @media only screen and (max-width: 767px){
+  html, body {
+    margin:0;
+    right:0;
+    width:100%;
+    min-width:480px;
+    }
+
+  .input-text-div input{
+    max-width:50%;
+  }
   #map-view-container {
     display:flex;
     flex-direction: column;

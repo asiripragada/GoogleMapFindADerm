@@ -42,6 +42,8 @@ fetch('/data')
 
       // Hide the loading sign
       document.getElementById("loading-sign").style.display = "none";
+      document.getElementById("container").style.display = "flex";
+
 
       // Search Input Div
       const controlPanel = document.getElementById("control-panel");
@@ -520,7 +522,8 @@ fetch('/data')
       function displayHCP(input, pairedArray, sum) {
 
         // Define the number of items per page
-        const itemsPerPage = 50;
+        let itemsPerPage = 50;
+
 
         // Calculate the total number of pages needed
         const totalPages = Math.ceil(pairedArray.length / itemsPerPage);
