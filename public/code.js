@@ -27,6 +27,10 @@ fetch('/data')
       leftPanel.innerHTML = "";
     }
 
+    function isMobileView() {
+      return window.innerWidth < 768; // Change the threshold to match your mobile view breakpoint
+    }
+
     function initMap() {
       
       // Default map
@@ -524,6 +528,10 @@ fetch('/data')
         // Define the number of items per page
         let itemsPerPage = 50;
 
+        if (isMobileView()) {
+          itemsPerPage = 25; // Change to the mobile value (25 in this case)
+        }
+
 
         // Calculate the total number of pages needed
         const totalPages = Math.ceil(pairedArray.length / itemsPerPage);
@@ -744,6 +752,11 @@ fetch('/data')
             let HCPDetail_Address_city = document.createElement("p");
             HCPDetail_Address_city.innerHTML = hcp_city + ", " + hcp.PRIMARY_STATE_CODE + " " + hcp.PRIMARY_ZIP_CODE;
             HCPDetail_Address.appendChild(HCPDetail_Address_city);
+
+            if (isMobileView()) {
+              HCPDetail_Address_city.style.display="none";
+              HCPDetail_Address_street.innerHTML = hcp_address + ", " +hcp_city + ", " + hcp.PRIMARY_STATE_CODE + " " + hcp.PRIMARY_ZIP_CODE;
+            }
   
             HCPDetailDiv_2.appendChild(HCPDetail_Address);
   

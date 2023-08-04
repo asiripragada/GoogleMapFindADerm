@@ -8,10 +8,10 @@
 }
 #container {
   position: relative;
-  margin: 30px auto;
+  margin: 0;
   width: 100%;
   border-radius: 10px 10px 0 0;
-  display: flex;
+  display: none;
   flex-direction: column;
 }
 #container-title {
@@ -696,7 +696,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  display: none;
+  display: block;
 }
 #loading-sign img {
   width: 200px; 
@@ -763,7 +763,7 @@
   font-weight: 400;
 }
 
-@media only screen and (max-width: 767px){
+@media only screen and (max-width: 768px){
   html, body {
     margin:0;
     right:0;
