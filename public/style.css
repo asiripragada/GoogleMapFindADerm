@@ -930,5 +930,39 @@
   #map-error-message p{
     font-size: 12px;
   }
+
+  .pagination-container button{
+    font-size:12px;
+  }
+  .HCP-number-div p {
+    font-size:10px;
+  }
+  .HCP-detail-name {
+    font-size:12px;
+  }
+  .HCP-detail-specialty p{
+    font-size:10px;
+  }
+  .HCP-detail-route span {
+    font-size:10px;
+  }
+  .HCP-detail-route img{
+    width: 12px;
+    height: 12px;
+  }
+  .HCP-detail-address p{
+    font-size:10px;
+  }
+  .HCP-detail-phone img{
+    width: 12px;
+    height: 12px;
+  }
+  .HCP-detail-phone a {
+    min-width:75px;
+    font-size:10px;
+  }
+  .HCP-detail-line {
+    margin-top:0;
+  }
 }
 
