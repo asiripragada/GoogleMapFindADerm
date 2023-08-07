@@ -41,8 +41,10 @@ fetch('/data')
           center: center,
           streetViewControl: false,
           mapTypeControl:false,
-          fullscreenControl: false
+          fullscreenControl: true
       });
+
+      // map.style.height = window.innerWidth + "px";
 
       // Hide the loading sign
       document.getElementById("loading-sign").style.display = "none";
@@ -543,15 +545,23 @@ fetch('/data')
         origin_center = map.getCenter();
         
         const HCPHeaderElement = document.createElement("div");
-        HCPHeaderElement.innerHTML = "Search Results (" + sum + ")" ;
+        HCPHeaderElement.innerHTML = "<strong> Search Results </strong>(" + sum + ")" ;
         HCPHeaderElement.classList.add("HCP-header");
-        leftPanel.appendChild(HCPHeaderElement);
+        
 
         // Create a container for the pagination buttons
         const paginationContainer = document.createElement('div');
         paginationContainer.classList.add('pagination-container');
-        leftPanel.appendChild(paginationContainer);
 
+        if (isMobileView()) {
+          mapViewContainer.appendChild(HCPHeaderElement);
+          mapViewContainer.appendChild(paginationContainer);
+        } else {
+          leftPanel.appendChild(HCPHeaderElement);
+          leftPanel.appendChild(paginationContainer);
+        };
+
+      
         const HCPContentElement = document.createElement("div");
         HCPContentElement.id = "leftPanelContent";
         HCPContentElement.classList.add("HCP-content");
@@ -773,10 +783,11 @@ fetch('/data')
             HCPDetail_phone.appendChild(phoneIcon);
   
             // add phone number
-            const HCPDetail_phone_number = document.createElement("span");
+            const HCPDetail_phone_number = document.createElement("a");
             HCPDetail_phone_number.classList.add("HCP-detail-phone");
-            HCPDetail_phone_number.innerHTML = hcp_phone;
-  
+            HCPDetail_phone_number.href = hcp_call;
+            HCPDetail_phone_number.innerHTML = hcp_phone
+
             HCPDetail_phone.appendChild(HCPDetail_phone_number);
   
             HCPDetailDiv_2.appendChild(HCPDetail_phone);
@@ -845,7 +856,7 @@ fetch('/data')
             marker_hcp.addListener("mouseover", () => {
               if (!hcp_clicked || marker_hcp !== activeMarker) {
                 activeHCP(marker_hcp, infowindow_hcp, HCPCardElement);
-                HCPContentElement.scrollTop = elementTop - 50;
+                HCPContentElement.scrollTop = elementTop - 30;
               }
             });
             
