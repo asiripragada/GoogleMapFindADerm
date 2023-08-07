@@ -776,7 +776,7 @@
     margin:0;
     right:0;
     width:100%;
-    min-width:280px;
+    min-width:250px;
   }
   #container-title {
     min-height: 35px;
@@ -792,6 +792,9 @@
   #control-panel {
     width: 100%;
     flex-shrink: 0;
+  }
+  #search-option-div {
+    min-height: 60px;
   }
   #search-option-div span{
     width:60px;
