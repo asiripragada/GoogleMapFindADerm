@@ -9,16 +9,14 @@
 
   </head>
   <body>
-    <!-- <div class="white-grad"> Some text here</div> -->
-
     <div class="main">
       <div id="loading-sign">
         <img src="pics/Loading_icon.gif" alt="Loading..." />
       </div>
       <div id="container">
         <div id="container-title">
-          <span id="main-title-1">Start your search for a &nbsp</span>
-          <span id="main-title-2">Dermatologist</span>
+          <span id="main-title-1">Start your search for a </span>
+          <span id="main-title-2">&nbspDermatologist</span>
         </div>
         <div id="control-panel">
           <div id="search-option-div">
@@ -31,30 +29,36 @@
           </div>
           <div id="input-div">
             <div class="input-text-div" id="input-text-name-div" style="display: none;">
-              <div class="input-text-span-div">
-                <span>Please enter Name:</span>
+              <div class="input-text-input-div">
+                <div class="input-text-span-div">
+                  <span>Please enter Name:</span>
+                </div>
+                <input class="input-text-input" id="name-input" type="text" placeholder="Enter a name">
               </div>
-              <input class="input-text-input" id="name-input" type="text" placeholder="Enter a name">
               <div class="input-text-error-div" id="name-error-div">
                 <img src="pics/Danger.png">
                 <span>Please enter minimum 3 characters</span>
               </div>
             </div>
             <div class="input-text-div" id="input-text-zipcode-div" style="display: flex;">
-              <div class="input-text-span-div">
-                <span id="input-text-zipcode-span">Please enter Zip Code:</span>
+              <div class="input-text-input-div">
+                <div class="input-text-span-div">
+                  <span id="input-text-zipcode-span">Please enter Zip Code:</span>
+                </div>
+                <input class="input-text-input pac-target-input"  id="zipcode-input" type="text" placeholder="Enter a zipcode" autocomplete="off">  
               </div>
-              <input class="input-text-input pac-target-input"  id="zipcode-input" type="text" placeholder="Enter a zipcode" autocomplete="off">
               <div class="input-text-error-div" id="zipcode-error-div">
                 <img src="pics/Danger.png">
                 <span>Please enter a valid zip code</span>
               </div>
             </div>
             <div class="input-text-div" id="input-text-city-div" style="display: none;">
-              <div class="input-text-span-div">
-                <span>Please enter City Name:</span>
+              <div class="input-text-input-div">
+                <div class="input-text-span-div">
+                  <span>Please enter City Name:</span>
+                </div>
+                <input class="input-text-input pac-target-input"  id="city-input" type="text" placeholder="Enter a city" autocomplete="off">
               </div>
-              <input class="input-text-input pac-target-input"  id="city-input" type="text" placeholder="Enter a city" autocomplete="off">
               <div class="input-text-error-div" id="city-error-div">
                 <img src="pics/Danger.png">
                 <span>Please enter a valid city name</span>
@@ -113,6 +117,7 @@
           <div id="map-view-container">
             <div id="left-panel"></div>
             <div id="map"></div>
+            <div id="map-header"></div>
           </div>
         </div>
       </div> 

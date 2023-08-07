@@ -14,17 +14,20 @@ fetch('/data')
     const mapContainer = document.getElementById('map-container');
     const mapViewContainer = document.getElementById('map-view-container');
     const leftPanel = document.getElementById('left-panel');
+    const mapHeader = document.getElementById('map-header');
+    const mapElement = document.getElementById("map");
 
     function onLeftPanel() {
       mapViewContainer.classList.remove("left-panel-hidden");
       leftPanel.style.display = "flex";
-      leftPanel.innerHTML = "";
+      leftPanel.innerHTML = "";      
     }
 
     function offLeftPanel() {
       mapViewContainer.classList.add("left-panel-hidden");
       leftPanel.style.display = "none";
       leftPanel.innerHTML = "";
+      mapHeader.innerHTML = "";
     }
 
     function isMobileView() {
@@ -545,6 +548,7 @@ fetch('/data')
         origin_center = map.getCenter();
         
         const HCPHeaderElement = document.createElement("div");
+
         HCPHeaderElement.innerHTML = "<strong> Search Results </strong>(" + sum + ")" ;
         HCPHeaderElement.classList.add("HCP-header");
         
@@ -554,8 +558,8 @@ fetch('/data')
         paginationContainer.classList.add('pagination-container');
 
         if (isMobileView()) {
-          mapViewContainer.appendChild(HCPHeaderElement);
-          mapViewContainer.appendChild(paginationContainer);
+          mapHeader.appendChild(HCPHeaderElement);
+          mapHeader.appendChild(paginationContainer);
         } else {
           leftPanel.appendChild(HCPHeaderElement);
           leftPanel.appendChild(paginationContainer);
@@ -838,7 +842,12 @@ fetch('/data')
 
             let hcp_clicked = false;
             let elementTop = HCPCardElement.offsetTop;
-  
+
+
+            if (isMobileView()) {
+              elementTop = HCPCardElement.offsetTop - mapElement.offsetHeight - 10;
+            }
+
             function activeHCP(marker_hcp, infowindow_hcp, HCPCardElement) {
               marker_hcp.setIcon(marker_hcp_icon_hover);
               addClassToAllChildren(HCPCardElement,"active");
@@ -852,26 +861,13 @@ fetch('/data')
               removeClassToAllChildren(HCPCardElement,"active");
               infowindow_hcp.close();
             }
-  
-            marker_hcp.addListener("mouseover", () => {
-              if (!hcp_clicked || marker_hcp !== activeMarker) {
-                activeHCP(marker_hcp, infowindow_hcp, HCPCardElement);
-                HCPContentElement.scrollTop = elementTop - 30;
-              }
-            });
-            
-            marker_hcp.addListener("mouseout", () => {
-              if (!hcp_clicked || marker_hcp !== activeMarker) {
-                deactiveHCP(marker_hcp, infowindow_hcp, HCPCardElement);
-              }
-            });
-
 
             marker_hcp.addListener("click", () => {
               if (activeMarker && activeMarker !== marker_hcp) {
                 // Deactivate the previously clicked marker and infowindow
                 deactiveHCP(activeMarker, activeInfowindow, activeHCPCardElement);
                 activehcp_clicked = false;
+                HCPContentElement.scrollTop = elementTop - 30;
               }
           
               if (activeMarker === marker_hcp) {
@@ -883,7 +879,7 @@ fetch('/data')
                 marker_hcp.setIcon(marker_hcp_icon_normal);
                 deactiveHCP(marker_hcp, infowindow_hcp, HCPCardElement);
                 map.setOptions({ center: origin_center, zoom: zoomLevel });
-                HCPContentElement.scrollTop = elementTop - 50;
+                
               } else {
                 // Clicked on a new marker, activate it
                 hcp_clicked = true;
@@ -894,6 +890,7 @@ fetch('/data')
                 marker_hcp.setIcon(marker_hcp_icon_hover);
                 activeHCP(marker_hcp, infowindow_hcp, HCPCardElement);
                 map.setOptions({ center: marker_hcp.getPosition(), zoom: 15 });
+                HCPContentElement.scrollTop = elementTop - 30;
               }
             });
   
@@ -903,19 +900,6 @@ fetch('/data')
               deactiveHCP(marker_hcp, infowindow_hcp, HCPCardElement);
               map.setOptions({ center: origin_center, zoom: zoomLevel });
             });
-  
-            HCPCardElement.addEventListener("mouseover", () => {
-              if (!hcp_clicked || marker_hcp !== activeMarker) {
-                activeHCP(marker_hcp, infowindow_hcp, HCPCardElement);
-              }
-            });
-            
-            HCPCardElement.addEventListener("mouseout", () => {
-              if (!hcp_clicked || marker_hcp !== activeMarker) {
-                deactiveHCP(marker_hcp, infowindow_hcp, HCPCardElement);
-              }
-            });
-            
 
             HCPCardElement.addEventListener("click", () => {
               if (activeMarker && activeMarker !== marker_hcp) {
@@ -934,7 +918,6 @@ fetch('/data')
                 marker_hcp.setIcon(marker_hcp_icon_normal);
                 deactiveHCP(marker_hcp, infowindow_hcp, HCPCardElement);
                 map.setOptions({ center: origin_center, zoom: zoomLevel });
-                HCPContentElement.scrollTop = elementTop - 50;
               } else {
                 // Clicked on a new marker, activate it
                 hcp_clicked = true;
@@ -948,6 +931,36 @@ fetch('/data')
                 map.setOptions({ center: marker_hcp.getPosition(), zoom: 15 });
               }
             });
+
+            if (!isMobileView()){
+              
+
+              marker_hcp.addListener("mouseover", () => {
+                if (!hcp_clicked || marker_hcp !== activeMarker) {
+                  activeHCP(marker_hcp, infowindow_hcp, HCPCardElement);
+                  HCPContentElement.scrollTop = elementTop - 30;
+                }
+              });
+              
+              marker_hcp.addListener("mouseout", () => {
+                if (!hcp_clicked || marker_hcp !== activeMarker) {
+                  deactiveHCP(marker_hcp, infowindow_hcp, HCPCardElement);
+                }
+              });
+  
+              HCPCardElement.addEventListener("mouseover", () => {
+                if (!hcp_clicked || marker_hcp !== activeMarker) {
+                  activeHCP(marker_hcp, infowindow_hcp, HCPCardElement);
+                }
+              });
+              
+              HCPCardElement.addEventListener("mouseout", () => {
+                if (!hcp_clicked || marker_hcp !== activeMarker) {
+                  deactiveHCP(marker_hcp, infowindow_hcp, HCPCardElement);
+                }
+              });
+              
+            }
             
           };
         };
