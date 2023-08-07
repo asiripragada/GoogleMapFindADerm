@@ -776,7 +776,7 @@
     margin:0;
     right:0;
     width:100%;
-    min-width:280px;
+    min-width:250px;
   }
   #container-title {
     min-height: 35px;
@@ -792,6 +792,9 @@
   #control-panel {
     width: 100%;
     flex-shrink: 0;
+  }
+  #search-option-div {
+    min-height: 60px;
   }
   #search-option-div span{
     width:60px;
@@ -926,6 +929,40 @@
   }
   #map-error-message p{
     font-size: 12px;
+  }
+
+  .pagination-container button{
+    font-size:12px;
+  }
+  .HCP-number-div p {
+    font-size:10px;
+  }
+  .HCP-detail-name {
+    font-size:12px;
+  }
+  .HCP-detail-specialty p{
+    font-size:10px;
+  }
+  .HCP-detail-route span {
+    font-size:10px;
+  }
+  .HCP-detail-route img{
+    width: 12px;
+    height: 12px;
+  }
+  .HCP-detail-address p{
+    font-size:10px;
+  }
+  .HCP-detail-phone img{
+    width: 12px;
+    height: 12px;
+  }
+  .HCP-detail-phone a {
+    min-width:75px;
+    font-size:10px;
+  }
+  .HCP-detail-line {
+    margin-top:0;
   }
 }
 
