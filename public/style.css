@@ -518,13 +518,14 @@
   background: rgba(232, 120, 93, 0.15);
 }
 .HCP-card-tab {
+  width:7px;
   position: relative;
   margin:0;
   border:0;
   border-radius: 8px 0 0 8px;
   content:"";
   background-color: rgba(252, 176, 56, 0.60);
-  width:7px;
+  flex-shrink: 0;
   order:1;
 }
 .HCP-card-tab.active {
@@ -543,9 +544,9 @@
   justify-content: center;
   align-items: center;
   text-align: center;
+  flex-shrink: 0;
 }
 .HCP-number-div p {
-  /* margin: -2px 0 0 -1px; */
   margin:0;
   text-align: center;
   color: #FFF;
@@ -893,8 +894,20 @@
     top: 0;
   }
   .HCP-card-div {
-    width:calc(100% - 30px);
+    margin:10px 2%;
+    width:96%;
   }
+  .HCP-card-tab {
+    width:5px;
+  }
+  .HCP-number-div {
+    margin-left:2%;
+  }
+  .HCP-detail-div {
+    min-width:200px;
+  }
+
+
   #submit-button:hover {
     background: linear-gradient(90deg, #FE9101 0%, #CF3795 100%);
   }
@@ -960,6 +973,7 @@
   .HCP-detail-phone a {
     min-width:75px;
     font-size:10px;
+    flex-shrink: 0;
   }
   .HCP-detail-line {
     margin-top:0;
