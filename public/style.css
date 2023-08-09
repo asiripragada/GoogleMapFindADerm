@@ -114,7 +114,7 @@
 #input-div {
   width: 94%;
   border:0px;
-  border-bottom: 1px solid rgba(146, 146, 146, 0.40);
+  /* border-bottom: 1px solid rgba(146, 146, 146, 0.40); */
   padding: 5px 3%;
   display: flex;
   flex-direction: column;
@@ -305,7 +305,7 @@
 #disclosure-div {
   width: calc(100%-72px);
   border:0px;
-  padding: 10px 4%;
+  padding: 5px 3%;
   display: flex;
   flex-direction: row;
 }
@@ -365,6 +365,7 @@
   font-weight: 400;
 }
 #search-clear-div {
+  margin:5px 0;
   width: 100%;
   border:0px;
   display: flex;
@@ -771,6 +772,66 @@
   font-style: normal;
   font-weight: 400;
 }
+#disclosure-text {
+  color: #393C39;
+  font-family: Poppins;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+}
+#disclosure-text a {
+  color: #0374BB;
+  font-family: Poppins;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 600;
+}
+#disclosure-popup {
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  width: 60%;
+  border-radius: 5px;
+  background: #FFF;
+  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.35);
+  padding:2%;
+  display: none;
+  flex-direction: column;
+}
+#disclose-popup-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: top;
+}
+#disclosure-close-img {
+  width: 15px;
+  height: 15px;
+}
+#disclosure-popup h3{
+  margin:5px 0;
+  color: #393C39;
+  font-family: Poppins;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 600;
+}
+#disclosure-popup p{
+  margin:0;
+  color: #393C39;
+  font-family: Poppins;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  text-align: justify;
+}
+
+
+
+
+
 
 @media only screen and (max-width: 768px){
   html, body {
@@ -978,5 +1039,22 @@
   .HCP-detail-line {
     margin-top:0;
   }
+  #disclosure-text {
+    font-size:10px;
+  }
+  #disclosure-text a {
+    font-size:10px;
+  }
+  #disclosure-close-img {
+    width: 12px;
+    height: 12px;
+  }
+  #disclosure-popup h3{
+    font-size:10px;
+  }
+  #disclosure-popup p{
+    font-size:8px;
+  }
+
 }
 
