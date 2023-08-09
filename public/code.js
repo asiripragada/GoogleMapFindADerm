@@ -16,6 +16,21 @@ fetch('/data')
     const leftPanel = document.getElementById('left-panel');
     const mapHeader = document.getElementById('map-header');
     const mapElement = document.getElementById("map");
+    const disclosureDiv = document.getElementById("disclosure-popup");
+    const disclosureClose = document.getElementById("disclosure-close-img");
+    const disclosureLink = document.getElementById("disclosure-link");
+
+    disclosureLink.addEventListener("click", (event) => {
+      event.preventDefault();
+      disclosureDiv.style.display="flex";
+    });
+    
+    disclosureClose.addEventListener("click", () => {
+      disclosureDiv.style.display="none";
+    });
+
+
+
 
     function onLeftPanel() {
       mapViewContainer.classList.remove("left-panel-hidden");
@@ -127,17 +142,6 @@ fetch('/data')
       const radioinput_all = document.getElementById("all-input-check");
       radioinput_all.checked = false;
 
-      // Disclosure Div (zipcode/city, name, distance)
-
-
-      const disclosureCheckDiv = document.getElementById("disclosure-check-div");
-
-      const disclosureCheck = document.getElementById("disclosure-input");
-      disclosureCheck.checked = false;
-
-      disclosureCheck.addEventListener("click", () => {
-        disclosureCheckDiv.classList.remove("error");
-      });
 
       // Search & Clear Div
 
@@ -303,19 +307,19 @@ fetch('/data')
         };
 
         if(zipcodeOptionButton.classList.contains("active")) {
-          if (zipcodeInput.value != "" && disclosureCheck.checked ) {
+          if (zipcodeInput.value != "" ) {
             zipcodeSearch();  
           } else {
             showError();
           };
         } else if (cityOptionButton.classList.contains("active")){
-          if (cityInput.value != "" && disclosureCheck.checked ) {
+          if (cityInput.value != "") {
             citySearch();
           } else {
             showError();
           };
         } else {
-          if ( nameInput.value.trim().length>=3 && disclosureCheck.checked ) {
+          if ( nameInput.value.trim().length>=3 ) {
               nameSearch();  
           } else {
             showError();
@@ -336,9 +340,7 @@ fetch('/data')
           inputNameErrorDiv.style.display = "flex";
           nameInput.classList.add("error");
         };
-        if (!disclosureCheck.checked) {
-          disclosureCheckDiv.classList.add("error");
-        };
+      
         submitErrorDiv.style.display = "flex";
       };
                       
@@ -1179,7 +1181,7 @@ fetch('/data')
       };
 
       function setDefault() {
-        disclosureCheck.checked = false;
+        
         // selectedOption = "zipcode";
         // zipcodeOptionButton.classList.add("active");
         // nameOptionButton.classList.remove("active");
@@ -1214,7 +1216,6 @@ fetch('/data')
         cityInput.classList.remove("error");
         nameInput.classList.remove("error");
         submitErrorDiv.style.display = "none";
-        disclosureCheckDiv.classList.remove("error");
         mapErrorMessageBody1.innerHTML = "We were not able find a match"
         mapErrorDiv.style.display="none";
         offLeftPanel();
