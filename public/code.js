@@ -1121,8 +1121,8 @@ fetch('/data')
             }));
 
             pairedArray.sort((a, b) => {
-              const stateA = a.hcp.PRIMARY_STATE_CODE.toUpperCase();
-              const stateB = b.hcp.PRIMARY_STATE_CODE.toUpperCase();
+              const stateA = a.hcp.STATE_CD.toUpperCase();
+              const stateB = b.hcp.STATE_CD.toUpperCase();
               if (stateA < stateB) {
                 return -1;
               }
@@ -1383,24 +1383,30 @@ fetch('/data')
       };
   
       function capitalizeFirstLetter(address) {
-        // Split the address into words
-        const words = address.split(' ');
+        if (typeof address === "string"){
+          // Split the address into words
+          const words = address.split(' ');
 
-        // Convert the first letter of each word to uppercase and the rest to lowercase
-        const formattedWords = words.map((word) => {
-          const lowercaseWord = word.toLowerCase();
-          return lowercaseWord.charAt(0).toUpperCase() + lowercaseWord.slice(1);
-        });
+          // Convert the first letter of each word to uppercase and the rest to lowercase
+          const formattedWords = words.map((word) => {
+            const lowercaseWord = word.toLowerCase();
+            return lowercaseWord.charAt(0).toUpperCase() + lowercaseWord.slice(1);
+          });
 
-        // Join the formatted words back into an address string
-        const formattedAddress = formattedWords.join(' ');
+          // Join the formatted words back into an address string
+          const formattedAddress = formattedWords.join(' ');
 
-        return formattedAddress;
+          return formattedAddress;
+        } else {
+          return address
+        }
+       
       };
 
       function formatPhoneNumber(number) {
-        try {
-
+        console.log("number",number)
+        console.log("typeof number", number)
+        if (typeof hcp_phone === "string" && hcp_phone.length>0) {
           // Remove all non-digit characters from the number
           const cleanedNumber = number;
           
@@ -1410,7 +1416,7 @@ fetch('/data')
           const secondPart = cleanedNumber.slice(6);
           
           return `(${areaCode}) ${firstPart}-${secondPart}`;
-        } catch (e) {
+        } else {
           return number
         }
       }
