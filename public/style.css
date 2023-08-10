@@ -509,7 +509,8 @@
 .HCP-card-div {
   margin:10px 15px;
   background-color: #fff;
-  width:325px;
+  min-width:325px;
+  max-width:40%;
   min-height: 80px;
   border:1px solid rgba(0, 0, 0, 0.2);
   border-radius: 8px;
@@ -591,10 +592,10 @@
 }
 .HCP-detail-specialty {
   margin:0;
-  height:18px;
+  height:auto;
   background-color: transparent;
-  align-items: center;
-  text-align: center;
+  align-items: top;
+  text-align: left;
   order:1;
 }
 .HCP-detail-specialty p{
@@ -614,8 +615,9 @@
   margin:0;
   height:18px;
   background-color: transparent;
-  align-items: center;
-  text-align: center;
+  align-items: top;
+  text-align: left;
+  flex-shrink: 0;
   order:2;
 }
 .HCP-detail-route img{
@@ -1002,6 +1004,7 @@
   .HCP-card-div {
     margin:10px 2%;
     width:96%;
+    max-width:96%;
   }
   .HCP-card-tab {
     width:5px;
