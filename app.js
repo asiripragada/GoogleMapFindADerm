@@ -6,12 +6,6 @@ const express = require('express');
 const app = express();
 const path = require('path');
 
-// const config = {
-//   user: 'dbusr36261',
-//   password: 'w4ARyVVw**5}&#SB',
-//   server: 'i4pd-db0036261-001.database.windows.net',
-//   database: 'i4pd-db0036261-001-userdata',
-// };
 
 const config = {
     user: 'customer_readonly',
@@ -24,7 +18,7 @@ const config = {
 app.get('/data', async (req, res) => {
   try {
     await sql.connect(config);
-    // const result = await sql.query('SELECT * FROM dbo.V000000685040'); // Updated table name
+
     const result = await sql.query('SELECT * FROM dbo.V000000694381'); // Updated table name
 
     const dataArray = result.recordset;
