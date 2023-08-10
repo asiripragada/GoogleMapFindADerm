@@ -1,5 +1,27 @@
 // @author: Violet(Yafan) Zeng
 
+document.addEventListener("DOMContentLoaded", function() {
+  const textContentElement = document.getElementById("disclosure-content");
+
+  const textFilePath = "docs/disclaimer.txt";
+
+  // Fetch the text content from the file
+  fetch(textFilePath)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return response.text();
+    })
+    .then(textContent => {
+      textContentElement.innerHTML = textContent;
+    })
+    .catch(error => {
+      textContentElement.innerHTML = "An error occurred while fetching the text.";
+      console.error(error);
+    });
+});
+
 fetch('/data')
   .then(response => response.json())
   .then(data => {
@@ -10,7 +32,6 @@ fetch('/data')
     const dataFull = data.filter(row => row["COORDINATES"] !== 'nan');
     console.log("dataFull.length",dataFull.length);
 
-    // JavaScript code to toggle left panel display
     const mapContainer = document.getElementById('map-container');
     const mapViewContainer = document.getElementById('map-view-container');
     const leftPanel = document.getElementById('left-panel');
@@ -667,8 +688,11 @@ fetch('/data')
             let hcp_specialty = capitalizeFirstLetter(hcp.SPEC_DESC);
             let hcp_address = capitalizeFirstLetter(hcp.ADDRESS_LINE1) + " " + capitalizeFirstLetter(hcp.ADDRESS_LINE2);
             let hcp_city = capitalizeFirstLetter(hcp.CITY);
+
             let hcp_phone = formatPhoneNumber(hcp.PHONE1);
+
             let hcp_call = "tel:" + hcp_phone;
+
             // Create the Google Maps URL with the encoded addresses
             let encodedOrigin = encodeURIComponent(input);
             let encodedDestination = encodeURIComponent(hcp.ADDRESS_FULL);
@@ -776,6 +800,7 @@ fetch('/data')
   
             HCPDetailDiv_2.appendChild(HCPDetail_Address);
   
+
             // phone div
             const HCPDetail_phone = document.createElement("div");
             HCPDetail_phone.classList.add("HCP-detail-phone");
@@ -796,7 +821,9 @@ fetch('/data')
 
             HCPDetail_phone.appendChild(HCPDetail_phone_number);
   
-            HCPDetailDiv_2.appendChild(HCPDetail_phone);
+            if (typeof hcp_phone === "string" && hcp_phone.length>0) {
+              HCPDetailDiv_2.appendChild(HCPDetail_phone);
+            }
   
             HCPDetailDiv.appendChild(HCPDetailDiv_2);
             HCPCardElement.appendChild(HCPDetailDiv);
@@ -809,71 +836,66 @@ fetch('/data')
   
             HCPCardElement.appendChild(HCPCardtab);
   
-            if (!isMobileView()) {
-              if (pairedArray[0].distance) {
+            if (pairedArray[0].distance) {
+              if (typeof hcp_phone === "string" && hcp_phone.length>0){
                 infowindow_hcp.setContent(`
-                    <p style="margin:0; color: #140065; font-family: Poppins; font-size: 16px; font-weight: 500;">${hcp_name}</p>
-                    <div id="info_div_1" style="margin:0; margin-right:0px; display:flex;flex-direction: row;align-items: center;justify-content: space-between;">
-                      <p style="margin:0;  color: #D200E6;font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${hcp_specialty}</p>
-                      <a href="${hcp_call}" style="margin-left:22px">
-                        <img style="width: 30px;height: 30px;" src="pics/call.png"></img>
-                      </a>
-                    </div>
-                    <hr style="width: 95%; margin:0; margin-top: 5px; border-top: 0.7px solid #929292;"></hr>
-                    <p style="margin:0; margin-top: 5px; max-width:300px; color: #0374BB;font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${hcp_address + ", " + hcp_city}</p>
-                    <div id="info_div" style="margin:0; margin-right:0px; display:flex;flex-direction: row;align-items: center;justify-content: space-between;">
-                      <div id="distance" style="magin:0;display:flex;flex-direction: row;align-items: center;">
-                        <img style="width: 15px;height: 15px;" src="pics/Distance.png"></img>
-                        <span style="margin-left:10px;color: #929292; font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${dis + ' miles'}</span>
-                      </div>
-                    </div>
+                <p id="info-name">${hcp_name}</p>
+                <div id="info-div-1">
+                  <p >${hcp_specialty}</p>
+                  <a href="${hcp_call}">
+                    <img id="info-div-img" src="pics/call.png"></img>
+                  </a>
+                </div>
+                <hr id="info-line"></hr>
+                <p id="info-address">${hcp_address + ", " + hcp_city}</p>
+                <div id="info-div-2" >
+                  <div id="info-distance">
+                    <img src="pics/Distance.png"></img>
+                    <span>${dis + ' miles'}</span>
+                  </div>
+                </div>
                 `);
               } else {
                 infowindow_hcp.setContent(`
-                  <p style="margin:0; color: #140065; font-family: Poppins; font-size: 16px; font-weight: 500;">${hcp_name}</p>
-                  <div id="info_div_1" style="margin:0; margin-right:0px; display:flex;flex-direction: row;align-items: center;justify-content: space-between;">
-                    <p style="margin:0;  color: #D200E6;font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${hcp_specialty}</p>
-                    <a href="${hcp_call}" style="margin-left:22px">
-                      <img style="width: 30px;height: 30px;" src="pics/call.png"></img>
-                    </a>
+                  <p id="info-name">${hcp_name}</p>
+                  <div id="info-div-1">
+                    <p >${hcp_specialty}</p>
                   </div>
-                  <hr style="width: 95%; margin:0; margin-top: 5px; border-top: 0.7px solid #929292;"></hr>
-                  <p style="margin:0; margin-top: 5px; max-width:300px;color: #0374BB;font-family: Poppins;font-size: 12px;font-style: normal;font-weight: 400;">${hcp_address + ", " + hcp_city}</p>
+                  <hr id="info-line"></hr>
+                  <p id="info-address">${hcp_address + ", " + hcp_city}</p>
+                  <div id="info-div-2" >
+                    <div id="info-distance">
+                      <img src="pics/Distance.png"></img>
+                      <span>${dis + ' miles'}</span>
+                    </div>
+                  </div>
                 `);
               };
             } else {
-              if (pairedArray[0].distance) {
-                infowindow_hcp.setContent(`
-                    <p style="margin:0; color: #140065; font-family: Poppins; font-size: 12px; font-weight: 500;">${hcp_name}</p>
-                    <div id="info_div_1" style="margin:0; margin-right:0px; display:flex;flex-direction: row;align-items: center;justify-content: space-between;">
-                      <p style="margin:0;  color: #D200E6;font-family: Poppins;font-size: 10px;font-style: normal;font-weight: 400;">${hcp_specialty}</p>
-                      <a href="${hcp_call}" style="margin-left:22px">
-                        <img style="width: 20px;height: 20px;" src="pics/call.png"></img>
-                      </a>
-                    </div>
-                    <hr style="width: 95%; margin:0; margin-top: 5px; border-top: 0.7px solid #929292;"></hr>
-                    <p style="margin:0; margin-top: 5px; max-width:300px; color: #0374BB;font-family: Poppins;font-size: 10px;font-style: normal;font-weight: 400;">${hcp_address + ", " + hcp_city}</p>
-                    <div id="info_div" style="margin:0; margin-right:0px; display:flex;flex-direction: row;align-items: center;justify-content: space-between;">
-                      <div id="distance" style="magin:0;display:flex;flex-direction: row;align-items: center;">
-                        <img style="width: 12px;height: 12px;" src="pics/Distance.png"></img>
-                        <span style="margin-left:10px;color: #929292; font-family: Poppins;font-size: 10px;font-style: normal;font-weight: 400;">${dis + ' miles'}</span>
-                      </div>
-                    </div>
-                `);
+              if (typeof hcp_phone === "string" && hcp_phone.length>0){
+              infowindow_hcp.setContent(`
+                <p id="info-name">${hcp_name}</p>
+                <div id="info-div-1">
+                  <p >${hcp_specialty}</p>
+                  <a href="${hcp_call}">
+                    <img id="info-div-img" src="pics/call.png"></img>
+                  </a>
+                </div>
+                <hr id="info-line"></hr>
+                <p id="info-address">${hcp_address + ", " + hcp_city}</p>
+              `);
               } else {
                 infowindow_hcp.setContent(`
-                  <p style="margin:0; color: #140065; font-family: Poppins; font-size: 12px; font-weight: 500;">${hcp_name}</p>
-                  <div id="info_div_1" style="margin:0; margin-right:0px; display:flex;flex-direction: row;align-items: center;justify-content: space-between;">
-                    <p style="margin:0;  color: #D200E6;font-family: Poppins;font-size: 10px;font-style: normal;font-weight: 400;">${hcp_specialty}</p>
-                    <a href="${hcp_call}" style="margin-left:22px">
-                      <img style="width: 20px;height: 20px;" src="pics/call.png"></img>
-                    </a>
+                  <p id="info-name">${hcp_name}</p>
+                  <div id="info-div-1">
+                    <p >${hcp_specialty}</p>
                   </div>
-                  <hr style="width: 95%; margin:0; margin-top: 5px; border-top: 0.7px solid #929292;"></hr>
-                  <p style="margin:0; margin-top: 5px; max-width:300px;color: #0374BB;font-family: Poppins;font-size: 10px;font-style: normal;font-weight: 400;">${hcp_address + ", " + hcp_city}</p>
-                `);
-              };
-            }
+                  <hr id="info-line"></hr>
+                  <p id="info-address">${hcp_address + ", " + hcp_city}</p>
+              `);
+              }
+            };
+          
 
             let hcp_clicked = false;
             let elementTop = HCPCardElement.offsetTop;
@@ -1379,15 +1401,20 @@ fetch('/data')
       };
 
       function formatPhoneNumber(number) {
-        // Remove all non-digit characters from the number
-        const cleanedNumber = number.replace(/\D/g, '');
-        
-        // Format the number as "(xxx) xxx-xxxx"
-        const areaCode = cleanedNumber.slice(0, 3);
-        const firstPart = cleanedNumber.slice(3, 6);
-        const secondPart = cleanedNumber.slice(6);
-        
-        return `(${areaCode}) ${firstPart}-${secondPart}`;
+        try {
+
+          // Remove all non-digit characters from the number
+          const cleanedNumber = number;
+          
+          // Format the number as "(xxx) xxx-xxxx"
+          const areaCode = cleanedNumber.slice(0, 3);
+          const firstPart = cleanedNumber.slice(3, 6);
+          const secondPart = cleanedNumber.slice(6);
+          
+          return `(${areaCode}) ${firstPart}-${secondPart}`;
+        } catch (e) {
+          return number
+        }
       }
 
       function addClassToAllChildren(element, className) {
