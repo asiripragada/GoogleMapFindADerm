@@ -24,7 +24,7 @@ fetch('/data')
       event.preventDefault();
       disclosureDiv.style.display="flex";
     });
-    
+
     disclosureClose.addEventListener("click", () => {
       disclosureDiv.style.display="none";
     });
@@ -301,7 +301,7 @@ fetch('/data')
         clearmarkers();
         
         if (selectedSpecialty=="derm") {
-          dataArray = dataFull.filter(row => row["Spec Group"] == "DERM"); 
+          dataArray = dataFull.filter(row => row["HCP_TYPE"] == "DERM"); 
         } else {
           dataArray = dataFull;
         };
@@ -442,8 +442,8 @@ fetch('/data')
             if (geo_result) {
               const booleanArray = 
                 dataArray.map((hcp_location) => {
-                  const hcpCity = hcp_location.PRIMARY_CITY;
-                  const hcpState = hcp_location.PRIMARY_STATE_CODE;
+                  const hcpCity = hcp_location.CITY;
+                  const hcpState = hcp_location.STATE_CD;
                   try {
                     return hcpCity == geoCity.toUpperCase() && hcpState==geoState.toUpperCase();
                   } catch (error) {
@@ -493,8 +493,8 @@ fetch('/data')
                 const disArray = [];
                 const booleanArray = 
                   dataArray.map((hcp_location) => {
-                      const hcpName = hcp_location.FULL_NAME;
-                      const hcpZipcode = hcp_location.PRIMARY_ZIP_CODE;
+                      const hcpName = hcp_location.HCP_FULL_NAME;
+                      const hcpZipcode = hcp_location.ZIP5;
                       const hcp_geocode = JSON.parse(hcp_location.COORDINATES);
                       const distance = mathDistance(hcp_geocode.lat, hcp_geocode.lng, center_lat, center_lng);
                       if (hcpZipcode == geoZipcode && hcpName.includes(name)) {
@@ -518,7 +518,7 @@ fetch('/data')
           mapContainer.style.display='flex';
           booleanArray =
             dataArray.map((hcp_location) => {
-              const hcpName = hcp_location.FULL_NAME;
+              const hcpName = hcp_location.HCP_FULL_NAME;
               try {
                 return hcpName.includes(name);
               } catch (error) {
@@ -663,15 +663,15 @@ fetch('/data')
             markerArray.push(marker_hcp);
             hcpMakerArray.push(marker_hcp);
   
-            let hcp_name = capitalizeFirstLetter(hcp.FIRST_NAME) + " " + capitalizeFirstLetter(hcp.LAST_NAME);
-            let hcp_specialty = capitalizeFirstLetter(hcp.PRIMARY_SPECIALTY_LONG_NAME);
-            let hcp_address = capitalizeFirstLetter(hcp.PRIMARY_ADDRESS_LINE_1) + " " + capitalizeFirstLetter(hcp.PRIMARY_ADDRESS_LINE_2);
-            let hcp_city = capitalizeFirstLetter(hcp.PRIMARY_CITY);
-            let hcp_phone = formatPhoneNumber(hcp.PRIMARY_PHONE_NUMBER);
+            let hcp_name = capitalizeFirstLetter(hcp.HCP_FULL_NAME);
+            let hcp_specialty = capitalizeFirstLetter(hcp.SPEC_DESC);
+            let hcp_address = capitalizeFirstLetter(hcp.ADDRESS_LINE1) + " " + capitalizeFirstLetter(hcp.ADDRESS_LINE2);
+            let hcp_city = capitalizeFirstLetter(hcp.CITY);
+            let hcp_phone = formatPhoneNumber(hcp.PHONE1);
             let hcp_call = "tel:" + hcp_phone;
             // Create the Google Maps URL with the encoded addresses
             let encodedOrigin = encodeURIComponent(input);
-            let encodedDestination = encodeURIComponent(hcp.FULL_ADDRESS);
+            let encodedDestination = encodeURIComponent(hcp.ADDRESS_FULL);
             let googleMapsURL = `https://www.google.com/maps/dir/${encodedOrigin}/${encodedDestination}`;
   
             let infowindow_hcp = new google.maps.InfoWindow();
@@ -766,12 +766,12 @@ fetch('/data')
             HCPDetail_Address_street.innerHTML = hcp_address;
             HCPDetail_Address.appendChild(HCPDetail_Address_street);
             let HCPDetail_Address_city = document.createElement("p");
-            HCPDetail_Address_city.innerHTML = hcp_city + ", " + hcp.PRIMARY_STATE_CODE + " " + hcp.PRIMARY_ZIP_CODE;
+            HCPDetail_Address_city.innerHTML = hcp_city + ", " + hcp.STATE_CD + " " + hcp.ZIP5;
             HCPDetail_Address.appendChild(HCPDetail_Address_city);
 
             if (isMobileView()) {
               HCPDetail_Address_city.style.display="none";
-              HCPDetail_Address_street.innerHTML = hcp_address + ", " +hcp_city + ", " + hcp.PRIMARY_STATE_CODE + " " + hcp.PRIMARY_ZIP_CODE;
+              HCPDetail_Address_street.innerHTML = hcp_address + ", " +hcp_city + ", " + hcp.STATE_CD + " " + hcp.ZIP5;
             }
   
             HCPDetailDiv_2.appendChild(HCPDetail_Address);
