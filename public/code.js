@@ -1103,9 +1103,9 @@ fetch('/data')
                 return a.distance - b.distance;
               }
             
-              // If "distance" is the same, compare based on "hcp.FIRST_NAME"
-              const firstNameA = a.hcp.FIRST_NAME.toUpperCase();
-              const firstNameB = b.hcp.FIRST_NAME.toUpperCase();
+              // If "distance" is the same, compare based on NAME
+              const firstNameA = a.hcp.HCP_FULL_NAME.toUpperCase();
+              const firstNameB = b.hcp.HCP_FULL_NAME.toUpperCase();
               if (firstNameA < firstNameB) {
                 return -1;
               }
@@ -1121,7 +1121,6 @@ fetch('/data')
             }));
 
             pairedArray.sort((a, b) => {
-              // If "distance" is the same, compare based on "hcp.FIRST_NAME"
               const stateA = a.hcp.PRIMARY_STATE_CODE.toUpperCase();
               const stateB = b.hcp.PRIMARY_STATE_CODE.toUpperCase();
               if (stateA < stateB) {
@@ -1130,9 +1129,8 @@ fetch('/data')
               if (stateA > stateB) {
                 return 1;
               }
-              // If "distance" is the same, compare based on "hcp.FIRST_NAME"
-              const firstNameA = a.hcp.FIRST_NAME.toUpperCase();
-              const firstNameB = b.hcp.FIRST_NAME.toUpperCase();
+              const firstNameA = a.hcp.HCP_FULL_NAME.toUpperCase();
+              const firstNameB = b.hcp.HCP_FULL_NAME.toUpperCase();
               if (firstNameA < firstNameB) {
                 return -1;
               }
