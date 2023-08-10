@@ -821,7 +821,7 @@ fetch('/data')
 
             HCPDetail_phone.appendChild(HCPDetail_phone_number);
   
-            if (typeof hcp_phone === "string" && hcp_phone.length>0) {
+            if (typeof hcp_phone === "string" && hcp_phone.length>5) {
               HCPDetailDiv_2.appendChild(HCPDetail_phone);
             }
   
@@ -837,7 +837,7 @@ fetch('/data')
             HCPCardElement.appendChild(HCPCardtab);
   
             if (pairedArray[0].distance) {
-              if (typeof hcp_phone === "string" && hcp_phone.length>0){
+              if (typeof hcp_phone === "string" && hcp_phone.length>5){
                 infowindow_hcp.setContent(`
                 <p id="info-name">${hcp_name}</p>
                 <div id="info-div-1">
@@ -872,7 +872,7 @@ fetch('/data')
                 `);
               };
             } else {
-              if (typeof hcp_phone === "string" && hcp_phone.length>0){
+              if (typeof hcp_phone === "string" && hcp_phone.length>5){
               infowindow_hcp.setContent(`
                 <p id="info-name">${hcp_name}</p>
                 <div id="info-div-1">
@@ -1404,9 +1404,9 @@ fetch('/data')
       };
 
       function formatPhoneNumber(number) {
-        console.log("number",number)
-        console.log("typeof number", number)
-        if (typeof hcp_phone === "string" && hcp_phone.length>0) {
+
+        if (number !== null && number !== "") {
+          console.log("phone is a string")
           // Remove all non-digit characters from the number
           const cleanedNumber = number;
           
